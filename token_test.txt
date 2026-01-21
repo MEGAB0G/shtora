@@ -1,1 +1,5 @@
 ﻿Wed Jan 21 07:59:50 AM EST 2026
+cd C:\Users\1\Desktop\shtora
+>> git add .
+>> git commit -m "update"
+>> git push
