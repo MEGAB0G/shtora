@@ -1,1 +1,310 @@
-<h1>It works</h1>
+﻿<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Shtora Control Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shtora.css">
+</head>
+<body>
+    <div class="page-bg" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <header class="topbar" data-reveal>
+        <div class="brand">
+            <div class="brand-mark">S</div>
+            <div>
+                <div class="brand-title">Shtora</div>
+                <div class="brand-subtitle">Control Hub</div>
+            </div>
+        </div>
+        <button class="menu-toggle" id="menuToggle" aria-label="Открыть меню">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav class="main-nav" id="mainNav">
+            <a href="#control">Управление</a>
+            <a href="#presets">Пресеты</a>
+            <a href="#status">Статус</a>
+            <a href="#settings">Настройки</a>
+            <a href="#logs">Логи</a>
+        </nav>
+    </header>
+
+    <div class="menu-overlay" id="menuOverlay"></div>
+
+    <main class="app">
+        <section class="hero" id="control" data-reveal>
+            <div class="hero-left">
+                <div class="eyebrow">Локальная панель</div>
+                <h1>Управление шторой без облаков и VPN</h1>
+                <p>Интерфейс подключается к локальному серверу и показывает состояние мотора, Wi-Fi и облачной синхронизации.</p>
+                <div class="status-strip">
+                    <div class="status-pill" id="motionStatus">Остановлено</div>
+                    <div class="status-metric">
+                        <span class="label">Последняя команда</span>
+                        <span id="lastCommand">---</span>
+                    </div>
+                </div>
+
+                <div class="control-panel">
+                    <div class="panel-title">Позиция</div>
+                    <div class="control-row">
+                        <div>
+                            <div class="control-label">Текущее значение</div>
+                            <div class="metric" id="positionValue">0%</div>
+                        </div>
+                        <div>
+                            <div class="control-label">Цель</div>
+                            <div class="metric" id="targetValue">0%</div>
+                        </div>
+                        <div>
+                            <div class="control-label">Состояние</div>
+                            <div class="metric" id="moveState">Остановлено</div>
+                        </div>
+                    </div>
+
+                    <div class="range-wrap">
+                        <input class="range" id="positionRange" type="range" min="0" max="100" value="0">
+                        <div class="range-values">
+                            <span>0%</span>
+                            <span id="rangeValue">0%</span>
+                            <span>100%</span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" id="goToPosition">Перейти к позиции</button>
+
+                    <div class="control-actions">
+                        <button class="btn btn-secondary" data-move="open">Открыть</button>
+                        <button class="btn btn-secondary" data-move="close">Закрыть</button>
+                        <button class="btn btn-ghost" data-move="stop">Стоп</button>
+                    </div>
+
+                    <div class="action-grid">
+                        <button class="btn btn-ghost" data-step="-10">-10%</button>
+                        <button class="btn btn-ghost" data-step="-5">-5%</button>
+                        <button class="btn btn-ghost" data-step="5">+5%</button>
+                        <button class="btn btn-ghost" data-step="10">+10%</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-right">
+                <div class="curtain-visual" id="curtainVisual">
+                    <div class="curtain-rail"></div>
+                    <div class="curtain-fabric"></div>
+                    <div class="curtain-shadow"></div>
+                    <div class="curtain-label">SHTORA</div>
+                </div>
+                <div class="panel-note">
+                    <span class="label">Активная позиция</span>
+                    <strong id="presetPosition">0%</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="presets" data-reveal>
+            <div class="section-header">
+                <div>
+                    <h2>Пресеты</h2>
+                    <p>Сохраняй любимые позиции и применяй одним нажатием.</p>
+                </div>
+                <div class="preset-form">
+                    <input class="input" id="presetName" type="text" placeholder="Название пресета">
+                    <button class="btn btn-primary" id="savePreset">Сохранить</button>
+                </div>
+            </div>
+            <div class="preset-panel">
+                <div class="preset-list" id="presetList"></div>
+            </div>
+        </section>
+
+        <section class="section" id="status" data-reveal>
+            <div class="section-header">
+                <div>
+                    <h2>Статус</h2>
+                    <p>Сводка по сети, облаку и мотору.</p>
+                </div>
+                <div class="uptime" id="uptimeValue">Uptime: ---</div>
+            </div>
+
+            <div class="status-grid">
+                <div class="status-card">
+                    <div class="panel-title">Сеть</div>
+                    <div class="status-row">
+                        <span>SSID</span>
+                        <strong id="wifiSsid">---</strong>
+                    </div>
+                    <div class="status-row">
+                        <span>RSSI</span>
+                        <strong id="wifiRssi">---</strong>
+                    </div>
+                    <div class="status-row">
+                        <span>IP</span>
+                        <strong id="ipAddress">---</strong>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="panel-title">Облако</div>
+                    <div class="status-row">
+                        <span>Состояние</span>
+                        <strong id="cloudState">---</strong>
+                    </div>
+                    <div class="status-row">
+                        <span>Латентность</span>
+                        <strong id="cloudLatency">---</strong>
+                    </div>
+                    <div class="status-row">
+                        <span>Сервер</span>
+                        <strong id="statusServer">---</strong>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="panel-title">Мотор</div>
+                    <div class="status-row">
+                        <span>Режим</span>
+                        <strong id="statusMotor">---</strong>
+                    </div>
+                    <div class="status-row">
+                        <span>Ток</span>
+                        <strong id="statusCurrent">---</strong>
+                    </div>
+                    <div class="status-row">
+                        <span>Температура</span>
+                        <strong id="statusTemp">---</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="status-grid compact">
+                <div class="status-card">
+                    <div class="panel-title">Сводка</div>
+                    <div class="status-row">
+                        <span>Wi-Fi</span>
+                        <strong id="statusSsid">---</strong>
+                    </div>
+                    <div class="status-row">
+                        <span>IP</span>
+                        <strong id="statusIp">---</strong>
+                    </div>
+                    <div class="status-row">
+                        <span>RSSI</span>
+                        <strong id="statusRssi">---</strong>
+                    </div>
+                </div>
+                <div class="status-card">
+                    <div class="panel-title">Подключение</div>
+                    <div class="status-row">
+                        <span>Облако</span>
+                        <strong id="statusCloud">---</strong>
+                    </div>
+                    <div class="status-row">
+                        <span>Латентность</span>
+                        <strong id="statusLatency">---</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="settings" data-reveal>
+            <div class="section-header">
+                <div>
+                    <h2>Настройки</h2>
+                    <p>Отправляй параметры на контроллер и облако.</p>
+                </div>
+            </div>
+
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <div class="panel-title">Wi-Fi</div>
+                    <form id="wifiForm">
+                        <label class="field">
+                            SSID
+                            <input name="ssid" type="text" placeholder="Домашняя сеть">
+                        </label>
+                        <label class="field">
+                            Пароль
+                            <input name="password" type="password" placeholder="••••••••">
+                        </label>
+                        <label class="field">
+                            RSSI (dBm)
+                            <input name="rssi" type="number" placeholder="-45">
+                        </label>
+                        <button class="btn btn-primary" type="submit">Сохранить</button>
+                    </form>
+                </div>
+
+                <div class="settings-card">
+                    <div class="panel-title">Облако</div>
+                    <form id="cloudForm">
+                        <label class="field">
+                            Сервер
+                            <input name="server" type="text" placeholder="cloud.local">
+                        </label>
+                        <label class="field">
+                            Токен
+                            <input name="token" type="text" placeholder="token-123">
+                        </label>
+                        <label class="field checkbox">
+                            <input name="connected" type="checkbox">
+                            Включить соединение
+                        </label>
+                        <button class="btn btn-primary" type="submit">Сохранить</button>
+                    </form>
+                </div>
+
+                <div class="settings-card">
+                    <div class="panel-title">Мотор</div>
+                    <form id="motorForm">
+                        <label class="field">
+                            Режим
+                            <input name="mode" type="text" placeholder="normal">
+                        </label>
+                        <label class="field">
+                            Лимит тока (mA)
+                            <input name="current" type="number" placeholder="120">
+                        </label>
+                        <label class="field">
+                            Температурный лимит (°C)
+                            <input name="temp" type="number" placeholder="55">
+                        </label>
+                        <button class="btn btn-primary" type="submit">Сохранить</button>
+                    </form>
+                    <div class="calibrate">
+                        <button class="btn btn-secondary" data-calibrate="start">Калибровать</button>
+                        <button class="btn btn-ghost" data-calibrate="stop">Остановить</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="logs" data-reveal>
+            <div class="section-header">
+                <div>
+                    <h2>Логи</h2>
+                    <p>Последние события панели управления.</p>
+                </div>
+                <button class="btn btn-ghost" id="clearLogs">Очистить</button>
+            </div>
+            <div class="logs-card">
+                <div class="logs-list" id="logList">
+                    <div class="log-item">---</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

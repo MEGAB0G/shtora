@@ -1,4 +1,4 @@
-const state = {
+﻿const state = {
     position: 0,
     target: 0,
     moving: 'idle',
@@ -62,9 +62,10 @@ function setCurtainPosition(position) {
 }
 
 function setMovingState(moving) {
-    els.curtainVisual.classList.toggle('is-moving', moving === 'moving');
-    els.motionStatus.textContent = moving === 'moving' ? 'Движение' : 'Ожидание';
-    els.motionStatus.classList.toggle('is-active', moving === 'moving');
+    const isMoving = moving === 'moving';
+    els.curtainVisual.classList.toggle('is-moving', isMoving);
+    els.motionStatus.textContent = isMoving ? 'Движется' : 'Остановлено';
+    els.motionStatus.classList.toggle('is-active', isMoving);
 }
 
 function renderPresets() {
@@ -72,7 +73,7 @@ function renderPresets() {
     if (!state.presets.length) {
         const empty = document.createElement('div');
         empty.className = 'preset-empty';
-        empty.textContent = 'Пока нет сохраненных положений.';
+        empty.textContent = 'Пока нет сохраненных пресетов. Добавьте первый.';
         els.presetList.appendChild(empty);
         return;
     }
@@ -89,7 +90,7 @@ function renderPresets() {
         info.appendChild(value);
         const go = document.createElement('button');
         go.className = 'btn btn-secondary';
-        go.textContent = 'Перейти';
+        go.textContent = 'Применить';
         go.addEventListener('click', () => sendMove({ action: 'goto', position: preset.position }));
         row.appendChild(info);
         row.appendChild(go);
@@ -109,7 +110,7 @@ function updateStatus(data) {
 
     els.positionValue.textContent = `${position}%`;
     els.targetValue.textContent = `${target}%`;
-    els.moveState.textContent = data.moving === 'moving' ? 'Движение' : 'Ожидание';
+    els.moveState.textContent = data.moving === 'moving' ? 'Движется' : 'Остановлено';
     els.range.value = position;
     els.rangeValue.textContent = `${position}%`;
     els.presetPosition.textContent = `${position}%`;
@@ -133,7 +134,7 @@ function updateStatus(data) {
     if (data.cloud) {
         els.cloudState.textContent = data.cloud.connected ? 'Online' : 'Offline';
         els.cloudLatency.textContent = `Latency: ${data.cloud.latency ?? '--'} ms`;
-        els.statusCloud.textContent = data.cloud.connected ? 'Подключено' : 'Нет связи';
+        els.statusCloud.textContent = data.cloud.connected ? 'Подключено' : 'Не в сети';
         els.statusLatency.textContent = `${data.cloud.latency ?? '--'} ms`;
         els.statusServer.textContent = data.cloud.server || '---';
     }
@@ -168,7 +169,7 @@ function setOnline(online) {
     state.online = online;
     if (!online) {
         els.cloudState.textContent = '---';
-        els.statusCloud.textContent = 'Нет связи';
+        els.statusCloud.textContent = 'Не в сети';
         els.motionStatus.classList.add('is-warning');
     } else {
         els.motionStatus.classList.remove('is-warning');
@@ -200,11 +201,19 @@ async function sendMove(payload) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         });
-        els.lastCommand.textContent = payload.action === 'goto' ? `Позиция ${payload.position}%` : payload.action;
-        addLog(`Команда: ${els.lastCommand.textContent}`);
+        const actionLabels = {
+            open: 'Открыть',
+            close: 'Закрыть',
+            stop: 'Стоп'
+        };
+        const label = payload.action === 'goto'
+            ? `Позиция ${payload.position}%`
+            : (actionLabels[payload.action] || payload.action);
+        els.lastCommand.textContent = label;
+        addLog(`Команда: ${label}`);
         fetchStatus();
     } catch (error) {
-        addLog('Ошибка отправки команды');
+        addLog('Не удалось отправить команду');
     }
 }
 
@@ -216,10 +225,10 @@ async function sendPreset(name) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-        addLog(`Пресет сохранен: ${name}`);
+        addLog(`Сохранен пресет: ${name}`);
         fetchStatus();
     } catch (error) {
-        addLog('Пресет сохранен локально');
+        addLog('Не удалось сохранить на сервере, сохранено локально');
         const local = { name, position: state.position };
         state.presets.unshift(local);
         savePresetsLocal();
@@ -235,9 +244,9 @@ async function sendForm(form, endpoint, label) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
-        addLog(`Настройки сохранены: ${label}`);
+        addLog(`Сохранены настройки: ${label}`);
     } catch (error) {
-        addLog(`Не удалось сохранить: ${label}`);
+        addLog(`Не удалось сохранить настройки: ${label}`);
     }
 }
 
@@ -250,7 +259,7 @@ async function sendCalibrate(action) {
         });
         addLog(`Калибровка: ${action}`);
     } catch (error) {
-        addLog('Ошибка калибровки');
+        addLog('Не удалось отправить калибровку');
     }
 }
 
@@ -303,7 +312,7 @@ function bindEvents() {
     document.getElementById('savePreset').addEventListener('click', () => {
         const name = els.presetName.value.trim();
         if (!name) {
-            addLog('Введите название пресета');
+            addLog('Введите имя пресета');
             return;
         }
         sendPreset(name);
