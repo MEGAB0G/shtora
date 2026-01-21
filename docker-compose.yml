@@ -2,7 +2,7 @@ services:
   api:
     image: node:20-alpine
     working_dir: /app/phone-server
-    command: ["node", "server.js"]
+    command: ["sh", "-c", "npm install --omit=dev && node server.js"]
     volumes:
       - ./:/app
     ports:
