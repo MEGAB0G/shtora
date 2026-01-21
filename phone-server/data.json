@@ -1,0 +1,22 @@
+{
+  "position": 0,
+  "target": 0,
+  "moving": "idle",
+  "wifi": {
+    "ssid": "",
+    "rssi": null
+  },
+  "ip": "",
+  "cloud": {
+    "connected": false,
+    "latency": null,
+    "server": ""
+  },
+  "motor": {
+    "mode": "idle",
+    "current": null,
+    "temp": null
+  },
+  "presets": [],
+  "command": null
+}
