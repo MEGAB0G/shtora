@@ -54,17 +54,20 @@ sudo /srv/shtora/scripts/quota-setup.sh
 Windows (Проводник):
 
 ```
-\\192.168.0.45\safe_oleg
-\\192.168.0.45\safe_rom
-\\192.168.0.45\safe_TTSMANAGERR
-\\192.168.0.45\trash_oleg
-\\192.168.0.45\trash_rom
-\\192.168.0.45\trash_TTSMANAGERR
+\\192.168.0.45\raid
+\\192.168.0.45\trash
 ```
 
 Android:
 - Любой SMB клиент (CX File Explorer, Solid Explorer).
 - Host: `192.168.0.45`, Username/Password.
+
+Админ `mega` может открыть полные каталоги через:
+
+```
+\\192.168.0.45\raid_admin
+\\192.168.0.45\trash_admin
+```
 
 ## Автообновление с GitHub (без белого IP)
 

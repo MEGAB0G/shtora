@@ -77,53 +77,44 @@ for user in "${USERS[@]}"; do
   sudo mv "/mnt/exchange/trash/${user}" "/exchange/trash/${user}" || true
 done
 
+sudo awk 'BEGIN{drop=0} /^\[/{drop=0} /^\[(safe_|trash_)/{drop=1} !drop{print}' /etc/samba/smb.conf > /tmp/smb.conf
+sudo mv /tmp/smb.conf /etc/samba/smb.conf
+
+if ! grep -q "access based share enum" /etc/samba/smb.conf; then
+  sudo sed -i "/^\[global\]/a\    access based share enum = yes\n    hide unreadable = yes" /etc/samba/smb.conf
+fi
+
 sudo tee -a /etc/samba/smb.conf >/dev/null <<'EOF'
 
-[safe_oleg]
-   path = /srv/safe/oleg
+[raid]
+   path = /srv/safe/%U
    browseable = yes
    read only = no
-   valid users = oleg, mega
+   valid users = oleg rom TTSMANAGERR mega
    create mask = 0600
    directory mask = 0700
 
-[safe_rom]
-   path = /srv/safe/rom
+[trash]
+   path = /exchange/trash/%U
    browseable = yes
    read only = no
-   valid users = rom, mega
-   create mask = 0600
-   directory mask = 0700
-
-[safe_TTSMANAGERR]
-   path = /srv/safe/TTSMANAGERR
-   browseable = yes
-   read only = no
-   valid users = TTSMANAGERR, mega
-   create mask = 0600
-   directory mask = 0700
-
-[trash_oleg]
-   path = /exchange/trash/oleg
-   browseable = yes
-   read only = no
-   valid users = oleg, mega
+   valid users = oleg rom TTSMANAGERR mega
    create mask = 0640
    directory mask = 0750
 
-[trash_rom]
-   path = /exchange/trash/rom
-   browseable = yes
+[raid_admin]
+   path = /srv/safe
+   browseable = no
    read only = no
-   valid users = rom, mega
-   create mask = 0640
-   directory mask = 0750
+   valid users = mega
+   create mask = 0600
+   directory mask = 0700
 
-[trash_TTSMANAGERR]
-   path = /exchange/trash/TTSMANAGERR
-   browseable = yes
+[trash_admin]
+   path = /exchange/trash
+   browseable = no
    read only = no
-   valid users = TTSMANAGERR, mega
+   valid users = mega
    create mask = 0640
    directory mask = 0750
 EOF
@@ -146,4 +137,4 @@ done
 
 sudo systemctl restart smbd
 
-echo "Done. Shares: \\\\192.168.0.45\\safe_oleg, safe_rom, safe_TTSMANAGERR, trash_oleg, trash_rom, trash_TTSMANAGERR"
+echo "Done. Shares: \\\\192.168.0.45\\raid and \\\\192.168.0.45\\trash (admin: raid_admin, trash_admin)"
