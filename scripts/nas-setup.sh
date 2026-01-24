@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# NAS setup for Debian 12.
+# WARNING: this wipes /dev/sda, /dev/sdb, /dev/sdc.
+# SSD system disk is /dev/sdd and is NOT touched.
+
+RAID_DEV="/dev/md0"
+RAID_DISKS=("/dev/sda" "/dev/sdb")
+EXCHANGE_DISK="/dev/sdc"
+
+ADMIN_USER="mega"
+ADMIN_PASS="89122844175"
+
+USERS=("oleg" "rom" "TTSMANAGERR")
+PASSWORDS=("22844175" "20144" "15528")
+
+sudo apt update
+sudo apt install -y mdadm acl samba
+
+sudo wipefs -a "${RAID_DISKS[@]}" "${EXCHANGE_DISK}"
+
+sudo mdadm --create "${RAID_DEV}" --level=1 --raid-devices=2 "${RAID_DISKS[@]}"
+
+sudo mkfs.ext4 "${RAID_DEV}"
+sudo mkfs.ext4 "${EXCHANGE_DISK}"
+
+sudo mkdir -p /mnt/raid /mnt/exchange
+sudo mount "${RAID_DEV}" /mnt/raid
+sudo mount "${EXCHANGE_DISK}" /mnt/exchange
+
+sudo mkdir -p /mnt/raid/safe
+sudo mkdir -p /mnt/exchange/trash
+
+for i in "${!USERS[@]}"; do
+  user="${USERS[$i]}"
+  sudo adduser --disabled-password --gecos "" --allow-bad-names "${user}" || true
+  sudo mkdir -p "/mnt/raid/safe/${user}" "/mnt/exchange/trash/${user}"
+  sudo chown -R "${user}:${user}" "/mnt/raid/safe/${user}" "/mnt/exchange/trash/${user}"
+  sudo chmod -R 0700 "/mnt/raid/safe/${user}" "/mnt/exchange/trash/${user}"
+  sudo setfacl -m "u:${ADMIN_USER}:rwx" "/mnt/raid/safe/${user}" "/mnt/exchange/trash/${user}"
+done
+
+sudo mdadm --detail --scan | sudo tee -a /etc/mdadm/mdadm.conf
+sudo update-initramfs -u
+
+RAID_UUID="$(blkid -s UUID -o value "${RAID_DEV}")"
+EXCHANGE_UUID="$(blkid -s UUID -o value "${EXCHANGE_DISK}")"
+
+sudo mkdir -p /srv /exchange
+sudo umount /mnt/raid /mnt/exchange
+
+if ! grep -q "${RAID_UUID}" /etc/fstab; then
+  echo "UUID=${RAID_UUID}  /srv       ext4  defaults,nofail  0 2" | sudo tee -a /etc/fstab
+fi
+if ! grep -q "${EXCHANGE_UUID}" /etc/fstab; then
+  echo "UUID=${EXCHANGE_UUID}  /exchange  ext4  defaults,nofail  0 2" | sudo tee -a /etc/fstab
+fi
+
+sudo mount -a
+
+sudo mkdir -p /srv/safe /exchange/trash
+for user in "${USERS[@]}"; do
+  sudo mv "/mnt/raid/safe/${user}" "/srv/safe/${user}" || true
+  sudo mv "/mnt/exchange/trash/${user}" "/exchange/trash/${user}" || true
+done
+
+sudo tee -a /etc/samba/smb.conf >/dev/null <<'EOF'
+
+[safe_oleg]
+   path = /srv/safe/oleg
+   browseable = yes
+   read only = no
+   valid users = oleg, mega
+   create mask = 0600
+   directory mask = 0700
+
+[safe_rom]
+   path = /srv/safe/rom
+   browseable = yes
+   read only = no
+   valid users = rom, mega
+   create mask = 0600
+   directory mask = 0700
+
+[safe_TTSMANAGERR]
+   path = /srv/safe/TTSMANAGERR
+   browseable = yes
+   read only = no
+   valid users = TTSMANAGERR, mega
+   create mask = 0600
+   directory mask = 0700
+
+[trash_oleg]
+   path = /exchange/trash/oleg
+   browseable = yes
+   read only = no
+   valid users = oleg, mega
+   create mask = 0640
+   directory mask = 0750
+
+[trash_rom]
+   path = /exchange/trash/rom
+   browseable = yes
+   read only = no
+   valid users = rom, mega
+   create mask = 0640
+   directory mask = 0750
+
+[trash_TTSMANAGERR]
+   path = /exchange/trash/TTSMANAGERR
+   browseable = yes
+   read only = no
+   valid users = TTSMANAGERR, mega
+   create mask = 0640
+   directory mask = 0750
+EOF
+
+echo "${ADMIN_USER}:${ADMIN_PASS}" | sudo chpasswd
+sudo smbpasswd -a "${ADMIN_USER}" <<EOF
+${ADMIN_PASS}
+${ADMIN_PASS}
+EOF
+
+for i in "${!USERS[@]}"; do
+  user="${USERS[$i]}"
+  pass="${PASSWORDS[$i]}"
+  echo "${user}:${pass}" | sudo chpasswd
+  sudo smbpasswd -a "${user}" <<EOF
+${pass}
+${pass}
+EOF
+done
+
+sudo systemctl restart smbd
+
+echo "Done. Shares: \\\\192.168.0.45\\safe_oleg, safe_rom, safe_TTSMANAGERR, trash_oleg, trash_rom, trash_TTSMANAGERR"
