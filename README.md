@@ -1,150 +1,109 @@
 # shtora
 
-## Конфигурация дисков и хранилища сервера
+Локальный сервер для управления шторой + NAS. Проект живет на ноутбуке, сервер берет обновления с GitHub только вручную.
 
-Сервер: Debian 12 (headless). Используется как NAS и хостинг сайта/сервисов.
+## Схема деплоя
 
-### Физические диски
-
-- SSD 120 ГБ (sdb) — системный диск.
-- Seagate 500 ГБ (sda).
-- Seagate 500 ГБ (sdd).
-- WD 500 ГБ (sdc).
-
-### Назначение и монтирование
-
-- SSD (sdb):
-  - Debian 12, Docker, код сайтов и сервисов.
-  - Точка монтирования: `/`.
-- Seagate 500 ГБ + Seagate 500 ГБ (sda + sdd):
-  - RAID1 через `mdadm`, хранение важных данных.
-  - При выходе одного диска данные сохраняются.
-  - Планируемая точка монтирования: `/srv`.
-- WD 500 ГБ (sdc):
-  - Одиночный диск для некритичных данных.
-  - Файлопомойка/обменник/временные файлы.
-  - Точка монтирования: `/exchange`.
-
-## NAS настройка (скрипт)
-
-Готовый скрипт настройки RAID1 + SMB лежит в `scripts/nas-setup.sh`.
-Перед запуском проверь устройства дисков и пароли в начале скрипта.
-
-После запуска скрипта можно проверить состояние:
-
+Ноутбук:
 ```bash
-chmod +x /srv/shtora/scripts/nas-verify.sh
-/srv/shtora/scripts/nas-verify.sh
+cd C:\Users\1\Desktop\shtora
+git add .
+git commit -m "update"
+git push
 ```
 
-Готовые блоки Samba добавлены в `config/smb.conf.additions` (если нужно сверить).
-
-## Квоты пользователей (150 ГБ каждому)
-
-Скрипт включает `usrquota` на `/srv` и `/exchange` и ставит лимит 150ГБ для
-`oleg`, `rom`, `TTSMANAGERR` (админ `mega` без ограничений).
-
+Сервер:
 ```bash
-chmod +x /srv/shtora/scripts/quota-setup.sh
-sudo /srv/shtora/scripts/quota-setup.sh
+cd /srv/shtora
+git pull
+sudo docker compose down
+sudo docker compose up -d --force-recreate
 ```
 
-### Подключение клиентов
+## Диски и точки монтирования
 
-Windows (Проводник):
+- SSD 120 ГБ (`/dev/sdd`) — система, Docker, код.
+- RAID1 из двух Seagate 500 ГБ (`/dev/sda` + `/dev/sdb`) → `/srv`.
+- WD 500 ГБ (`/dev/sdc`) → `/exchange`.
 
+Проверка:
+```bash
+lsblk -o NAME,SIZE,TYPE,MOUNTPOINT
+cat /proc/mdstat
+sudo mdadm --detail /dev/md0
+df -h / /srv /exchange
+```
+
+## NAS (SMB)
+
+Скрипт для восстановления структуры и прав (безопасно повторять):
+```bash
+cd /srv/shtora
+sudo ./scripts/nas-setup.sh
+```
+
+Проверка:
+```bash
+sudo ./scripts/nas-verify.sh
+```
+
+Шары:
 ```
 \\192.168.0.45\raid
 \\192.168.0.45\trash
 ```
 
-Android:
-- Любой SMB клиент (CX File Explorer, Solid Explorer).
-- Host: `192.168.0.45`, Username/Password.
-
-Админ `mega` может открыть полные каталоги через:
-
+Админ-шары:
 ```
 \\192.168.0.45\raid_admin
 \\192.168.0.45\trash_admin
 ```
 
-## Автообновление с GitHub (без белого IP)
+Если в Windows ошибки доступа — очистить сессии:
+```cmd
+net use \\192.168.0.45 /delete
+```
 
-Из-за отсутствия публичного IP вебхуки GitHub не подойдут. Самый надежный вариант —
-локальный polling через `systemd`-таймер, который раз в N минут делает `git pull`
-и перезапускает контейнеры.
+## Квоты
 
-1) Сделай скрипт исполняемым:
+150 ГБ на RAID и 150 ГБ на TRASH каждому пользователю:
+```bash
+sudo ./scripts/quota-setup.sh
+```
+
+Проверка:
+```bash
+sudo quota -u oleg
+sudo quota -u rom
+sudo quota -u TTSMANAGERR
+sudo repquota -a
+```
+
+## Сайт (панель NAS)
+
+UI показывает использование RAID/TRASH по пользователям.
+Источник: `index.html`, `app.js`, `shtora.css`.
+API: `phone-server/server.js` (`/api/user-usage`).
+
+Проверка:
+```bash
+curl -s http://localhost/ | head -n 5
+curl -s http://localhost/api/user-usage
+```
+
+## Автозапуск NAS при ребуте
+
+Сервис:
+```bash
+sudo systemctl status shtora-nas-setup.service --no-pager
+```
+
+## Проверка после ребута
 
 ```bash
-chmod +x /srv/shtora/scripts/deploy-shtora.sh
+systemctl is-system-running
+systemctl --failed
+findmnt /srv /exchange
+sudo systemctl status shtora-nas-setup.service --no-pager
+docker ps
 ```
-
-2) Создай сервис `/etc/systemd/system/shtora-pull.service`:
-
-```ini
-[Unit]
-Description=Shtora auto update
-
-[Service]
-Type=oneshot
-ExecStart=/srv/shtora/scripts/deploy-shtora.sh
-```
-
-3) Таймер `/etc/systemd/system/shtora-pull.timer`:
-
-```ini
-[Unit]
-Description=Run shtora auto update every 5 minutes
-
-[Timer]
-OnBootSec=2min
-OnUnitActiveSec=5min
-
-[Install]
-WantedBy=timers.target
-```
-
-4) Включить:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable --now shtora-pull.timer
-```
-
-## Запуск через Docker (рекомендуется)
-
-### Установка Docker на Debian 12
-
-```bash
-sudo apt update
-sudo apt install -y ca-certificates curl gnupg
-sudo install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(. /etc/os-release && echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-sudo systemctl enable --now docker
-```
-
-### Запуск проекта
-
-```bash
-cd /srv/shtora
-docker compose up -d
-```
-
-Сайт будет доступен по адресу `http://<IP-сервера>/`.
-
-После `deploy-shtora` достаточно выполнить `docker compose up -d`, чтобы применить новые файлы.
-При первом запуске контейнер API устанавливает зависимости.
-
-## Локальный запуск на ноутбуке
-
-```bash
-node phone-server/server.js
-```
-
-Открой `http://localhost:8080`.
