@@ -77,6 +77,13 @@ for user in "${USERS[@]}"; do
   sudo mv "/mnt/exchange/trash/${user}" "/exchange/trash/${user}" || true
 done
 
+for user in "${USERS[@]}"; do
+  sudo mkdir -p "/srv/safe/${user}" "/exchange/trash/${user}"
+  sudo chown -R "${user}:${user}" "/srv/safe/${user}" "/exchange/trash/${user}"
+  sudo chmod -R 0700 "/srv/safe/${user}" "/exchange/trash/${user}"
+  sudo setfacl -m "u:${ADMIN_USER}:rwx" "/srv/safe/${user}" "/exchange/trash/${user}"
+done
+
 sudo awk 'BEGIN{drop=0} /^\[/{drop=0} /^\[(safe_|trash_)/{drop=1} !drop{print}' /etc/samba/smb.conf > /tmp/smb.conf
 sudo mv /tmp/smb.conf /etc/samba/smb.conf
 
