@@ -34,6 +34,7 @@
             <a href="#control">Управление</a>
             <a href="#presets">Пресеты</a>
             <a href="#status">Статус</a>
+            <a href="#monitoring">Мониторинг</a>
             <a href="#settings">Настройки</a>
             <a href="#logs">Логи</a>
         </nav>
@@ -284,6 +285,58 @@
                     <div class="calibrate">
                         <button class="btn btn-secondary" data-calibrate="start">Калибровать</button>
                         <button class="btn btn-ghost" data-calibrate="stop">Остановить</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="monitoring" data-reveal>
+            <div class="section-header">
+                <div>
+                    <h2>Мониторинг</h2>
+                    <p>Нагрузка процессора, память и диски сервера.</p>
+                </div>
+                <div class="uptime" id="metricsState">Нет данных</div>
+            </div>
+
+            <div class="status-grid">
+                <div class="status-card">
+                    <div class="panel-title">CPU</div>
+                    <div class="metric-row">
+                        <span>Общая нагрузка</span>
+                        <strong id="cpuTotal">--%</strong>
+                    </div>
+                    <div class="bar">
+                        <div class="bar-fill" id="cpuTotalBar" style="width:0%"></div>
+                    </div>
+                    <div class="core-list" id="cpuCores">
+                        <div class="muted">Нет данных по ядрам</div>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="panel-title">Память</div>
+                    <div class="metric-row">
+                        <span>Используется</span>
+                        <strong id="memUsed">--</strong>
+                    </div>
+                    <div class="bar">
+                        <div class="bar-fill" id="memBar" style="width:0%"></div>
+                    </div>
+                    <div class="muted" id="memTotal">Всего: --</div>
+                </div>
+
+                <div class="status-card">
+                    <div class="panel-title">Температуры</div>
+                    <div class="temp-list" id="tempList">
+                        <div class="muted">Нет данных по температурам</div>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="panel-title">Диски</div>
+                    <div class="disk-list" id="diskList">
+                        <div class="muted">Нет данных по дискам</div>
                     </div>
                 </div>
             </div>

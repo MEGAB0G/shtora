@@ -1,5 +1,7 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
+const { execFile } = require('child_process');
 const express = require('express');
 
 const app = express();
@@ -32,6 +34,91 @@ function saveState() {
 }
 
 let state = loadState();
+let lastCpuSample = null;
+
+function sampleCpu() {
+    return os.cpus().map((core) => {
+        const times = core.times;
+        const total = Object.values(times).reduce((sum, value) => sum + value, 0);
+        return { total, idle: times.idle };
+    });
+}
+
+function getCpuUsage() {
+    const current = sampleCpu();
+    if (!lastCpuSample) {
+        lastCpuSample = current;
+        return {
+            total: 0,
+            cores: current.map(() => 0)
+        };
+    }
+    const coreUsage = current.map((core, index) => {
+        const prev = lastCpuSample[index] || core;
+        const totalDelta = core.total - prev.total;
+        const idleDelta = core.idle - prev.idle;
+        if (totalDelta <= 0) {
+            return 0;
+        }
+        return Math.round((1 - idleDelta / totalDelta) * 100);
+    });
+    lastCpuSample = current;
+    const total = coreUsage.length
+        ? Math.round(coreUsage.reduce((sum, value) => sum + value, 0) / coreUsage.length)
+        : 0;
+    return { total, cores: coreUsage };
+}
+
+function getDiskUsage(callback) {
+    execFile('df', ['-kP', '-x', 'tmpfs', '-x', 'devtmpfs', '-x', 'overlay'], (error, stdout) => {
+        if (error) {
+            callback([]);
+            return;
+        }
+        const lines = stdout.trim().split('\n').slice(1);
+        const disks = lines.map((line) => {
+            const parts = line.split(/\s+/);
+            if (parts.length < 6) {
+                return null;
+            }
+            const total = Number(parts[1]) * 1024;
+            const used = Number(parts[2]) * 1024;
+            const mount = parts[5];
+            return { name: mount, used, total, mount };
+        }).filter(Boolean);
+        callback(disks);
+    });
+}
+
+function readThermals() {
+    const base = '/sys/class/thermal';
+    let zones = [];
+    try {
+        zones = fs.readdirSync(base).filter((name) => name.startsWith('thermal_zone'));
+    } catch (error) {
+        return [];
+    }
+    return zones.map((zone) => {
+        const zonePath = path.join(base, zone);
+        let type = zone;
+        let temp = null;
+        try {
+            type = fs.readFileSync(path.join(zonePath, 'type'), 'utf8').trim();
+        } catch (error) {
+            // ignore
+        }
+        try {
+            const raw = fs.readFileSync(path.join(zonePath, 'temp'), 'utf8').trim();
+            const value = Number(raw);
+            if (Number.isFinite(value)) {
+                temp = value > 1000 ? value / 1000 : value;
+            }
+        } catch (error) {
+            temp = null;
+        }
+        return { name: type, value: temp };
+    }).filter((item) => Number.isFinite(item.value));
+}
 
 function setCommand(action, position) {
     state.command = {
@@ -151,6 +238,18 @@ app.post('/api/calibrate', (req, res) => {
     state.motor = { ...state.motor, mode: `calibrate:${action}` };
     saveState();
     res.json({ ok: true });
+});
+
+app.get('/api/metrics', (req, res) => {
+    const cpu = getCpuUsage();
+    const memory = {
+        total: os.totalmem(),
+        used: os.totalmem() - os.freemem()
+    };
+    getDiskUsage((disks) => {
+        const temps = readThermals();
+        res.json({ cpu, memory, disks, temps, ts: Date.now() });
+    });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
