@@ -283,6 +283,46 @@ a {
     margin-bottom: 12px;
 }
 
+.usage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+.usage-card {
+    padding: 24px;
+    border-radius: 20px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    box-shadow: var(--glow);
+    display: grid;
+    gap: 14px;
+}
+
+.usage-header {
+    display: grid;
+    gap: 6px;
+}
+
+.usage-title {
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.usage-summary {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.usage-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.95rem;
+    color: var(--text);
+}
+
 .control-panel,
 .preset-panel,
 .status-card,

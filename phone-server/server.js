@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { execFile } = require('child_process');
 const express = require('express');
 
 const app = express();
@@ -150,6 +151,58 @@ app.post('/api/calibrate', (req, res) => {
     state.motor = { ...state.motor, mode: `calibrate:${action}` };
     saveState();
     res.json({ ok: true });
+});
+
+const LIMIT_BYTES = 150 * 1024 * 1024 * 1024;
+const USERS = ['oleg', 'rom', 'TTSMANAGERR'];
+
+function duBytes(target) {
+    return new Promise((resolve) => {
+        execFile('du', ['-sk', target], (error, stdout) => {
+            if (error) {
+                resolve(0);
+                return;
+            }
+            const raw = stdout.trim().split(/\s+/)[0];
+            const kb = Number(raw);
+            if (!Number.isFinite(kb)) {
+                resolve(0);
+                return;
+            }
+            resolve(kb * 1024);
+        });
+    });
+}
+
+async function getUserUsage() {
+    const raidBase = fs.existsSync('/srv/safe') ? '/srv/safe' : '/host-srv/safe';
+    const trashBase = fs.existsSync('/exchange/trash') ? '/exchange/trash' : '/host-exchange/trash';
+
+    const users = [];
+    for (const user of USERS) {
+        const raidPath = path.join(raidBase, user);
+        const trashPath = path.join(trashBase, user);
+        const [raidUsed, trashUsed] = await Promise.all([
+            duBytes(raidPath),
+            duBytes(trashPath)
+        ]);
+        users.push({
+            name: user,
+            raidUsed,
+            trashUsed,
+            limitBytes: LIMIT_BYTES
+        });
+    }
+    return users;
+}
+
+app.get('/api/user-usage', async (req, res) => {
+    try {
+        const users = await getUserUsage();
+        res.json({ users, limitBytes: LIMIT_BYTES, ts: Date.now() });
+    } catch (error) {
+        res.status(500).json({ users: [], limitBytes: LIMIT_BYTES, ts: Date.now() });
+    }
 });
 
 app.listen(PORT, '0.0.0.0', () => {

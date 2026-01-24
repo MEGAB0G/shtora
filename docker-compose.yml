@@ -6,6 +6,8 @@ services:
     volumes:
       - ./:/app
       - node_modules:/app/phone-server/node_modules
+      - /srv:/host-srv:ro
+      - /exchange:/host-exchange:ro
     ports:
       - "8080:8080"
     restart: unless-stopped
