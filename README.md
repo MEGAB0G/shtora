@@ -30,6 +30,50 @@
 Готовый скрипт настройки RAID1 + SMB лежит в `scripts/nas-setup.sh`.
 Перед запуском проверь устройства дисков и пароли в начале скрипта.
 
+## Автообновление с GitHub (без белого IP)
+
+Из-за отсутствия публичного IP вебхуки GitHub не подойдут. Самый надежный вариант —
+локальный polling через `systemd`-таймер, который раз в N минут делает `git pull`
+и перезапускает контейнеры.
+
+1) Сделай скрипт исполняемым:
+
+```bash
+chmod +x /srv/shtora/scripts/deploy-shtora.sh
+```
+
+2) Создай сервис `/etc/systemd/system/shtora-pull.service`:
+
+```ini
+[Unit]
+Description=Shtora auto update
+
+[Service]
+Type=oneshot
+ExecStart=/srv/shtora/scripts/deploy-shtora.sh
+```
+
+3) Таймер `/etc/systemd/system/shtora-pull.timer`:
+
+```ini
+[Unit]
+Description=Run shtora auto update every 5 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target
+```
+
+4) Включить:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now shtora-pull.timer
+```
+
 ## Запуск через Docker (рекомендуется)
 
 ### Установка Docker на Debian 12
