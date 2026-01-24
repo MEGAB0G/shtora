@@ -18,16 +18,28 @@ PASSWORDS=("22844175" "20144" "15528")
 sudo apt update
 sudo apt install -y mdadm acl samba
 
-sudo wipefs -a "${RAID_DISKS[@]}" "${EXCHANGE_DISK}"
+if sudo mdadm --detail "${RAID_DEV}" >/dev/null 2>&1; then
+  echo "RAID ${RAID_DEV} already exists, skip wipe/create."
+else
+  sudo wipefs -a "${RAID_DISKS[@]}" "${EXCHANGE_DISK}"
+  sudo mdadm --create "${RAID_DEV}" --level=1 --raid-devices=2 "${RAID_DISKS[@]}"
+fi
 
-sudo mdadm --create "${RAID_DEV}" --level=1 --raid-devices=2 "${RAID_DISKS[@]}"
+if [ "$(blkid -s TYPE -o value "${RAID_DEV}" 2>/dev/null || true)" != "ext4" ]; then
+  sudo mkfs.ext4 "${RAID_DEV}"
+else
+  echo "${RAID_DEV} already has ext4, skip mkfs."
+fi
 
-sudo mkfs.ext4 "${RAID_DEV}"
-sudo mkfs.ext4 "${EXCHANGE_DISK}"
+if [ "$(blkid -s TYPE -o value "${EXCHANGE_DISK}" 2>/dev/null || true)" != "ext4" ]; then
+  sudo mkfs.ext4 "${EXCHANGE_DISK}"
+else
+  echo "${EXCHANGE_DISK} already has ext4, skip mkfs."
+fi
 
 sudo mkdir -p /mnt/raid /mnt/exchange
-sudo mount "${RAID_DEV}" /mnt/raid
-sudo mount "${EXCHANGE_DISK}" /mnt/exchange
+mountpoint -q /mnt/raid || sudo mount "${RAID_DEV}" /mnt/raid
+mountpoint -q /mnt/exchange || sudo mount "${EXCHANGE_DISK}" /mnt/exchange
 
 sudo mkdir -p /mnt/raid/safe
 sudo mkdir -p /mnt/exchange/trash
