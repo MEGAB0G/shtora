@@ -217,7 +217,9 @@ function updateMetrics(data) {
         return;
     }
 
-    els.metricsState.textContent = 'Онлайн';
+    const ts = data.ts ? new Date(data.ts) : new Date();
+    const timeLabel = ts.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    els.metricsState.textContent = `Онлайн · ${timeLabel}`;
 
     const cpuTotal = data.cpu?.total ?? data.cpu?.usage;
     if (Number.isFinite(cpuTotal)) {
@@ -307,11 +309,18 @@ function updateMetrics(data) {
         els.tempList.innerHTML = '';
         data.temps.forEach((temp) => {
             const item = document.createElement('div');
-            item.className = 'temp-item';
+            const value = Number.isFinite(temp.value) ? temp.value : null;
+            let heatClass = 'temp-cool';
+            if (value !== null && value >= 75) {
+                heatClass = 'temp-hot';
+            } else if (value !== null && value >= 60) {
+                heatClass = 'temp-warm';
+            }
+            item.className = `temp-item ${heatClass}`;
             const title = document.createElement('strong');
             title.textContent = temp.name || 'Sensor';
             const value = document.createElement('span');
-            value.textContent = `${temp.value.toFixed(1)} °C`;
+            value.textContent = value !== null ? `${value.toFixed(1)} °C` : '--';
             item.appendChild(title);
             item.appendChild(value);
             els.tempList.appendChild(item);

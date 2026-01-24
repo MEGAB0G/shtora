@@ -622,6 +622,7 @@ a {
     border-radius: 12px;
     background: rgba(12, 18, 28, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .core-item span,
@@ -633,6 +634,29 @@ a {
 .temp-item span {
     color: var(--muted);
     font-size: 0.85rem;
+}
+
+.temp-item.temp-cool {
+    box-shadow: inset 0 0 0 1px rgba(73, 194, 255, 0.15);
+}
+
+.temp-item.temp-warm {
+    background: rgba(246, 183, 60, 0.12);
+    border-color: rgba(246, 183, 60, 0.25);
+    box-shadow: 0 10px 20px rgba(246, 183, 60, 0.15);
+}
+
+.temp-item.temp-hot {
+    background: rgba(248, 113, 113, 0.16);
+    border-color: rgba(248, 113, 113, 0.35);
+    box-shadow: 0 12px 24px rgba(248, 113, 113, 0.2);
+}
+
+.temp-item strong {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
 }
 
 .field {
