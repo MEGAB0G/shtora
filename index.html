@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="shtora.css">
 </head>
-<body>
+<body class="no-js">
     <div class="page-bg" aria-hidden="true">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
@@ -338,6 +338,17 @@
                     <div class="disk-list" id="diskList">
                         <div class="muted">Нет данных по дискам</div>
                     </div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <div class="chart-label">График CPU</div>
+                    <canvas class="chart-canvas" id="cpuChart" width="320" height="120"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-label">График памяти</div>
+                    <canvas class="chart-canvas" id="memChart" width="320" height="120"></canvas>
                 </div>
             </div>
         </section>

@@ -42,7 +42,9 @@ const els = {
     memTotal: document.getElementById('memTotal'),
     memBar: document.getElementById('memBar'),
     diskList: document.getElementById('diskList'),
-    tempList: document.getElementById('tempList')
+    tempList: document.getElementById('tempList'),
+    cpuChart: document.getElementById('cpuChart'),
+    memChart: document.getElementById('memChart')
 };
 
 const api = {
@@ -56,6 +58,10 @@ const api = {
 };
 
 const logEntries = [];
+const metricsHistory = {
+    cpu: [],
+    mem: []
+};
 
 const menuToggle = document.getElementById('menuToggle');
 const menuOverlay = document.getElementById('menuOverlay');
@@ -77,6 +83,60 @@ function formatBytes(value) {
         unitIndex += 1;
     }
     return `${size.toFixed(size >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+}
+
+function pushHistory(list, value, max = 30) {
+    if (!Number.isFinite(value)) {
+        return;
+    }
+    list.push(value);
+    if (list.length > max) {
+        list.shift();
+    }
+}
+
+function drawSparkline(canvas, values, color) {
+    if (!canvas) {
+        return;
+    }
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+
+    ctx.clearRect(0, 0, rect.width, rect.height);
+
+    if (!values.length) {
+        return;
+    }
+
+    const padding = 8;
+    const width = rect.width - padding * 2;
+    const height = rect.height - padding * 2;
+    const maxValue = 100;
+
+    ctx.beginPath();
+    values.forEach((value, index) => {
+        const x = padding + (width * index) / Math.max(values.length - 1, 1);
+        const y = padding + height - (height * value) / maxValue;
+        if (index === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+    });
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.lineTo(padding + width, padding + height);
+    ctx.lineTo(padding, padding + height);
+    ctx.closePath();
+    ctx.fillStyle = color.replace('1)', '0.12)');
+    ctx.fill();
 }
 
 function setCurtainPosition(position) {
@@ -209,6 +269,8 @@ function setMetricsOffline() {
     els.memBar.style.width = '0%';
     els.diskList.innerHTML = '<div class="muted">Нет данных по дискам</div>';
     els.tempList.innerHTML = '<div class="muted">Нет данных по температурам</div>';
+    drawSparkline(els.cpuChart, [], 'rgba(73, 194, 255, 1)');
+    drawSparkline(els.memChart, [], 'rgba(246, 183, 60, 1)');
 }
 
 function updateMetrics(data) {
@@ -226,6 +288,7 @@ function updateMetrics(data) {
         const value = clamp(cpuTotal, 0, 100);
         els.cpuTotal.textContent = `${value.toFixed(0)}%`;
         els.cpuTotalBar.style.width = `${value}%`;
+        pushHistory(metricsHistory.cpu, value);
     } else {
         els.cpuTotal.textContent = '--%';
         els.cpuTotalBar.style.width = '0%';
@@ -266,6 +329,7 @@ function updateMetrics(data) {
         els.memUsed.textContent = `${formatBytes(memUsed)} (${percent.toFixed(0)}%)`;
         els.memTotal.textContent = `Всего: ${formatBytes(memTotal)}`;
         els.memBar.style.width = `${percent}%`;
+        pushHistory(metricsHistory.mem, percent);
     } else {
         els.memUsed.textContent = '--';
         els.memTotal.textContent = 'Всего: --';
@@ -328,6 +392,9 @@ function updateMetrics(data) {
     } else {
         els.tempList.innerHTML = '<div class="muted">Нет данных по температурам</div>';
     }
+
+    drawSparkline(els.cpuChart, metricsHistory.cpu, 'rgba(73, 194, 255, 1)');
+    drawSparkline(els.memChart, metricsHistory.mem, 'rgba(246, 183, 60, 1)');
 }
 
 async function fetchMetrics() {
@@ -446,6 +513,8 @@ function loadPresetsLocal() {
 }
 
 function bindEvents() {
+    document.body.classList.remove('no-js');
+
     document.querySelectorAll('[data-move]').forEach((button) => {
         button.addEventListener('click', () => {
             sendMove({ action: button.dataset.move });
