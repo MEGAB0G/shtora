@@ -39,6 +39,16 @@ chmod +x /srv/shtora/scripts/nas-verify.sh
 
 Готовые блоки Samba добавлены в `config/smb.conf.additions` (если нужно сверить).
 
+## Квоты пользователей (150 ГБ каждому)
+
+Скрипт включает `usrquota` на `/srv` и `/exchange` и ставит лимит 150ГБ для
+`oleg`, `rom`, `TTSMANAGERR` (админ `mega` без ограничений).
+
+```bash
+chmod +x /srv/shtora/scripts/quota-setup.sh
+sudo /srv/shtora/scripts/quota-setup.sh
+```
+
 ### Подключение клиентов
 
 Windows (Проводник):
