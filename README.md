@@ -1,10 +1,27 @@
-# shtora
+# Shtora NAS
 
-Локальный сервер для управления шторой + NAS. Проект живет на ноутбуке, сервер берет обновления с GitHub только вручную.
+Local control panel and NAS for a headless Debian 12 home server. The server is updated only by manual deploy, with a clean and predictable flow.
 
-## Схема деплоя
+## Overview
 
-Ноутбук:
+- OS: Debian 12 (headless).
+- Purpose: curtain control panel + NAS.
+- LAN only, no automatic updates, full manual control.
+- Server pulls from GitHub when you run the deploy command.
+
+## Repository layout
+
+- `index.html` - NAS dashboard UI.
+- `app.js` - frontend logic for usage cards.
+- `shtora.css` - UI styling.
+- `phone-server/server.js` - API server (`/api/user-usage` and status endpoints).
+- `docker-compose.yml` - web + API containers.
+- `nginx.conf` - web proxy for `/api/`.
+- `scripts/` - NAS setup, verify, deploy, quotas.
+
+## Deployment flow
+
+Laptop (Windows, VS Code):
 ```bash
 cd C:\Users\1\Desktop\shtora
 git add .
@@ -12,7 +29,7 @@ git commit -m "update"
 git push
 ```
 
-Сервер:
+Server (Debian):
 ```bash
 cd /srv/shtora
 git pull
@@ -20,13 +37,18 @@ sudo docker compose down
 sudo docker compose up -d --force-recreate
 ```
 
-## Диски и точки монтирования
+## Storage configuration
 
-- SSD 120 ГБ (`/dev/sdd`) — система, Docker, код.
-- RAID1 из двух Seagate 500 ГБ (`/dev/sda` + `/dev/sdb`) → `/srv`.
-- WD 500 ГБ (`/dev/sdc`) → `/exchange`.
+Physical disks:
+- SSD 120 GB: `/dev/sdd` (system, Docker, project code).
+- Seagate 500 GB + Seagate 500 GB: `/dev/sda` + `/dev/sdb` (RAID1).
+- WD 500 GB: `/dev/sdc` (scratch / exchange).
 
-Проверка:
+Mount points:
+- RAID1: `/srv`
+- Single disk: `/exchange`
+
+Check status:
 ```bash
 lsblk -o NAME,SIZE,TYPE,MOUNTPOINT
 cat /proc/mdstat
@@ -34,44 +56,46 @@ sudo mdadm --detail /dev/md0
 df -h / /srv /exchange
 ```
 
-## NAS (SMB)
+## NAS (SMB) shares
 
-Скрипт для восстановления структуры и прав (безопасно повторять):
-```bash
-cd /srv/shtora
-sudo ./scripts/nas-setup.sh
-```
-
-Проверка:
-```bash
-sudo ./scripts/nas-verify.sh
-```
-
-Шары:
+Shared paths:
 ```
 \\192.168.0.45\raid
 \\192.168.0.45\trash
 ```
 
-Админ-шары:
+Admin shares:
 ```
 \\192.168.0.45\raid_admin
 \\192.168.0.45\trash_admin
 ```
 
-Если в Windows ошибки доступа — очистить сессии:
+If Windows blocks access because of cached credentials:
 ```cmd
 net use \\192.168.0.45 /delete
 ```
 
-## Квоты
+## NAS setup and repair
 
-150 ГБ на RAID и 150 ГБ на TRASH каждому пользователю:
+Run once or anytime to restore folder structure and permissions:
+```bash
+cd /srv/shtora
+sudo ./scripts/nas-setup.sh
+```
+
+Verify:
+```bash
+sudo ./scripts/nas-verify.sh
+```
+
+## Quotas
+
+Each user has 150 GB on RAID and 150 GB on TRASH:
 ```bash
 sudo ./scripts/quota-setup.sh
 ```
 
-Проверка:
+Verify:
 ```bash
 sudo quota -u oleg
 sudo quota -u rom
@@ -79,26 +103,29 @@ sudo quota -u TTSMANAGERR
 sudo repquota -a
 ```
 
-## Сайт (панель NAS)
+## Web UI (NAS dashboard)
 
-UI показывает использование RAID/TRASH по пользователям.
-Источник: `index.html`, `app.js`, `shtora.css`.
-API: `phone-server/server.js` (`/api/user-usage`).
+The UI displays per-user RAID/TRASH usage and free space.
 
-Проверка:
+Quick checks:
 ```bash
 curl -s http://localhost/ | head -n 5
 curl -s http://localhost/api/user-usage
 ```
 
-## Автозапуск NAS при ребуте
+## Autostart on reboot
 
-Сервис:
+NAS restore service:
 ```bash
 sudo systemctl status shtora-nas-setup.service --no-pager
 ```
 
-## Проверка после ребута
+Optional daily verify:
+```bash
+sudo systemctl status shtora-nas-verify.timer --no-pager
+```
+
+## Post-reboot checklist
 
 ```bash
 systemctl is-system-running
@@ -107,3 +134,9 @@ findmnt /srv /exchange
 sudo systemctl status shtora-nas-setup.service --no-pager
 docker ps
 ```
+
+## Notes
+
+- Do not edit code on the server.
+- Always update via the laptop -> GitHub -> manual pull flow.
+- Keep the server clean: no auto-update, no background deploy.
