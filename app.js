@@ -66,6 +66,7 @@ const metricsHistory = {
 const menuToggle = document.getElementById('menuToggle');
 const menuOverlay = document.getElementById('menuOverlay');
 const mainNav = document.getElementById('mainNav');
+const hasControls = Boolean(els.positionValue && els.moveState && els.range);
 
 function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
@@ -140,11 +141,17 @@ function drawSparkline(canvas, values, color) {
 }
 
 function setCurtainPosition(position) {
+    if (!els.curtainVisual) {
+        return;
+    }
     const openHeight = `${100 - position}%`;
     els.curtainVisual.style.setProperty('--curtain-open', openHeight);
 }
 
 function setMovingState(moving) {
+    if (!els.curtainVisual || !els.motionStatus) {
+        return;
+    }
     const isMoving = moving === 'moving';
     els.curtainVisual.classList.toggle('is-moving', isMoving);
     els.motionStatus.textContent = isMoving ? 'Движется' : 'Остановлено';
@@ -152,6 +159,9 @@ function setMovingState(moving) {
 }
 
 function renderPresets() {
+    if (!els.presetList) {
+        return;
+    }
     els.presetList.innerHTML = '';
     if (!state.presets.length) {
         const empty = document.createElement('div');
@@ -183,6 +193,9 @@ function renderPresets() {
 
 function updateStatus(data) {
     if (!data) {
+        return;
+    }
+    if (!hasControls) {
         return;
     }
     const position = Number.isFinite(data.position) ? clamp(data.position, 0, 100) : state.position;
@@ -234,6 +247,9 @@ function updateStatus(data) {
 }
 
 function addLog(message) {
+    if (!els.logList) {
+        return;
+    }
     const ts = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
     logEntries.unshift(`[${ts}] ${message}`);
     if (logEntries.length > 8) {
@@ -250,6 +266,9 @@ function addLog(message) {
 
 function setOnline(online) {
     state.online = online;
+    if (!els.motionStatus) {
+        return;
+    }
     if (!online) {
         els.cloudState.textContent = '---';
         els.statusCloud.textContent = 'Не в сети';
@@ -443,8 +462,10 @@ async function sendMove(payload) {
         const label = payload.action === 'goto'
             ? `Позиция ${payload.position}%`
             : (actionLabels[payload.action] || payload.action);
-        els.lastCommand.textContent = label;
-        addLog(`Команда: ${label}`);
+        if (els.lastCommand) {
+            els.lastCommand.textContent = label;
+            addLog(`Команда: ${label}`);
+        }
         fetchStatus();
     } catch (error) {
         addLog('Не удалось отправить команду');
@@ -515,6 +536,24 @@ function loadPresetsLocal() {
 function bindEvents() {
     document.body.classList.remove('no-js');
 
+    if (menuToggle && menuOverlay && mainNav) {
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            mainNav.classList.toggle('active');
+            menuOverlay.classList.toggle('active');
+        });
+
+        menuOverlay.addEventListener('click', () => {
+            menuToggle.classList.remove('active');
+            mainNav.classList.remove('active');
+            menuOverlay.classList.remove('active');
+        });
+    }
+
+    if (!hasControls) {
+        return;
+    }
+
     document.querySelectorAll('[data-move]').forEach((button) => {
         button.addEventListener('click', () => {
             sendMove({ action: button.dataset.move });
@@ -535,57 +574,65 @@ function bindEvents() {
         });
     });
 
-    document.getElementById('goToPosition').addEventListener('click', () => {
-        const position = Number(els.range.value);
-        sendMove({ action: 'goto', position });
-    });
+    const goToPosition = document.getElementById('goToPosition');
+    if (goToPosition) {
+        goToPosition.addEventListener('click', () => {
+            const position = Number(els.range.value);
+            sendMove({ action: 'goto', position });
+        });
+    }
 
-    els.range.addEventListener('input', () => {
-        const value = Number(els.range.value);
-        els.rangeValue.textContent = `${value}%`;
-    });
+    if (els.range) {
+        els.range.addEventListener('input', () => {
+            const value = Number(els.range.value);
+            els.rangeValue.textContent = `${value}%`;
+        });
+    }
 
-    document.getElementById('savePreset').addEventListener('click', () => {
-        const name = els.presetName.value.trim();
-        if (!name) {
-            addLog('Введите имя пресета');
-            return;
-        }
-        sendPreset(name);
-        els.presetName.value = '';
-    });
+    const savePreset = document.getElementById('savePreset');
+    if (savePreset) {
+        savePreset.addEventListener('click', () => {
+            const name = els.presetName.value.trim();
+            if (!name) {
+                addLog('Введите имя пресета');
+                return;
+            }
+            sendPreset(name);
+            els.presetName.value = '';
+        });
+    }
 
-    document.getElementById('wifiForm').addEventListener('submit', (event) => {
-        event.preventDefault();
-        sendForm(event.target, api.wifi, 'Wi-Fi');
-    });
+    const wifiForm = document.getElementById('wifiForm');
+    if (wifiForm) {
+        wifiForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            sendForm(event.target, api.wifi, 'Wi-Fi');
+        });
+    }
 
-    document.getElementById('cloudForm').addEventListener('submit', (event) => {
-        event.preventDefault();
-        sendForm(event.target, api.cloud, 'Облако');
-    });
+    const cloudForm = document.getElementById('cloudForm');
+    if (cloudForm) {
+        cloudForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            sendForm(event.target, api.cloud, 'Облако');
+        });
+    }
 
-    document.getElementById('motorForm').addEventListener('submit', (event) => {
-        event.preventDefault();
-        sendForm(event.target, api.motor, 'Мотор');
-    });
+    const motorForm = document.getElementById('motorForm');
+    if (motorForm) {
+        motorForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            sendForm(event.target, api.motor, 'Мотор');
+        });
+    }
 
-    document.getElementById('clearLogs').addEventListener('click', () => {
-        logEntries.length = 0;
-        els.logList.innerHTML = '<div class="log-item">---</div>';
-    });
-
-    menuToggle.addEventListener('click', () => {
-        menuToggle.classList.toggle('active');
-        mainNav.classList.toggle('active');
-        menuOverlay.classList.toggle('active');
-    });
-
-    menuOverlay.addEventListener('click', () => {
-        menuToggle.classList.remove('active');
-        mainNav.classList.remove('active');
-        menuOverlay.classList.remove('active');
-    });
+    const clearLogs = document.getElementById('clearLogs');
+    if (clearLogs) {
+        clearLogs.addEventListener('click', () => {
+            logEntries.length = 0;
+            els.logList.innerHTML = '<div class="log-item">---</div>';
+        });
+    }
 }
 
 function revealSections() {
@@ -596,11 +643,14 @@ function revealSections() {
     });
 }
 
-loadPresetsLocal();
-renderPresets();
 bindEvents();
 revealSections();
-fetchStatus();
 fetchMetrics();
-window.setInterval(fetchStatus, 4000);
 window.setInterval(fetchMetrics, 5000);
+
+if (hasControls) {
+    loadPresetsLocal();
+    renderPresets();
+    fetchStatus();
+    window.setInterval(fetchStatus, 4000);
+}
