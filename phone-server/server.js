@@ -70,7 +70,9 @@ function getCpuUsage() {
 }
 
 function getDiskUsage(callback) {
-    execFile('df', ['-kP', '-x', 'tmpfs', '-x', 'devtmpfs', '-x', 'overlay'], (error, stdout) => {
+    const hostRoot = process.env.HOST_ROOT || '/host';
+    const target = fs.existsSync(hostRoot) ? hostRoot : '/';
+    execFile('df', ['-kP', '-x', 'tmpfs', '-x', 'devtmpfs', '-x', 'overlay', target], (error, stdout) => {
         if (error) {
             callback([]);
             return;
@@ -83,7 +85,10 @@ function getDiskUsage(callback) {
             }
             const total = Number(parts[1]) * 1024;
             const used = Number(parts[2]) * 1024;
-            const mount = parts[5];
+            let mount = parts[5];
+            if (mount.startsWith(hostRoot)) {
+                mount = mount === hostRoot ? '/' : mount.slice(hostRoot.length) || '/';
+            }
             return { name: mount, used, total, mount };
         }).filter(Boolean);
         callback(disks);
