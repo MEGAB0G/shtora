@@ -1,0 +1,47 @@
+[safe_oleg]
+   path = /srv/safe/oleg
+   browseable = yes
+   read only = no
+   valid users = oleg, mega
+   create mask = 0600
+   directory mask = 0700
+
+[safe_rom]
+   path = /srv/safe/rom
+   browseable = yes
+   read only = no
+   valid users = rom, mega
+   create mask = 0600
+   directory mask = 0700
+
+[safe_TTSMANAGERR]
+   path = /srv/safe/TTSMANAGERR
+   browseable = yes
+   read only = no
+   valid users = TTSMANAGERR, mega
+   create mask = 0600
+   directory mask = 0700
+
+[trash_oleg]
+   path = /exchange/trash/oleg
+   browseable = yes
+   read only = no
+   valid users = oleg, mega
+   create mask = 0640
+   directory mask = 0750
+
+[trash_rom]
+   path = /exchange/trash/rom
+   browseable = yes
+   read only = no
+   valid users = rom, mega
+   create mask = 0640
+   directory mask = 0750
+
+[trash_TTSMANAGERR]
+   path = /exchange/trash/TTSMANAGERR
+   browseable = yes
+   read only = no
+   valid users = TTSMANAGERR, mega
+   create mask = 0640
+   directory mask = 0750

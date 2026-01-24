@@ -30,6 +30,32 @@
 Готовый скрипт настройки RAID1 + SMB лежит в `scripts/nas-setup.sh`.
 Перед запуском проверь устройства дисков и пароли в начале скрипта.
 
+После запуска скрипта можно проверить состояние:
+
+```bash
+chmod +x /srv/shtora/scripts/nas-verify.sh
+/srv/shtora/scripts/nas-verify.sh
+```
+
+Готовые блоки Samba добавлены в `config/smb.conf.additions` (если нужно сверить).
+
+### Подключение клиентов
+
+Windows (Проводник):
+
+```
+\\192.168.0.45\safe_oleg
+\\192.168.0.45\safe_rom
+\\192.168.0.45\safe_TTSMANAGERR
+\\192.168.0.45\trash_oleg
+\\192.168.0.45\trash_rom
+\\192.168.0.45\trash_TTSMANAGERR
+```
+
+Android:
+- Любой SMB клиент (CX File Explorer, Solid Explorer).
+- Host: `192.168.0.45`, Username/Password.
+
 ## Автообновление с GitHub (без белого IP)
 
 Из-за отсутствия публичного IP вебхуки GitHub не подойдут. Самый надежный вариант —
