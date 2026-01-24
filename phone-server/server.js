@@ -1,4 +1,4 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 const path = require('path');
 const { execFile } = require('child_process');
 const express = require('express');
@@ -33,6 +33,7 @@ function saveState() {
 }
 
 let state = loadState();
+
 function setCommand(action, position) {
     state.command = {
         id: Date.now(),

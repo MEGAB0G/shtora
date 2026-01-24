@@ -1,4 +1,4 @@
-services:
+﻿services:
   api:
     image: node:20-alpine
     working_dir: /app/phone-server
