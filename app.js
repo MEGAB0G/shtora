@@ -17,6 +17,14 @@ function formatBytes(value) {
     return `${size.toFixed(size >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
 }
 
+function formatLimit(value) {
+    if (!Number.isFinite(value)) {
+        return '--';
+    }
+    const gb = value / (1024 ** 3);
+    return `${gb.toFixed(0)} GB`;
+}
+
 function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
 }
@@ -49,7 +57,7 @@ function renderUsers(data) {
         const remaining = Math.max(totalLimit - totalUsed, 0);
         const summary = document.createElement('div');
         summary.className = 'usage-summary';
-        summary.textContent = `Свободно: ${formatBytes(remaining)} / ${formatBytes(totalLimit)}`;
+        summary.textContent = `Свободно: ${formatBytes(remaining)} / ${formatLimit(totalLimit)}`;
         header.appendChild(title);
         header.appendChild(summary);
         card.appendChild(header);
@@ -65,7 +73,7 @@ function renderUsers(data) {
             const label = document.createElement('span');
             label.textContent = section.label;
             const values = document.createElement('strong');
-            values.textContent = `${formatBytes(section.used)} / ${formatBytes(section.limit)}`;
+            values.textContent = `${formatBytes(section.used)} / ${formatLimit(section.limit)}`;
             row.appendChild(label);
             row.appendChild(values);
 

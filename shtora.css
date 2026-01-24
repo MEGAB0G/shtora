@@ -631,6 +631,7 @@ a {
     background: linear-gradient(90deg, rgba(73, 194, 255, 0.9), rgba(76, 201, 240, 0.4));
     box-shadow: 0 0 16px rgba(73, 194, 255, 0.4);
     transition: width 0.4s ease;
+    min-width: 2px;
 }
 
 .core-list,
