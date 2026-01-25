@@ -1,27 +1,28 @@
 # Shtora NAS
 
-Local control panel and NAS for a headless Debian 12 home server. The server is updated only by manual deploy, with a clean and predictable flow.
+Локальная панель и NAS для домашнего сервера на Debian 12.  
+Все обновления только вручную, без авто-магии.
 
-## Overview
+## Коротко про проект
 
-- OS: Debian 12 (headless).
-- Purpose: curtain control panel + NAS.
-- LAN only, no automatic updates, full manual control.
-- Server pulls from GitHub when you run the deploy command.
+- Система: Debian 12 (headless).
+- Назначение: панель управления шторой + NAS.
+- Сервер ничего не тянет сам, только ручной `git pull`.
+- Редактируем код только на ноутбуке.
 
-## Repository layout
+## Структура репозитория
 
-- `index.html` - NAS dashboard UI.
-- `app.js` - frontend logic for usage cards.
-- `shtora.css` - UI styling.
-- `phone-server/server.js` - API server (`/api/user-usage` and status endpoints).
-- `docker-compose.yml` - web + API containers.
-- `nginx.conf` - web proxy for `/api/`.
-- `scripts/` - NAS setup, verify, deploy, quotas.
+- `index.html` - UI панели NAS.
+- `app.js` - логика карточек по пользователям.
+- `shtora.css` - стили.
+- `phone-server/server.js` - API (`/api/user-usage` и статусные методы).
+- `docker-compose.yml` - контейнеры web + api.
+- `nginx.conf` - прокси `/api/`.
+- `scripts/` - настройка NAS, проверка, квоты, деплой.
 
-## Deployment flow
+## Деплой (как делаем всегда)
 
-Laptop (Windows, VS Code):
+Ноут:
 ```bash
 cd C:\Users\1\Desktop\shtora
 git add .
@@ -29,7 +30,7 @@ git commit -m "update"
 git push
 ```
 
-Server (Debian):
+Сервер:
 ```bash
 cd /srv/shtora
 git pull
@@ -37,18 +38,18 @@ sudo docker compose down
 sudo docker compose up -d --force-recreate
 ```
 
-## Storage configuration
+## Диски и монтирование
 
-Physical disks:
-- SSD 120 GB: `/dev/sdd` (system, Docker, project code).
-- Seagate 500 GB + Seagate 500 GB: `/dev/sda` + `/dev/sdb` (RAID1).
-- WD 500 GB: `/dev/sdc` (scratch / exchange).
+Физика:
+- SSD 120 ГБ (`/dev/sdd`) - система, Docker, код.
+- Seagate 500 ГБ + Seagate 500 ГБ (`/dev/sda` + `/dev/sdb`) - RAID1.
+- WD 500 ГБ (`/dev/sdc`) - обменник/помойка.
 
-Mount points:
+Монтирования:
 - RAID1: `/srv`
-- Single disk: `/exchange`
+- WD: `/exchange`
 
-Check status:
+Проверки:
 ```bash
 lsblk -o NAME,SIZE,TYPE,MOUNTPOINT
 cat /proc/mdstat
@@ -56,46 +57,46 @@ sudo mdadm --detail /dev/md0
 df -h / /srv /exchange
 ```
 
-## NAS (SMB) shares
+## NAS (SMB)
 
-Shared paths:
+Шары:
 ```
 \\192.168.0.45\raid
 \\192.168.0.45\trash
 ```
 
-Admin shares:
+Админ-шары:
 ```
 \\192.168.0.45\raid_admin
 \\192.168.0.45\trash_admin
 ```
 
-If Windows blocks access because of cached credentials:
+Если Windows ругается на доступ:
 ```cmd
 net use \\192.168.0.45 /delete
 ```
 
-## NAS setup and repair
+## NAS настройка/восстановление
 
-Run once or anytime to restore folder structure and permissions:
+Скрипт можно гонять сколько угодно - он возвращает папки и права:
 ```bash
 cd /srv/shtora
 sudo ./scripts/nas-setup.sh
 ```
 
-Verify:
+Проверка:
 ```bash
 sudo ./scripts/nas-verify.sh
 ```
 
-## Quotas
+## Квоты
 
-Each user has 150 GB on RAID and 150 GB on TRASH:
+Каждому пользователю: 150 ГБ RAID + 150 ГБ TRASH.
 ```bash
 sudo ./scripts/quota-setup.sh
 ```
 
-Verify:
+Проверка квот:
 ```bash
 sudo quota -u oleg
 sudo quota -u rom
@@ -103,29 +104,29 @@ sudo quota -u TTSMANAGERR
 sudo repquota -a
 ```
 
-## Web UI (NAS dashboard)
+## Сайт (панель NAS)
 
-The UI displays per-user RAID/TRASH usage and free space.
+UI показывает использование RAID/TRASH по пользователям.
 
-Quick checks:
+Проверки:
 ```bash
 curl -s http://localhost/ | head -n 5
 curl -s http://localhost/api/user-usage
 ```
 
-## Autostart on reboot
+## Автозапуск после ребута
 
-NAS restore service:
+NAS сервис:
 ```bash
 sudo systemctl status shtora-nas-setup.service --no-pager
 ```
 
-Optional daily verify:
+Опционально ежедневная проверка:
 ```bash
 sudo systemctl status shtora-nas-verify.timer --no-pager
 ```
 
-## Post-reboot checklist
+## Быстрый чек после перезагрузки
 
 ```bash
 systemctl is-system-running
@@ -135,8 +136,8 @@ sudo systemctl status shtora-nas-setup.service --no-pager
 docker ps
 ```
 
-## Notes
+## Важно
 
-- Do not edit code on the server.
-- Always update via the laptop -> GitHub -> manual pull flow.
-- Keep the server clean: no auto-update, no background deploy.
+- На сервере код не редактируем.
+- Только ноут -> GitHub -> ручной pull.
+- Никаких авто-обновлений и скрытых деплоев.
