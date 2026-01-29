@@ -15,8 +15,10 @@ done
 
 for user in "${USERS[@]}"; do
   sudo mkdir -p "/sftp/${user}/raid" "/sftp/${user}/trash"
-  sudo chown root:root "/sftp/${user}" "/sftp/${user}/raid" "/sftp/${user}/trash"
-  sudo chmod 755 "/sftp/${user}" "/sftp/${user}/raid" "/sftp/${user}/trash"
+  sudo chown root:root "/sftp/${user}"
+  sudo chmod 755 "/sftp/${user}"
+  sudo chown "${user}:${user}" "/sftp/${user}/raid" "/sftp/${user}/trash"
+  sudo chmod 0700 "/sftp/${user}/raid" "/sftp/${user}/trash"
 
   if ! mountpoint -q "/sftp/${user}/raid"; then
     sudo mount --bind "/srv/safe/${user}" "/sftp/${user}/raid"
@@ -24,6 +26,9 @@ for user in "${USERS[@]}"; do
   if ! mountpoint -q "/sftp/${user}/trash"; then
     sudo mount --bind "/exchange/trash/${user}" "/sftp/${user}/trash"
   fi
+
+  sudo chown -R "${user}:${user}" "/srv/safe/${user}" "/exchange/trash/${user}"
+  sudo chmod 0700 "/srv/safe/${user}" "/exchange/trash/${user}"
 
   if ! grep -q "^/srv/safe/${user} /sftp/${user}/raid " /etc/fstab; then
     echo "/srv/safe/${user} /sftp/${user}/raid none bind 0 0" | sudo tee -a /etc/fstab >/dev/null
