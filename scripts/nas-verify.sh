@@ -2,7 +2,7 @@
 set -euo pipefail
 
 echo "== Users =="
-getent passwd mega oleg rom TTSMANAGERR || true
+getent passwd mega oleg rom seno || true
 
 echo
 echo "== Mounts =="
@@ -15,8 +15,8 @@ testparm -s || true
 
 echo
 echo "== ACL =="
-getfacl /srv/safe/oleg /srv/safe/rom /srv/safe/TTSMANAGERR 2>/dev/null || true
-getfacl /exchange/trash/oleg /exchange/trash/rom /exchange/trash/TTSMANAGERR 2>/dev/null || true
+getfacl /srv/safe/oleg /srv/safe/rom /srv/safe/seno 2>/dev/null || true
+getfacl /exchange/trash/oleg /exchange/trash/rom /exchange/trash/seno 2>/dev/null || true
 
 echo
 echo "== Samba login test =="

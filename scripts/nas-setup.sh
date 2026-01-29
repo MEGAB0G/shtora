@@ -12,7 +12,7 @@ EXCHANGE_DISK="/dev/sdc"
 ADMIN_USER="mega"
 ADMIN_PASS="89122844175"
 
-USERS=("oleg" "rom" "TTSMANAGERR")
+USERS=("oleg" "rom" "seno")
 PASSWORDS=("22844175" "20144" "15528")
 
 sudo apt update
@@ -97,7 +97,7 @@ sudo tee -a /etc/samba/smb.conf >/dev/null <<'EOF'
    path = /srv/safe/%U
    browseable = yes
    read only = no
-   valid users = oleg rom TTSMANAGERR mega
+   valid users = oleg rom seno mega
    create mask = 0600
    directory mask = 0700
 
@@ -105,7 +105,7 @@ sudo tee -a /etc/samba/smb.conf >/dev/null <<'EOF'
    path = /exchange/trash/%U
    browseable = yes
    read only = no
-   valid users = oleg rom TTSMANAGERR mega
+   valid users = oleg rom seno mega
    create mask = 0640
    directory mask = 0750
 

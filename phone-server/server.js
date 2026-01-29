@@ -155,7 +155,7 @@ app.post('/api/calibrate', (req, res) => {
 });
 
 const LIMIT_BYTES = 150 * 1024 * 1024 * 1024;
-const USERS = ['oleg', 'rom', 'TTSMANAGERR'];
+const USERS = ['oleg', 'rom', 'seno'];
 
 function duBytes(target) {
     return new Promise((resolve) => {

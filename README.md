@@ -100,7 +100,7 @@ sudo ./scripts/quota-setup.sh
 ```bash
 sudo quota -u oleg
 sudo quota -u rom
-sudo quota -u TTSMANAGERR
+sudo quota -u seno
 sudo repquota -a
 ```
 

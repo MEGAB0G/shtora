@@ -4,7 +4,7 @@ set -euo pipefail
 # Enable and configure user quotas on /srv and /exchange.
 # This script edits /etc/fstab and applies 150G limits to NAS users.
 
-USERS=("oleg" "rom" "TTSMANAGERR")
+USERS=("oleg" "rom" "seno")
 LIMIT_KB=157286400
 
 if [[ $EUID -ne 0 ]]; then

@@ -2,10 +2,10 @@
 set -euo pipefail
 
 # Restrict SFTP users to only RAID/TRASH folders.
-# Users: oleg, rom, TTSMANAGERR
+# Users: oleg, rom, seno
 
 GROUP="sftpusers"
-USERS=("oleg" "rom" "TTSMANAGERR")
+USERS=("oleg" "rom" "seno")
 
 sudo groupadd -f "${GROUP}"
 

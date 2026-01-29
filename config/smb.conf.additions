@@ -6,7 +6,7 @@
    path = /srv/safe/%U
    browseable = yes
    read only = no
-   valid users = oleg rom TTSMANAGERR mega
+   valid users = oleg rom seno mega
    create mask = 0600
    directory mask = 0700
 
@@ -14,7 +14,7 @@
    path = /exchange/trash/%U
    browseable = yes
    read only = no
-   valid users = oleg rom TTSMANAGERR mega
+   valid users = oleg rom seno mega
    create mask = 0640
    directory mask = 0750
 
