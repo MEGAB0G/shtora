@@ -33,7 +33,7 @@ function clamp(value, min, max) {
 
 function renderUsers(data) {
     if (!data || !Array.isArray(data.users)) {
-        els.userCards.innerHTML = '<div class="status-card"><div class="panel-title">Р СњР ВµРЎвЂљ Р Т‘Р В°Р Р…Р Р…РЎвЂ№РЎвЂ¦</div></div>';
+        els.userCards.innerHTML = '<div class="status-card"><div class="panel-title">\u041d\u0435\u0442 \u0434\u0430\u043d\u043d\u044b\u0445</div></div>';
         return;
     }
 
@@ -63,7 +63,7 @@ function renderUsers(data) {
         const remaining = Math.max(totalLimit - totalUsed, 0);
         const summary = document.createElement('div');
         summary.className = 'usage-summary';
-        summary.textContent = `Р РЋР Р†Р С•Р В±Р С•Р Т‘Р Р…Р С•: ${formatBytes(remaining)} / ${formatLimit(totalLimit)}`;
+        summary.textContent = `\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e: ${formatBytes(remaining)} / ${formatLimit(totalLimit)}`;
         header.appendChild(title);
         header.appendChild(summary);
         card.appendChild(header);
