@@ -1,0 +1,9 @@
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g opacity="0.5">
+<circle cx="10" cy="10" r="10" fill="#F5F8FC"/>
+<g style="mix-blend-mode:hue">
+<circle cx="10" cy="10" r="10" fill="white"/>
+</g>
+<path d="M9.33023 14V10.6083H6V9.37327H9.33023V6H10.6698V9.37327H14V10.6083H10.6698V14H9.33023Z" fill="#3C4657"/>
+</g>
+</svg>

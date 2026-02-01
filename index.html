@@ -1,54 +1,159 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ru">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Shtora NAS</title>
+    <title>Shtora — Private Suite</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="shtora.css?v=20260124-03">
+    <link rel="stylesheet" href="shtora.css?v=20260201-01">
 </head>
-<body>
+<body class="page">
     <div class="page-bg" aria-hidden="true">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-        <div class="grid-overlay"></div>
+        <div class="bg-blur bg-blur-1"></div>
+        <div class="bg-blur bg-blur-2"></div>
+        <div class="bg-blur bg-blur-3"></div>
+        <div class="bg-grid"></div>
     </div>
 
     <header class="topbar">
-        <div class="brand">
-            <div class="brand-mark">S</div>
-            <div>
-                <div class="brand-title">Shtora NAS</div>
-                <div class="brand-subtitle">User Storage</div>
+        <a class="brand" href="index.html">
+            <span class="brand-mark">S</span>
+            <span class="brand-text">
+                <span class="brand-title">Shtora</span>
+                <span class="brand-subtitle">Private Suite</span>
+            </span>
+        </a>
+
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="siteNav">
+            <span></span><span></span><span></span>
+        </button>
+
+        <nav class="nav" id="siteNav">
+            <a href="#features">Возможности</a>
+            <a href="#projects">Проекты</a>
+            <div class="nav-group">
+                <button class="nav-group__trigger" type="button">Система</button>
+                <div class="nav-group__menu">
+                    <a href="storage.html">Хранилище</a>
+                    <a href="#status">Статус</a>
+                </div>
             </div>
-        </div>
-        <div class="build-tag">Build: 2026-01-24-03</div>
-        <div class="status-metric">
-            <span class="label">Обновлено</span>
-            <span id="usageUpdated">---</span>
-        </div>
+            <a class="nav-cta" href="storage.html">Открыть NAS</a>
+        </nav>
     </header>
 
-    <main class="app">
-        <section class="section">
-            <div class="section-header">
-                <div>
-                    <h2>Диски пользователей</h2>
-                    <p>У каждого пользователя 150 ГБ на RAID и 150 ГБ на TRASH.</p>
+    <main class="content">
+        <section class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow">Private Infrastructure</p>
+                <h1>Единая панель для данных, устройств и проектов.</h1>
+                <p class="lead">
+                    Минималистичный контроль над домашней инфраструктурой: доступ, хранение, мониторинг,
+                    витрина проектов. Никакой лишней автоматики — только то, что нужно.
+                </p>
+                <div class="hero-actions">
+                    <a class="btn primary" href="storage.html">Открыть NAS</a>
+                    <a class="btn ghost" href="#projects">Смотреть проекты</a>
                 </div>
             </div>
-
-            <div class="usage-grid" id="userCards">
-                <div class="status-card">
-                    <div class="panel-title">Загрузка...</div>
+            <div class="hero-card">
+                <div class="hero-card__header">
+                    <span>Live</span>
+                    <span class="dot"></span>
                 </div>
+                <div class="hero-card__title">Infrastructure Snapshot</div>
+                <div class="hero-card__list">
+                    <div>
+                        <span class="label">Storage</span>
+                        <span>RAID + TRASH</span>
+                    </div>
+                    <div>
+                        <span class="label">Network</span>
+                        <span>Private routing</span>
+                    </div>
+                    <div>
+                        <span class="label">Control</span>
+                        <span>Manual updates</span>
+                    </div>
+                </div>
+                <a class="btn small" href="storage.html">Перейти к хранилищу</a>
+            </div>
+        </section>
+
+        <section class="section" id="features">
+            <div class="section-header">
+                <p class="eyebrow">Features</p>
+                <h2>Спокойный контроль, быстрые решения.</h2>
+            </div>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>Прозрачные квоты</h3>
+                    <p>У каждого пользователя понятный лимит, отдельные зоны RAID и TRASH.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Локальный фокус</h3>
+                    <p>Никакой лишней автоматики: обновления только вручную, контроль на месте.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Безопасный доступ</h3>
+                    <p>SFTP и внутренняя сеть — быстрый доступ без раскрытия лишнего.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="projects">
+            <div class="section-header">
+                <p class="eyebrow">Projects</p>
+                <h2>Витрина проектов</h2>
+            </div>
+            <div class="project-grid">
+                <div class="project-card">
+                    <span class="tag">draft</span>
+                    <h3>Project One</h3>
+                    <p>Заготовка под будущий релиз и описание.</p>
+                </div>
+                <div class="project-card">
+                    <span class="tag">draft</span>
+                    <h3>Project Two</h3>
+                    <p>Место для следующей идеи и статуса работ.</p>
+                </div>
+                <div class="project-card">
+                    <span class="tag">draft</span>
+                    <h3>Project Three</h3>
+                    <p>Добавишь название и описание позже.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section status-section" id="status">
+            <div class="status-card">
+                <div>
+                    <p class="eyebrow">Status</p>
+                    <h2>Инфраструктура онлайн</h2>
+                    <p>Перейди в хранилище, чтобы увидеть загрузку RAID и TRASH.</p>
+                </div>
+                <a class="btn primary" href="storage.html">Открыть хранилище</a>
             </div>
         </section>
     </main>
 
-    <script src="app.js?v=20260124-03"></script>
+    <footer class="footer">
+        <span>© 2026 Shtora</span>
+        <span>Private suite for personal infrastructure</span>
+    </footer>
+
+    <script>
+        const toggle = document.querySelector('.nav-toggle');
+        const nav = document.querySelector('.nav');
+        if (toggle && nav) {
+            toggle.addEventListener('click', () => {
+                const expanded = toggle.getAttribute('aria-expanded') === 'true';
+                toggle.setAttribute('aria-expanded', String(!expanded));
+                nav.classList.toggle('is-open', !expanded);
+            });
+        }
+    </script>
 </body>
 </html>
