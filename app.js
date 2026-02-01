@@ -1,7 +1,9 @@
-﻿const els = {
+const els = {
     usageUpdated: document.getElementById('usageUpdated'),
     userCards: document.getElementById('userCards')
 };
+
+const FS_OVERHEAD_BYTES = 4096;
 
 function formatBytes(value) {
     if (!Number.isFinite(value)) {
@@ -31,7 +33,7 @@ function clamp(value, min, max) {
 
 function renderUsers(data) {
     if (!data || !Array.isArray(data.users)) {
-        els.userCards.innerHTML = '<div class="status-card"><div class="panel-title">Нет данных</div></div>';
+        els.userCards.innerHTML = '<div class="status-card"><div class="panel-title">Р СњР ВµРЎвЂљ Р Т‘Р В°Р Р…Р Р…РЎвЂ№РЎвЂ¦</div></div>';
         return;
     }
 
@@ -44,6 +46,10 @@ function renderUsers(data) {
 
     els.userCards.innerHTML = '';
     data.users.forEach((user) => {
+        const raidUsedRaw = user.raidUsed || 0;
+        const trashUsedRaw = user.trashUsed || 0;
+        const raidUsed = Math.max(raidUsedRaw - FS_OVERHEAD_BYTES, 0);
+        const trashUsed = Math.max(trashUsedRaw - FS_OVERHEAD_BYTES, 0);
         const card = document.createElement('div');
         card.className = 'usage-card';
 
@@ -52,19 +58,19 @@ function renderUsers(data) {
         const title = document.createElement('div');
         title.className = 'usage-title';
         title.textContent = user.name;
-        const totalUsed = (user.raidUsed || 0) + (user.trashUsed || 0);
+        const totalUsed = raidUsed + trashUsed;
         const totalLimit = (user.limitBytes || 0) * 2;
         const remaining = Math.max(totalLimit - totalUsed, 0);
         const summary = document.createElement('div');
         summary.className = 'usage-summary';
-        summary.textContent = `Свободно: ${formatBytes(remaining)} / ${formatLimit(totalLimit)}`;
+        summary.textContent = `Р РЋР Р†Р С•Р В±Р С•Р Т‘Р Р…Р С•: ${formatBytes(remaining)} / ${formatLimit(totalLimit)}`;
         header.appendChild(title);
         header.appendChild(summary);
         card.appendChild(header);
 
         const sections = [
-            { label: 'RAID', used: user.raidUsed, limit: user.limitBytes },
-            { label: 'TRASH', used: user.trashUsed, limit: user.limitBytes }
+            { label: 'RAID', used: raidUsed, limit: user.limitBytes },
+            { label: 'TRASH', used: trashUsed, limit: user.limitBytes }
         ];
 
         sections.forEach((section) => {
