@@ -9,6 +9,7 @@
     --card: rgba(16, 20, 26, 0.88);
     --card-border: rgba(255, 255, 255, 0.08);
     --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    --metal: linear-gradient(120deg, #4e5359, #a7b0b8 30%, #f5f7f9 50%, #a7b0b8 70%, #43484e);
 }
 
 * {
@@ -76,6 +77,54 @@ a {
         linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
     background-size: 64px 64px;
     opacity: 0.15;
+}
+
+.ticker-wall {
+    position: absolute;
+    inset: -20% -10%;
+    display: grid;
+    grid-template-rows: repeat(6, minmax(44px, 1fr));
+    gap: 22px;
+    transform: rotate(-12deg);
+    opacity: 0.18;
+    pointer-events: none;
+}
+
+.ticker-row {
+    display: flex;
+    gap: 28px;
+    width: 200%;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    font-size: clamp(4.2rem, 12vw, 18rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    background: var(--metal);
+    -webkit-background-clip: text;
+    background-clip: text;
+    white-space: nowrap;
+    animation: driftRight 55s linear infinite;
+}
+
+.ticker-row.alt {
+    animation: driftLeft 62s linear infinite;
+}
+
+.ticker-track {
+    display: flex;
+    gap: 28px;
+    min-width: max-content;
+}
+
+@keyframes driftRight {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+@keyframes driftLeft {
+    from { transform: translateX(-50%); }
+    to { transform: translateX(0); }
 }
 
 .topbar {
@@ -353,6 +402,26 @@ h3 {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 18px;
+}
+
+.mk-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+}
+
+.clean-list {
+    list-style: none;
+    display: grid;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.clean-list strong {
+    color: var(--text);
+    font-weight: 600;
 }
 
 .feature-card,
