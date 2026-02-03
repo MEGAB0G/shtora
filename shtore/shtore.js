@@ -20,7 +20,9 @@ const els = {
     btnAddSchedule: document.getElementById('btnAddSchedule'),
     scheduleList: document.getElementById('scheduleList'),
     btnCalibStart: document.getElementById('btnCalibStart'),
-    btnCalibStop: document.getElementById('btnCalibStop')
+    btnCalibStop: document.getElementById('btnCalibStop'),
+    btnLeftDown10: document.getElementById('btnLeftDown10'),
+    btnRightDown10: document.getElementById('btnRightDown10')
 };
 
 const API_BASE = '/api';
@@ -225,6 +227,8 @@ els.btnSavePreset.addEventListener('click', savePreset);
 els.btnAddSchedule.addEventListener('click', addSchedule);
 els.btnCalibStart.addEventListener('click', () => calibrate('start'));
 els.btnCalibStop.addEventListener('click', () => calibrate('stop'));
+els.btnLeftDown10.addEventListener('click', () => sendMove('left-down-10'));
+els.btnRightDown10.addEventListener('click', () => sendMove('right-down-10'));
 
 renderSchedules();
 fetchStatus();

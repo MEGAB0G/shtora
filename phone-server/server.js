@@ -90,6 +90,8 @@ app.post('/api/move', (req, res) => {
     } else if (action === 'close') {
         state.target = 0;
         state.moving = 'moving';
+    } else if (action === 'left-down-10' || action === 'right-down-10') {
+        state.moving = 'moving';
     } else {
         state.moving = 'idle';
     }

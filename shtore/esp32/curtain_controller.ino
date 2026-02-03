@@ -5,11 +5,11 @@
 
 // ================== Wi-Fi / Server ==================
 // TODO: put your Wi-Fi here
-const char* WIFI_SSID = "YOUR_WIFI_SSID";
-const char* WIFI_PASS = "YOUR_WIFI_PASSWORD";
+const char* WIFI_SSID = "111";
+const char* WIFI_PASS = "88888888";
 
 // Server base URL (no trailing slash), example: http://192.168.0.45
-const char* SERVER_URL = "http://192.168.0.45";
+const char* SERVER_URL = "https://romankovich.ru";
 
 // ================== Pins (update to your wiring) ==================
 #define RELAY_PIN 23
@@ -40,8 +40,6 @@ WiFiClient client;
 WiFiClientSecure clientSecure;
 
 String pollUrl;
-String ackUrl;
-String statusUrl;
 
 // ================== Calibration storage ==================
 Preferences prefs;
@@ -53,6 +51,16 @@ long currentSteps = 0;
 long targetSteps = 0;
 bool hasTarget = false;
 bool moving = false;
+bool jogging = false;
+unsigned long jogEndMs = 0;
+
+enum JogMode {
+  JOG_NONE,
+  JOG_LEFT_DOWN,
+  JOG_RIGHT_DOWN
+};
+
+JogMode jogMode = JOG_NONE;
 
 enum MotionMode {
   MODE_IDLE,
@@ -253,11 +261,6 @@ int targetPercent() {
   return (int)((clamped * 100L) / fullSteps);
 }
 
-String numOrNull(int value) {
-  if (value < 0) return "null";
-  return String(value);
-}
-
 bool httpPostJson(const String& url, const String& payload) {
   HTTPClient http;
   if (!beginHttp(http, url)) return false;
@@ -278,30 +281,13 @@ bool httpGet(const String& url, String& body) {
   return code == 200;
 }
 
-void pushStatus() {
-  if (WiFi.status() != WL_CONNECTED) return;
-  int pos = positionPercent();
-  int tgt = targetPercent();
-  String payload = "{";
-  payload += "\"position\":" + numOrNull(pos) + ",";
-  payload += "\"target\":" + numOrNull(tgt) + ",";
-  payload += "\"moving\":\"" + motionLabel() + "\",";
-  payload += "\"wifi\":{\"ssid\":\"" + jsonEscape(WiFi.SSID()) + "\",\"rssi\":" + String(WiFi.RSSI()) + "},";
-  payload += "\"ip\":\"" + WiFi.localIP().toString() + "\"";
-  payload += "}";
-  httpPostJson(statusUrl, payload);
-}
-
-void ackCommand(long id) {
-  String payload = "{\"id\":" + String(id) + "}";
-  httpPostJson(ackUrl, payload);
-}
-
 // ================== Motion control ==================
 void stopMotion() {
   moving = false;
   motionMode = MODE_IDLE;
   hasTarget = false;
+  jogging = false;
+  jogMode = JOG_NONE;
   setRelay(false);
   releaseMotors();
 }
@@ -347,6 +333,22 @@ void commandCalibrateStop() {
   stopMotion();
 }
 
+void commandLeftDown10() {
+  stopMotion();
+  jogging = true;
+  jogMode = JOG_LEFT_DOWN;
+  jogEndMs = millis() + 10000;
+  setRelay(true);
+}
+
+void commandRightDown10() {
+  stopMotion();
+  jogging = true;
+  jogMode = JOG_RIGHT_DOWN;
+  jogEndMs = millis() + 10000;
+  setRelay(true);
+}
+
 void handleLeftLimit() {
   currentSteps = 0;
   if (motionMode == MODE_CALIB_LEFT) {
@@ -368,10 +370,35 @@ void handleRightLimit() {
 }
 
 void stepTick() {
-  if (!moving) return;
+  if (!moving && !jogging) return;
   unsigned long nowUs = micros();
   if (nowUs - lastStepUs < (unsigned long)STEP_DELAY_US) return;
   lastStepUs = nowUs;
+
+  if (jogging) {
+    if (millis() >= jogEndMs) {
+      stopMotion();
+      return;
+    }
+
+    if (jogMode == JOG_LEFT_DOWN) {
+      if (hitLeft()) {
+        stopMotion();
+        return;
+      }
+      stepMotor1(-1);
+      return;
+    }
+
+    if (jogMode == JOG_RIGHT_DOWN) {
+      if (hitRight()) {
+        stopMotion();
+        return;
+      }
+      stepMotor2(1);
+      return;
+    }
+  }
 
   int dir = (motionMode == MODE_OPENING || motionMode == MODE_CALIB_RIGHT) ? 1 : -1;
 
@@ -398,27 +425,48 @@ void stepTick() {
   }
 }
 
-// ================== Server poll ==================
+// ================== Server poll (single endpoint) ==================
 void pollServer() {
   if (WiFi.status() != WL_CONNECTED) return;
-  String body;
-  if (!httpGet(pollUrl, body)) return;
+
+  int pos = positionPercent();
+  int tgt = targetPercent();
+  String payload = "{";
+  payload += "\"position\":" + String(pos) + ",";
+  payload += "\"target\":" + String(tgt) + ",";
+  payload += "\"moving\":\"" + motionLabel() + "\",";
+  payload += "\"wifi\":{\"ssid\":\"" + jsonEscape(WiFi.SSID()) + "\",\"rssi\":" + String(WiFi.RSSI()) + "},";
+  payload += "\"ip\":\"" + WiFi.localIP().toString() + "\"";
+  payload += "}";
+
+  HTTPClient http;
+  if (!beginHttp(http, pollUrl)) return;
+  http.addHeader("Content-Type", "application/json");
+  int code = http.POST(payload);
+  if (code != 200) {
+    http.end();
+    return;
+  }
+
+  String body = http.getString();
+  http.end();
 
   long cmdId = 0;
   if (!parseJsonLong(body, "id", cmdId)) return;
+  if (cmdId == 0) return;
 
   String action = parseJsonString(body, "action");
-  long pos = 0;
-  bool hasPos = parseJsonLong(body, "position", pos);
+  long posCmd = 0;
+  bool hasPos = parseJsonLong(body, "position", posCmd);
 
   if (action == "open") commandOpen();
   else if (action == "close") commandClose();
   else if (action == "stop") stopMotion();
-  else if (action == "goto" && hasPos) commandGoto((int)pos);
+  else if (action == "goto" && hasPos) commandGoto((int)posCmd);
   else if (action == "calibrate:start") commandCalibrateStart();
   else if (action == "calibrate:stop") commandCalibrateStop();
-
-  ackCommand(cmdId);
+  else if (action == "left-down-10") commandLeftDown10();
+  else if (action == "right-down-10") commandRightDown10();
 }
 
 // ================== Wi-Fi ==================
@@ -466,9 +514,7 @@ void setup() {
   loadCalibration();
 
   String base = normalizeUrl(String(SERVER_URL));
-  pollUrl = base + "/api/command";
-  ackUrl = base + "/api/command/ack";
-  statusUrl = base + "/api/status";
+  pollUrl = base + "/api/poll";
 
   connectWiFi15s();
 }
@@ -480,11 +526,6 @@ void loop() {
   if (now - lastPoll >= POLL_INTERVAL_MS) {
     lastPoll = now;
     pollServer();
-  }
-
-  if (now - lastStatus >= STATUS_INTERVAL_MS) {
-    lastStatus = now;
-    pushStatus();
   }
 
   stepTick();
