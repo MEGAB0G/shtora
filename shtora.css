@@ -93,7 +93,8 @@ a {
 .ticker-row {
     display: flex;
     gap: 28px;
-    width: 200%;
+    width: 100%;
+    overflow: hidden;
     font-family: "Space Grotesk", "Segoe UI", sans-serif;
     font-size: clamp(4.2rem, 12vw, 18rem);
     font-weight: 700;
@@ -104,11 +105,17 @@ a {
     -webkit-background-clip: text;
     background-clip: text;
     white-space: nowrap;
-    animation: driftRight 55s linear infinite;
 }
 
-.ticker-row.alt {
+.ticker-row.alt .ticker-marquee {
     animation: driftLeft 62s linear infinite;
+}
+
+.ticker-marquee {
+    display: flex;
+    gap: 28px;
+    width: max-content;
+    animation: driftRight 55s linear infinite;
 }
 
 .ticker-track {
