@@ -1,4 +1,4 @@
-const navToggle = document.querySelector('[data-topm-toggle]');
+﻿const navToggle = document.querySelector('[data-topm-toggle]');
 const nav = document.querySelector('.topm-nav');
 
 if (navToggle && nav) {
@@ -6,3 +6,4 @@ if (navToggle && nav) {
         nav.classList.toggle('is-open');
     });
 }
+

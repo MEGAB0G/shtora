@@ -1,12 +1,12 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Топ‑Мультимедиа</title>
+    <title>Топ-Мультимедиа — презентационные решения</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;600;700&family=Literata:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="topm.css">
 </head>
 <body>
@@ -16,12 +16,15 @@
 
     <div class="topm-wrapper">
         <header class="topm-header">
-            <div class="topm-header__inner">
+            <div class="topm-container topm-header__inner">
                 <a class="topm-logo" href="Топ-Мультимедиа.html">
-                    <span class="topm-logo__badge">TM</span>
-                    <span>Топ‑Мультимедиа</span>
+                    <span class="topm-logo__badge" aria-hidden="true"></span>
+                    <span>Топ-Мультимедиа</span>
                 </a>
-                <nav class="topm-nav">
+                <button class="topm-nav__toggle" type="button" data-topm-toggle aria-controls="topm-nav" aria-expanded="false">
+                    Меню
+                </button>
+                <nav class="topm-nav" id="topm-nav">
                     <a href="PR%20видео%20—%20Топ-Мультимедиа.html">PR видео</a>
                     <a href="Виртуальная%20реальность%20—%20Топ-Мультимедиа.html">Виртуальная реальность</a>
                     <a href="Дополненная%20реальность%20—%20Топ-Мультимедиа.html">Дополненная реальность</a>
@@ -32,90 +35,146 @@
             </div>
         </header>
 
-        <section class="topm-hero">
-            <div class="hero-grid">
-                <div>
-                    <p class="eyebrow">Презентационные решения</p>
-                    <h1>Топ‑Мультимедиа</h1>
-                    <p class="lead">
-                        Мы создаём комплексные презентационные решения: видеофильмы, 3D‑ролики, дополненная и
-                        виртуальная реальность, аэросъёмка (фото, видео, FullHD, 4K, фотопанорамы),
-                        мультимедийные презентации, масштабные модели техники, интернет‑ и интранет‑проекты, дизайн.
-                    </p>
-                    <div class="topm-actions">
-                        <a class="btn primary" href="PR%20видео%20—%20Топ-Мультимедиа.html">PR видео</a>
-                        <a class="btn ghost" href="Контакты%20—%20Топ-Мультимедиа.html">Запросить расчёт</a>
+        <main>
+            <section class="topm-hero">
+                <div class="topm-container hero-grid">
+                    <div class="hero-copy">
+                        <p class="eyebrow">Презентационные решения</p>
+                        <h1>Визуальные истории, которые убеждают и продают.</h1>
+                        <p class="lead">
+                            Мы создаём комплексные презентационные решения: видеофильмы, 3D-ролики, VR/AR-сценарии,
+                            аэросъёмку (FullHD, 4K, панорамы), мультимедийные презентации, масштабные модели и интерактивные
+                            интернет-проекты. Работаем на стыке инженерии, дизайна и маркетинга.
+                        </p>
+                        <div class="topm-actions">
+                            <a class="btn primary" href="PR%20видео%20—%20Топ-Мультимедиа.html">Смотреть PR-видео</a>
+                            <a class="btn ghost" href="Контакты%20—%20Топ-Мультимедиа.html">Запросить расчёт</a>
+                        </div>
+                        <div class="hero-stats">
+                            <div class="stat">
+                                <span>FullHD / 4K</span>
+                                <p>Съёмка и монтаж под задачу.</p>
+                            </div>
+                            <div class="stat">
+                                <span>3D + VFX</span>
+                                <p>Инфографика и сложные процессы.</p>
+                            </div>
+                            <div class="stat">
+                                <span>VR / AR</span>
+                                <p>Иммерсивные форматы и demo.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-media">
+                        <div class="media-stack">
+                            <img src="assets/pr-hero.jpg" alt="PR видео">
+                            <img src="assets/models-hero.jpg" alt="Масштабные модели">
+                            <img src="PR видео — Топ-Мультимедиа_files/UDMZ_2.mp4_snapshot_02.59_2017.10.25_23.59.23.jpg" alt="Съёмка производства">
+                        </div>
                     </div>
                 </div>
-                <div class="hero-media">
-                    <img src="assets/pr-hero.jpg" alt="PR видео">
-                    <span class="media-caption">PR видео</span>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <section class="section">
-            <h2>Направления</h2>
-            <div class="grid">
-                <div class="card">
-                    <span class="tag">Видео</span>
-                    <h3>PR‑ролики и фильмы</h3>
-                    <ul>
-                        <li>Инфографика, 3D‑анимация</li>
-                        <li>Широкоформатная видеосъёмка</li>
-                        <li>Аэросъёмка и сложные объекты</li>
-                    </ul>
+            <section class="section">
+                <div class="topm-container">
+                    <div class="section-head">
+                        <h2>Направления</h2>
+                        <p class="section-note">Собираем решения под бизнес-задачи: от имиджевых фильмов до VR/AR презентаций.</p>
+                    </div>
+                    <div class="grid">
+                        <div class="card">
+                            <span class="tag">Видео</span>
+                            <h3>PR-ролики и фильмы</h3>
+                            <ul>
+                                <li>Инфографика, 3D-анимация</li>
+                                <li>Широкоформатная видеосъёмка</li>
+                                <li>Аэросъёмка и сложные объекты</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <span class="tag">VR / AR</span>
+                            <h3>Иммерсивные форматы</h3>
+                            <ul>
+                                <li>Виртуальные экскурсии</li>
+                                <li>Демонстрация сложных объектов</li>
+                                <li>Интерактивные сценарии</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <span class="tag">Модели</span>
+                            <h3>Масштабные макеты</h3>
+                            <ul>
+                                <li>Техника и оборудование</li>
+                                <li>Макеты зданий и сооружений</li>
+                                <li>Выставочные решения</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-                <div class="card">
-                    <span class="tag">VR / AR</span>
-                    <h3>Иммерсивные форматы</h3>
-                    <ul>
-                        <li>Виртуальные экскурсии</li>
-                        <li>Демонстрация сложных объектов</li>
-                        <li>Интерактивные сценарии</li>
-                    </ul>
-                </div>
-                <div class="card">
-                    <span class="tag">Модели</span>
-                    <h3>Масштабные макеты</h3>
-                    <ul>
-                        <li>Техника и оборудование</li>
-                        <li>Макеты зданий и сооружений</li>
-                        <li>Выставочные решения</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <section class="section">
-            <h2>Примеры визуализаций</h2>
-            <div class="media-grid">
-                <div class="media-card">
-                    <img src="assets/pr-hero.jpg" alt="PR видео">
-                    <div class="media-body">Промышленная видеосъёмка и инфографика.</div>
+            <section class="section">
+                <div class="topm-container">
+                    <div class="section-head">
+                        <h2>Примеры визуализаций</h2>
+                        <p class="section-note">Кадры из проектов и архивных материалов студии.</p>
+                    </div>
+                    <div class="media-grid">
+                        <div class="media-card">
+                            <img src="Масштабные модели — Топ-Мультимедиа_files/IMG_2264.jpg" alt="Масштабные модели">
+                            <div class="media-body">Макеты техники и объектов для выставок.</div>
+                        </div>
+                        <div class="media-card">
+                            <img src="Дополненная реальность — Топ-Мультимедиа_files/IMG_20171003_114320.jpg" alt="AR решения">
+                            <div class="media-body">AR-решения для стендов и презентаций.</div>
+                        </div>
+                        <div class="media-card">
+                            <img src="Клиенты — Топ-Мультимедиа_files/Клиенты-11_2017-965x1024.jpg" alt="Клиенты">
+                            <div class="media-body">Проекты для бизнеса и промышленности.</div>
+                        </div>
+                        <div class="media-card">
+                            <img src="assets/clients-hero.jpg" alt="Команда и проекты">
+                            <div class="media-body">Архивные кадры и медиатека проектов.</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="media-card">
-                    <img src="assets/models-hero.jpg" alt="Масштабные модели">
-                    <div class="media-body">Макеты техники и объектов для выставок.</div>
-                </div>
-                <div class="media-card">
-                    <img src="assets/clients-hero.jpg" alt="Клиенты">
-                    <div class="media-body">Проекты для бизнеса и промышленности.</div>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <section class="section">
-            <h2>Видео из VK</h2>
-            <div class="vk-placeholder">
-                Здесь будет автоматическая подгрузка видео из профиля VK.
-            </div>
-        </section>
+            <section class="section">
+                <div class="topm-container">
+                    <div class="section-head">
+                        <h2>Бренд-архив</h2>
+                        <p class="section-note">Используем накопленные материалы и наработки для быстрого старта.</p>
+                    </div>
+                    <div class="logo-strip">
+                        <img src="PR видео — Топ-Мультимедиа_files/logo-top-m-3.jpg" alt="Топ-Мультимедиа">
+                        <img src="Контакты — Топ-Мультимедиа_files/logo-top-m-3.jpg" alt="Логотип">
+                        <img src="Клиенты — Топ-Мультимедиа_files/logo-top-m-3.jpg" alt="Логотип">
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="topm-container">
+                    <h2>Видео из VK</h2>
+                    <div class="vk-placeholder">
+                        Здесь будет автоматическая подгрузка видео из профиля VK.
+                    </div>
+                </div>
+            </section>
+        </main>
 
         <footer class="topm-footer">
-            <span>© 2026 Топ‑Мультимедиа</span>
-            <span>PR • 3D • VR/AR • Модели</span>
+            <div class="topm-container topm-footer__inner">
+                <span>© 2026 Топ-Мультимедиа</span>
+                <span>PR • 3D • VR/AR • Модели</span>
+            </div>
         </footer>
     </div>
+    <script src="topm.js"></script>
 </body>
 </html>
+
+
+
+

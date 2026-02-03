@@ -1,12 +1,12 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Дополненная реальность — Топ‑Мультимедиа</title>
+    <title>Дополненная реальность — Топ-Мультимедиа</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;600;700&family=Literata:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="topm.css">
 </head>
 <body>
@@ -16,12 +16,15 @@
 
     <div class="topm-wrapper">
         <header class="topm-header">
-            <div class="topm-header__inner">
+            <div class="topm-container topm-header__inner">
                 <a class="topm-logo" href="Топ-Мультимедиа.html">
-                    <span class="topm-logo__badge">TM</span>
-                    <span>Топ‑Мультимедиа</span>
+                    <span class="topm-logo__badge" aria-hidden="true"></span>
+                    <span>Топ-Мультимедиа</span>
                 </a>
-                <nav class="topm-nav">
+                <button class="topm-nav__toggle" type="button" data-topm-toggle aria-controls="topm-nav" aria-expanded="false">
+                    Меню
+                </button>
+                <nav class="topm-nav" id="topm-nav">
                     <a href="PR%20видео%20—%20Топ-Мультимедиа.html">PR видео</a>
                     <a href="Виртуальная%20реальность%20—%20Топ-Мультимедиа.html">Виртуальная реальность</a>
                     <a href="Дополненная%20реальность%20—%20Топ-Мультимедиа.html">Дополненная реальность</a>
@@ -32,48 +35,97 @@
             </div>
         </header>
 
-        <section class="topm-hero">
-            <p class="eyebrow">Дополненная реальность</p>
-            <h1>AR‑проекты для презентаций и демонстраций</h1>
-            <p class="lead">
-                Дополненная реальность (Augmented Reality, AR) — термин, относящийся ко всем проектам,
-                направленным на дополнение реальности виртуальными элементами.
-            </p>
-            <p class="lead">
-                Камера «ловит» (определяет) маркер и с помощью специального программного обеспечения
-                в режиме online проецирует на экран в формате Full HD 3D‑модель объекта
-                (техники, зданий, сооружений, игровых элементов и т.д.).
-            </p>
-        </section>
+        <main>
+            <section class="topm-hero">
+                <div class="topm-container hero-grid">
+                    <div class="hero-copy">
+                        <p class="eyebrow">Дополненная реальность</p>
+                        <h1>AR-решения для презентаций, выставок и продаж.</h1>
+                        <p class="lead">
+                            AR добавляет цифровые объекты в реальный мир и помогает показывать сложные продукты без
+                            физического образца. Подходит для стендов, каталогов и презентаций.
+                        </p>
+                        <div class="topm-actions">
+                            <a class="btn primary" href="Контакты%20—%20Топ-Мультимедиа.html">Запросить концепт</a>
+                            <a class="btn ghost" href="Клиенты%20—%20Топ-Мультимедиа.html">Смотреть кейсы</a>
+                        </div>
+                    </div>
+                    <div class="hero-media">
+                        <img src="Дополненная реальность — Топ-Мультимедиа_files/IMG_20171003_114320.jpg" alt="AR презентации">
+                        <span class="media-caption">AR для демонстрации объектов</span>
+                    </div>
+                </div>
+            </section>
 
-        <section class="section">
-            <h2>Сценарии использования</h2>
-            <div class="grid">
-                <div class="card">
-                    <span class="tag">Выставки</span>
-                    <h3>Интерактивные стенды</h3>
-                    <ul>
-                        <li>Демонстрация техники</li>
-                        <li>Презентации без физического объекта</li>
-                        <li>Интерактивная подача</li>
-                    </ul>
+            <section class="section">
+                <div class="topm-container">
+                    <div class="section-head">
+                        <h2>Сценарии использования</h2>
+                        <p class="section-note">Переводим сложные объекты в интерактивный формат.</p>
+                    </div>
+                    <div class="grid">
+                        <div class="card">
+                            <span class="tag">Выставки</span>
+                            <h3>Интерактивные стенды</h3>
+                            <ul>
+                                <li>Демонстрация техники</li>
+                                <li>Показ без физического объекта</li>
+                                <li>Погружение для аудитории</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <span class="tag">Маркетинг</span>
+                            <h3>AR-каталоги</h3>
+                            <ul>
+                                <li>3D-объекты в окружении клиента</li>
+                                <li>Вовлечение и запоминаемость</li>
+                                <li>Удобная подача информации</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <span class="tag">Продажи</span>
+                            <h3>Презентации</h3>
+                            <ul>
+                                <li>Визуализация вариантов</li>
+                                <li>Быстрые сравнения</li>
+                                <li>Имидж технологичности</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-                <div class="card">
-                    <span class="tag">Маркетинг</span>
-                    <h3>AR‑каталоги</h3>
-                    <ul>
-                        <li>3D‑объекты в реальном окружении</li>
-                        <li>Понятная визуализация</li>
-                        <li>Удобно для клиентов</li>
-                    </ul>
+            </section>
+
+            <section class="section">
+                <div class="topm-container">
+                    <div class="section-head">
+                        <h2>Примеры и медиа</h2>
+                        <p class="section-note">Готовим визуальные сценарии для презентаций и каталогов.</p>
+                    </div>
+                    <div class="media-grid">
+                        <div class="media-card">
+                            <img src="assets/pr-hero.jpg" alt="AR витрины">
+                            <div class="media-body">AR-витрины и промо для индустриальных брендов.</div>
+                        </div>
+                        <div class="media-card">
+                            <img src="assets/models-hero.jpg" alt="AR модели">
+                            <div class="media-body">3D-объекты в масштабе для стендов и каталогов.</div>
+                        </div>
+                        <div class="media-card">
+                            <img src="assets/clients-hero.jpg" alt="AR презентации">
+                            <div class="media-body">Презентации и демонстрации на переговорах.</div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </main>
 
         <footer class="topm-footer">
-            <span>© 2026 Топ‑Мультимедиа</span>
-            <span>PR • 3D • VR/AR • Модели</span>
+            <div class="topm-container topm-footer__inner">
+                <span>© 2026 Топ-Мультимедиа</span>
+                <span>PR • 3D • VR/AR • Модели</span>
+            </div>
         </footer>
     </div>
+    <script src="topm.js"></script>
 </body>
 </html>
