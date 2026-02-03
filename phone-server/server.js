@@ -58,8 +58,7 @@ app.get('/api/status', (req, res) => {
     res.json(state);
 });
 
-app.post('/api/status', (req, res) => {
-    const payload = req.body || {};
+function applyStatus(payload) {
     state = {
         ...state,
         position: payload.position ?? state.position,
@@ -71,6 +70,11 @@ app.post('/api/status', (req, res) => {
         motor: payload.motor ? { ...state.motor, ...payload.motor } : state.motor
     };
     saveState();
+}
+
+app.post('/api/status', (req, res) => {
+    const payload = req.body || {};
+    applyStatus(payload);
     res.json({ ok: true });
 });
 
@@ -110,6 +114,28 @@ app.post('/api/command/ack', (req, res) => {
         return;
     }
     res.status(404).json({ ok: false });
+});
+
+// Single poll endpoint: ESP posts status and gets command back
+app.post('/api/poll', (req, res) => {
+    const payload = req.body || {};
+    applyStatus(payload);
+    if (state.command && !state.command.acked) {
+        state.command.acked = true;
+        saveState();
+        res.json(state.command);
+        return;
+    }
+    res.json({ id: 0 });
+});
+
+// GET poll for quick manual checks (does not change status)
+app.get('/api/poll', (req, res) => {
+    if (state.command && !state.command.acked) {
+        res.json(state.command);
+        return;
+    }
+    res.json({ id: 0 });
 });
 
 app.post('/api/preset', (req, res) => {
