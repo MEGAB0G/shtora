@@ -53,6 +53,7 @@ bool hasTarget = false;
 bool moving = false;
 bool jogging = false;
 unsigned long jogEndMs = 0;
+long jogStepsRemaining = 0;
 
 enum JogMode {
   JOG_NONE,
@@ -288,6 +289,7 @@ void stopMotion() {
   hasTarget = false;
   jogging = false;
   jogMode = JOG_NONE;
+  jogStepsRemaining = 0;
   setRelay(false);
   releaseMotors();
 }
@@ -338,6 +340,7 @@ void commandLeftDown10() {
   jogging = true;
   jogMode = JOG_LEFT_DOWN;
   jogEndMs = millis() + 10000;
+  jogStepsRemaining = 0;
   setRelay(true);
 }
 
@@ -346,6 +349,27 @@ void commandRightDown10() {
   jogging = true;
   jogMode = JOG_RIGHT_DOWN;
   jogEndMs = millis() + 10000;
+  jogStepsRemaining = 0;
+  setRelay(true);
+}
+
+void commandLeftSteps(long steps) {
+  stopMotion();
+  if (steps <= 0) return;
+  jogging = true;
+  jogMode = JOG_LEFT_DOWN;
+  jogEndMs = 0;
+  jogStepsRemaining = steps;
+  setRelay(true);
+}
+
+void commandRightSteps(long steps) {
+  stopMotion();
+  if (steps <= 0) return;
+  jogging = true;
+  jogMode = JOG_RIGHT_DOWN;
+  jogEndMs = 0;
+  jogStepsRemaining = steps;
   setRelay(true);
 }
 
@@ -376,7 +400,7 @@ void stepTick() {
   lastStepUs = nowUs;
 
   if (jogging) {
-    if (millis() >= jogEndMs) {
+    if ((jogEndMs > 0 && millis() >= jogEndMs) || (jogStepsRemaining == 0 && jogEndMs == 0)) {
       stopMotion();
       return;
     }
@@ -387,6 +411,7 @@ void stepTick() {
         return;
       }
       stepMotor1(-1);
+      if (jogEndMs == 0 && jogStepsRemaining > 0) jogStepsRemaining--;
       return;
     }
 
@@ -396,6 +421,7 @@ void stepTick() {
         return;
       }
       stepMotor2(1);
+      if (jogEndMs == 0 && jogStepsRemaining > 0) jogStepsRemaining--;
       return;
     }
   }
@@ -467,6 +493,8 @@ void pollServer() {
   else if (action == "calibrate:stop") commandCalibrateStop();
   else if (action == "left-down-10") commandLeftDown10();
   else if (action == "right-down-10") commandRightDown10();
+  else if (action == "left-steps" && hasPos) commandLeftSteps(posCmd);
+  else if (action == "right-steps" && hasPos) commandRightSteps(posCmd);
 }
 
 // ================== Wi-Fi ==================
@@ -523,9 +551,11 @@ void loop() {
   ensureWiFi();
 
   unsigned long now = millis();
-  if (now - lastPoll >= POLL_INTERVAL_MS) {
-    lastPoll = now;
-    pollServer();
+  if (!moving && !jogging) {
+    if (now - lastPoll >= POLL_INTERVAL_MS) {
+      lastPoll = now;
+      pollServer();
+    }
   }
 
   stepTick();
