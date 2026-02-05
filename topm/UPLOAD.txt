@@ -1,9 +1,13 @@
 ﻿Загрузка на сервер (romankovich.ru/topm):
-1) Залейте папку topm целиком, включая папку assets.
-2) Убедитесь, что главный файл: /topm/index.html
-3) Страницы сайта:
+1) Заливайте рабочую часть папки topm.
+2) Веб-страницы:
    /topm/index.html
    /topm/projects.html
    /topm/services.html
    /topm/clients.html
    /topm/contacts.html
+3) Медиа используются из:
+   /topm/assets/img
+   /topm/assets/video
+   /topm/assets/pdf
+4) Папка /topm/_unused - архив, на сервер не обязателен.
