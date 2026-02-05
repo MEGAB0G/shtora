@@ -1,4 +1,9 @@
-﻿Загрузка на сервер:
-1) Залейте папку topm целиком в корень сайта.
-2) Проверьте: https://romankovich.ru/topm/
-3) Если используете архив, распакуйте так, чтобы index.html лежал в /topm/index.html
+﻿Загрузка на сервер (romankovich.ru/topm):
+1) Залейте папку topm целиком, включая папку assets.
+2) Убедитесь, что главный файл: /topm/index.html
+3) Страницы сайта:
+   /topm/index.html
+   /topm/projects.html
+   /topm/services.html
+   /topm/clients.html
+   /topm/contacts.html

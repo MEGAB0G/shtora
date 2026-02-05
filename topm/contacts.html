@@ -1,0 +1,122 @@
+﻿<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Контакты - Топ-Мультимедиа</title>
+  <meta name="description" content="Контакты Топ-Мультимедиа: адрес, телефон, форма обратной связи, реквизиты." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-shape bg-shape-a"></div>
+  <div class="bg-shape bg-shape-b"></div>
+
+  <header class="site-header">
+    <a class="logo" href="index.html"><img src="assets/img/logo-top-m-3.jpg" alt="Логотип" /><span>Top Multimedia</span></a>
+    <button class="menu-toggle" type="button" aria-label="Открыть меню">Меню</button>
+    <nav class="nav" id="nav">
+      <a href="index.html">Главная</a>
+      <a href="projects.html">Проекты</a>
+      <a href="services.html">Услуги</a>
+      <a href="clients.html">Клиенты</a>
+      <a class="active" href="contacts.html">Контакты</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="section reveal">
+      <div class="section-head">
+        <h1>Студия Топ-Мультимедиа всегда на связи</h1>
+      </div>
+      <div class="contacts-grid">
+        <div>
+          <p><strong>Офис:</strong> Екатеринбург (UTC+5)</p>
+          <p><strong>Адрес:</strong> ул. Машинная, 42а, офис 1010</p>
+          <p><strong>Телефон:</strong> <a href="tel:+73433467144">+7 (343) 346-71-44</a></p>
+          <p><strong>Email:</strong> <a href="mailto:info@top-m.com">info@top-m.com</a></p>
+          <p class="muted">Сопровождаем проекты по всей России и за ее пределами, онлайн и на площадке.</p>
+        </div>
+        <div class="map-wrap">
+          <iframe title="Карта офиса" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            src="https://www.openstreetmap.org/export/embed.html?bbox=60.6109%2C56.8125%2C60.6285%2C56.8225&layer=mapnik&marker=56.8175%2C60.6197"></iframe>
+        </div>
+      </div>
+
+      <div class="requisites">
+        <h2>Реквизиты ООО «Топ-Мультимедиа»</h2>
+        <div class="req-grid">
+          <p><span>ОГРН</span><strong>1069621000364</strong></p>
+          <p><span>ИНН</span><strong>6672013782</strong></p>
+          <p><span>КПП</span><strong>668201001</strong></p>
+          <p><span>Юридический адрес</span><strong>624150, Свердловская область, г. Кировград, пос. Левиха, ул. Уральская, д. 32</strong></p>
+          <p><span>Генеральный директор</span><strong>Сорочкин В.И.</strong></p>
+          <p><span>Банк</span><strong>АО «ББР Банк» г. Екатеринбург</strong></p>
+          <p><span>Р/с</span><strong>40702810200000019663</strong></p>
+          <p><span>К/с</span><strong>30101810600000000781</strong></p>
+          <p><span>БИК</span><strong>046577781</strong></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section reveal" id="form">
+      <div class="section-head">
+        <h2>Опишите вашу задачу</h2>
+      </div>
+      <form class="contact-form" action="#" method="post" onsubmit="return false;">
+        <label>
+          <span>Описание проекта</span>
+          <textarea name="task" rows="5" placeholder="Что требуется сделать, сроки, бюджет, отрасль"></textarea>
+        </label>
+
+        <div class="two-col">
+          <label>
+            <span>Имя</span>
+            <input type="text" name="name" />
+          </label>
+          <label>
+            <span>Компания</span>
+            <input type="text" name="company" />
+          </label>
+          <label>
+            <span>Телефон</span>
+            <input type="tel" name="phone" />
+          </label>
+          <label>
+            <span>Email</span>
+            <input type="email" name="email" />
+          </label>
+        </div>
+
+        <label class="file-input">
+          <span>Прикрепить файл</span>
+          <input type="file" name="brief_file" />
+        </label>
+
+        <label class="checkbox">
+          <input type="checkbox" name="privacy" />
+          <span>Согласен с политикой конфиденциальности и обработкой персональных данных</span>
+        </label>
+
+        <div class="form-actions">
+          <button class="btn btn-dark" type="submit" id="submitBtn">Отправить</button>
+          <a class="btn btn-light" href="https://t.me" target="_blank" rel="noopener">Телеграм-бот</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div>
+      <p><a href="tel:+73433467144">+7 (343) 346-71-44</a></p>
+      <p><a href="mailto:info@top-m.com">info@top-m.com</a></p>
+      <p>г. Екатеринбург, ул. Машинная, 42а, офис 1010</p>
+    </div>
+    <p class="copyright">2001-2025 © Топ-Мультимедиа</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
