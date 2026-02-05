@@ -22,7 +22,8 @@ const els = {
     btnCalibStart: document.getElementById('btnCalibStart'),
     btnCalibStop: document.getElementById('btnCalibStop'),
     btnLeftDown10: document.getElementById('btnLeftDown10'),
-    btnRightDown10: document.getElementById('btnRightDown10')
+    btnRightDown10: document.getElementById('btnRightDown10'),
+    btnRelayOff: document.getElementById('btnRelayOff')
 };
 
 const API_BASE = '/api';
@@ -229,6 +230,7 @@ els.btnCalibStart.addEventListener('click', () => calibrate('start'));
 els.btnCalibStop.addEventListener('click', () => calibrate('stop'));
 els.btnLeftDown10.addEventListener('click', () => sendMove('left-down-10'));
 els.btnRightDown10.addEventListener('click', () => sendMove('right-down-10'));
+els.btnRelayOff.addEventListener('click', () => sendMove('relay-off'));
 
 renderSchedules();
 fetchStatus();

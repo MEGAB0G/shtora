@@ -94,6 +94,8 @@ app.post('/api/move', (req, res) => {
         state.moving = 'moving';
     } else if (action === 'left-steps' || action === 'right-steps') {
         state.moving = 'moving';
+    } else if (action === 'relay-off') {
+        state.moving = 'idle';
     } else {
         state.moving = 'idle';
     }

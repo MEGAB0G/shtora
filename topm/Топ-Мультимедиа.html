@@ -1,180 +1,212 @@
 ﻿<!doctype html>
 <html lang="ru">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Топ-Мультимедиа — презентационные решения</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;600;700&family=Literata:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="topm.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Топ-Мультимедиа</title>
+  <meta name="description" content="Студия Топ-Мультимедиа: 3D-анимация, видеоролики 360°, интерактивные и иммерсивные проекты." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div class="topm-bg" aria-hidden="true">
-        <div class="topm-grid"></div>
+  <div class="bg-shape bg-shape-a"></div>
+  <div class="bg-shape bg-shape-b"></div>
+
+  <header class="site-header">
+    <a class="logo" href="#top"><span>Top</span> Multimedia</a>
+    <button class="menu-toggle" type="button" aria-label="Открыть меню">Меню</button>
+    <nav class="nav" id="nav">
+      <a href="#projects">Проекты</a>
+      <a href="#services">Услуги</a>
+      <a href="#contacts">Контакты</a>
+      <a href="#form">En?</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero section reveal">
+      <div class="hero-left">
+        <p class="eyebrow">Студия Топ-Мультимедиа</p>
+        <h1>Разрабатываем 3D-анимацию, 360° видео, интерактивные и иммерсивные решения для бизнеса</h1>
+        <p class="lead">Комплексно закрываем задачу: от идеи и сценария до продакшна и внедрения в выставочные, маркетинговые и корпоративные проекты.</p>
+        <div class="hero-actions">
+          <a class="btn btn-dark" href="#form">Обсудить задачу</a>
+          <a class="btn btn-light" href="top-m-02.pdf" target="_blank" rel="noopener">Презентация PDF</a>
+        </div>
+      </div>
+      <aside class="hero-right">
+        <div class="metric">
+          <p class="metric-value">5423+</p>
+          <p class="metric-label">дня в мультимедийной разработке</p>
+        </div>
+        <div class="metric-text">
+          <h2>Суперсила студии</h2>
+          <p>Инженерная точность, визуальная выразительность и полный продакшн-процесс в одной команде.</p>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section reveal" id="projects">
+      <div class="section-head">
+        <h2>Проекты студии Топ-Мультимедиа</h2>
+        <p>Подбираем формат под задачу, сроки и бюджет клиента.</p>
+      </div>
+      <div class="tags" aria-label="Направления">
+        <span>3D-анимация</span>
+        <span>3D/2D инфографика</span>
+        <span>Видео 360°</span>
+        <span>Виртуальные объекты</span>
+        <span>Интерактивные презентации</span>
+        <span>Выставочные решения</span>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <div class="card-media media-1"></div>
+          <h3>Иммерсивная визуализация процесса</h3>
+          <p>Показываем сложные технологические этапы понятно для аудитории клиента.</p>
+        </article>
+        <article class="card">
+          <div class="card-media media-2"></div>
+          <h3>Интерактивный цифровой стенд</h3>
+          <p>Собираем продуктовую историю в интерактивный экспонат для выставок и переговоров.</p>
+        </article>
+        <article class="card">
+          <div class="card-media media-3"></div>
+          <h3>Корпоративный 360°-ролик</h3>
+          <p>Создаем эффект присутствия и усиливаем вовлечение в онлайн и офлайн-каналах.</p>
+        </article>
+        <article class="card">
+          <div class="card-media media-4"></div>
+          <h3>3D-объект для обучения</h3>
+          <p>Делаем сложные конструкции наглядными для инструктажей и техподготовки персонала.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section reveal" id="services">
+      <div class="section-head">
+        <h2>Услуги студии Топ-Мультимедиа</h2>
+      </div>
+      <div class="service-grid">
+        <article>
+          <h3>3D-ролики</h3>
+          <p>Промышленная и продуктовая визуализация, объясняющие ролики, графика для презентаций.</p>
+        </article>
+        <article>
+          <h3>Аэровидеосъемка</h3>
+          <p>Съемка с воздуха для проектов, мероприятий, промышленных и инфраструктурных объектов.</p>
+        </article>
+        <article>
+          <h3>Видеофильмы</h3>
+          <p>Корпоративные и имиджевые фильмы с полным циклом продакшна и постпродакшна.</p>
+        </article>
+        <article>
+          <h3>Виртуальные реальности</h3>
+          <p>VR/AR/интерактив для демонстрации процессов, продуктов и обучения сотрудников.</p>
+        </article>
+        <article>
+          <h3>Дизайн</h3>
+          <p>Визуальные концепции, графика, слайды и брендированные мультимедийные материалы.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section section-contacts reveal" id="contacts">
+      <div class="section-head">
+        <h2>Студия всегда на связи</h2>
+      </div>
+      <div class="contacts-grid">
+        <div>
+          <p><strong>Основной офис:</strong> Екатеринбург (UTC+5)</p>
+          <p><strong>Адрес:</strong> ул. Машинная, 42а, офис 1010</p>
+          <p><strong>Телефон:</strong> <a href="tel:+73433467144">+7 (343) 346-71-44</a></p>
+          <p><strong>Email:</strong> <a href="mailto:info@top-m.com">info@top-m.com</a></p>
+          <p class="muted">Работаем с клиентами по всей России и за рубежом. Сопровождаем проекты удаленно и на площадке.</p>
+        </div>
+        <div class="map-wrap">
+          <iframe title="Карта офиса" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            src="https://www.openstreetmap.org/export/embed.html?bbox=60.6109%2C56.8125%2C60.6285%2C56.8225&layer=mapnik&marker=56.8175%2C60.6197"></iframe>
+        </div>
+      </div>
+
+      <div class="requisites">
+        <h3>Реквизиты ООО «Топ-Мультимедиа»</h3>
+        <div class="req-grid">
+          <p><span>ОГРН</span><strong>1069621000364</strong></p>
+          <p><span>ИНН</span><strong>6672013782</strong></p>
+          <p><span>КПП</span><strong>668201001</strong></p>
+          <p><span>Юридический адрес</span><strong>624150, Свердловская область, г. Кировград, пос. Левиха, ул. Уральская, д. 32</strong></p>
+          <p><span>Генеральный директор</span><strong>Сорочкин В.И.</strong></p>
+          <p><span>Банк</span><strong>АО «ББР Банк» г. Екатеринбург</strong></p>
+          <p><span>Р/с</span><strong>40702810200000019663</strong></p>
+          <p><span>К/с</span><strong>30101810600000000781</strong></p>
+          <p><span>БИК</span><strong>046577781</strong></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section reveal" id="form">
+      <div class="section-head">
+        <h2>Здравствуйте, чем вам помочь</h2>
+      </div>
+      <form class="contact-form" action="#" method="post" onsubmit="return false;">
+        <label>
+          <span>Опишите задачу</span>
+          <textarea name="task" rows="5" placeholder="Название проекта, отрасль, что требуется сделать, сроки и бюджет"></textarea>
+        </label>
+        <label class="file-input">
+          <span>Прикрепить файл</span>
+          <input type="file" name="brief_file" />
+        </label>
+
+        <div class="two-col">
+          <label>
+            <span>Имя</span>
+            <input type="text" name="name" />
+          </label>
+          <label>
+            <span>Название компании</span>
+            <input type="text" name="company" />
+          </label>
+          <label>
+            <span>Телефон</span>
+            <input type="tel" name="phone" />
+          </label>
+          <label>
+            <span>Эл. почта</span>
+            <input type="email" name="email" />
+          </label>
+        </div>
+
+        <label class="checkbox">
+          <input type="checkbox" name="privacy" />
+          <span>Согласен и ознакомлен с политикой конфиденциальности и обработкой персональных данных</span>
+        </label>
+
+        <div class="form-actions">
+          <button class="btn btn-dark" type="submit" id="submitBtn">Отправить</button>
+          <a class="btn btn-light" href="https://t.me" target="_blank" rel="noopener">Телеграм-бот</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div>
+      <p><a href="tel:+73433467144">+7 (343) 346-71-44</a></p>
+      <p><a href="mailto:info@top-m.com">info@top-m.com</a></p>
+      <p>г. Екатеринбург, ул. Машинная, 42а, офис 1010</p>
     </div>
-
-    <div class="topm-wrapper">
-        <header class="topm-header">
-            <div class="topm-container topm-header__inner">
-                <a class="topm-logo" href="Топ-Мультимедиа.html">
-                    <span class="topm-logo__badge" aria-hidden="true"></span>
-                    <span>Топ-Мультимедиа</span>
-                </a>
-                <button class="topm-nav__toggle" type="button" data-topm-toggle aria-controls="topm-nav" aria-expanded="false">
-                    Меню
-                </button>
-                <nav class="topm-nav" id="topm-nav">
-                    <a href="PR%20видео%20—%20Топ-Мультимедиа.html">PR видео</a>
-                    <a href="Виртуальная%20реальность%20—%20Топ-Мультимедиа.html">Виртуальная реальность</a>
-                    <a href="Дополненная%20реальность%20—%20Топ-Мультимедиа.html">Дополненная реальность</a>
-                    <a href="Масштабные%20модели%20—%20Топ-Мультимедиа.html">Масштабные модели</a>
-                    <a href="Клиенты%20—%20Топ-Мультимедиа.html">Клиенты</a>
-                    <a href="Контакты%20—%20Топ-Мультимедиа.html" class="topm-cta">Контакты</a>
-                </nav>
-            </div>
-        </header>
-
-        <main>
-            <section class="topm-hero">
-                <div class="topm-container hero-grid">
-                    <div class="hero-copy">
-                        <p class="eyebrow">Презентационные решения</p>
-                        <h1>Визуальные истории, которые убеждают и продают.</h1>
-                        <p class="lead">
-                            Мы создаём комплексные презентационные решения: видеофильмы, 3D-ролики, VR/AR-сценарии,
-                            аэросъёмку (FullHD, 4K, панорамы), мультимедийные презентации, масштабные модели и интерактивные
-                            интернет-проекты. Работаем на стыке инженерии, дизайна и маркетинга.
-                        </p>
-                        <div class="topm-actions">
-                            <a class="btn primary" href="PR%20видео%20—%20Топ-Мультимедиа.html">Смотреть PR-видео</a>
-                            <a class="btn ghost" href="Контакты%20—%20Топ-Мультимедиа.html">Запросить расчёт</a>
-                        </div>
-                        <div class="hero-stats">
-                            <div class="stat">
-                                <span>FullHD / 4K</span>
-                                <p>Съёмка и монтаж под задачу.</p>
-                            </div>
-                            <div class="stat">
-                                <span>3D + VFX</span>
-                                <p>Инфографика и сложные процессы.</p>
-                            </div>
-                            <div class="stat">
-                                <span>VR / AR</span>
-                                <p>Иммерсивные форматы и demo.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="hero-media">
-                        <div class="media-stack">
-                            <img src="assets/pr-hero.jpg" alt="PR видео">
-                            <img src="assets/models-hero.jpg" alt="Масштабные модели">
-                            <img src="PR видео — Топ-Мультимедиа_files/UDMZ_2.mp4_snapshot_02.59_2017.10.25_23.59.23.jpg" alt="Съёмка производства">
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="section">
-                <div class="topm-container">
-                    <div class="section-head">
-                        <h2>Направления</h2>
-                        <p class="section-note">Собираем решения под бизнес-задачи: от имиджевых фильмов до VR/AR презентаций.</p>
-                    </div>
-                    <div class="grid">
-                        <div class="card">
-                            <span class="tag">Видео</span>
-                            <h3>PR-ролики и фильмы</h3>
-                            <ul>
-                                <li>Инфографика, 3D-анимация</li>
-                                <li>Широкоформатная видеосъёмка</li>
-                                <li>Аэросъёмка и сложные объекты</li>
-                            </ul>
-                        </div>
-                        <div class="card">
-                            <span class="tag">VR / AR</span>
-                            <h3>Иммерсивные форматы</h3>
-                            <ul>
-                                <li>Виртуальные экскурсии</li>
-                                <li>Демонстрация сложных объектов</li>
-                                <li>Интерактивные сценарии</li>
-                            </ul>
-                        </div>
-                        <div class="card">
-                            <span class="tag">Модели</span>
-                            <h3>Масштабные макеты</h3>
-                            <ul>
-                                <li>Техника и оборудование</li>
-                                <li>Макеты зданий и сооружений</li>
-                                <li>Выставочные решения</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="section">
-                <div class="topm-container">
-                    <div class="section-head">
-                        <h2>Примеры визуализаций</h2>
-                        <p class="section-note">Кадры из проектов и архивных материалов студии.</p>
-                    </div>
-                    <div class="media-grid">
-                        <div class="media-card">
-                            <img src="Масштабные модели — Топ-Мультимедиа_files/IMG_2264.jpg" alt="Масштабные модели">
-                            <div class="media-body">Макеты техники и объектов для выставок.</div>
-                        </div>
-                        <div class="media-card">
-                            <img src="Дополненная реальность — Топ-Мультимедиа_files/IMG_20171003_114320.jpg" alt="AR решения">
-                            <div class="media-body">AR-решения для стендов и презентаций.</div>
-                        </div>
-                        <div class="media-card">
-                            <img src="Клиенты — Топ-Мультимедиа_files/Клиенты-11_2017-965x1024.jpg" alt="Клиенты">
-                            <div class="media-body">Проекты для бизнеса и промышленности.</div>
-                        </div>
-                        <div class="media-card">
-                            <img src="assets/clients-hero.jpg" alt="Команда и проекты">
-                            <div class="media-body">Архивные кадры и медиатека проектов.</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="section">
-                <div class="topm-container">
-                    <div class="section-head">
-                        <h2>Бренд-архив</h2>
-                        <p class="section-note">Используем накопленные материалы и наработки для быстрого старта.</p>
-                    </div>
-                    <div class="logo-strip">
-                        <img src="PR видео — Топ-Мультимедиа_files/logo-top-m-3.jpg" alt="Топ-Мультимедиа">
-                        <img src="Контакты — Топ-Мультимедиа_files/logo-top-m-3.jpg" alt="Логотип">
-                        <img src="Клиенты — Топ-Мультимедиа_files/logo-top-m-3.jpg" alt="Логотип">
-                    </div>
-                </div>
-            </section>
-
-            <section class="section">
-                <div class="topm-container">
-                    <h2>Видео из VK</h2>
-                    <div class="vk-placeholder">
-                        Здесь будет автоматическая подгрузка видео из профиля VK.
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <footer class="topm-footer">
-            <div class="topm-container topm-footer__inner">
-                <span>© 2026 Топ-Мультимедиа</span>
-                <span>PR • 3D • VR/AR • Модели</span>
-            </div>
-        </footer>
+    <div class="footer-links">
+      <a href="#">Политика обработки персональных данных</a>
+      <a href="#">Пользовательское соглашение</a>
+      <a href="#">Публичная оферта</a>
     </div>
-    <script src="topm.js"></script>
+    <p class="copyright">2001-2025 © Топ-Мультимедиа</p>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
-
-
-
-
