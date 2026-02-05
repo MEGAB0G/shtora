@@ -78,10 +78,7 @@ a {
   width: 38px;
   height: 38px;
   object-fit: contain;
-  background: #fff;
-  padding: 3px;
-  border-radius: 10px;
-  border: 1px solid var(--line);
+  mix-blend-mode: multiply;
 }
 
 .nav {
