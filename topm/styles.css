@@ -22,6 +22,7 @@ body {
   background: var(--bg);
   font-family: "Onest", "Segoe UI", sans-serif;
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 a {
@@ -648,5 +649,25 @@ textarea {
 
   .hero-media {
     min-height: 260px;
+  }
+
+  .banner {
+    min-height: 360px;
+  }
+
+  .banner img,
+  .banner::after {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .banner-content {
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    padding: 16px;
   }
 }
