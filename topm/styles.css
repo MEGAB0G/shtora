@@ -248,6 +248,7 @@ h3 {
 .btn-light {
   background: #fff;
   border-color: var(--line);
+  color: var(--ink);
 }
 
 .btn-accent {
