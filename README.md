@@ -32,7 +32,7 @@ git push
 
 Сервер:
 ```bash
-cd /srv/shtora
+cd /home/mega/shtora
 git pull
 sudo docker compose down
 sudo docker compose up -d --force-recreate
@@ -80,7 +80,7 @@ net use \\192.168.0.45 /delete
 
 Скрипт можно гонять сколько угодно - он возвращает папки и права:
 ```bash
-cd /srv/shtora
+cd /home/mega/shtora
 sudo ./scripts/nas-setup.sh
 ```
 
