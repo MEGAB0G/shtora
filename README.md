@@ -36,6 +36,7 @@ cd /home/mega/shtora
 git pull
 sudo docker compose down
 sudo docker compose up -d --force-recreate
+
 ```
 
 ## Диски и монтирование
