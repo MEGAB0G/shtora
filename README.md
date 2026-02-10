@@ -58,6 +58,19 @@ sudo mdadm --detail /dev/md0
 df -h / /srv /exchange
 ```
 
+## Где лежит код и что можно отключать
+
+Код и сайт должны быть только на SSD (`/home/mega/shtora`).  
+На HDD/RAID (`/srv`, `/exchange`) — только данные пользователей.
+
+Быстрая проверка:
+```bash
+cd /home/mega/shtora
+df -h .
+df -h /home /srv /exchange
+sudo ./scripts/storage-check.sh
+```
+
 ## NAS (SMB)
 
 Шары:
