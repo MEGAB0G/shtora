@@ -1,4 +1,4 @@
-const COUNTRIES = [
+﻿const COUNTRIES = [
   "Австралия",
   "Бразилия",
   "Великобритания",
@@ -1982,14 +1982,4 @@ async function init() {
 }
 
 void init();
-    "nav.feed": "Fil",
-    "nav.feed": "Feed",
-    "nav.feed": "Feed",
-    "nav.feed": "Feed",
-    "nav.feed": "Akış",
-    "nav.feed": "动态",
-    "nav.feed": "フィード",
-    "nav.feed": "피드",
-    "nav.feed": "ฟีด",
-    "nav.feed": "الخلاصة",
-    "nav.feed": "फ़ीड",
+
