@@ -28,6 +28,17 @@ function $(sel, root = document) {
   return root.querySelector(sel);
 }
 
+const TOPIC_KEY_BY_RU = {
+  "Еда": "topic.food",
+  "Безопасность": "topic.safety",
+  "Транспорт": "topic.transport",
+  "Отели": "topic.hotels",
+  "Виза": "topic.visa",
+  "Пляжи": "topic.beaches",
+  "Ночная жизнь": "topic.nightlife",
+  "Семья": "topic.family",
+};
+
 const LANGS = [
   { code: "ru", label: "Русский" },
   { code: "en", label: "English" },
@@ -93,6 +104,7 @@ const I18N = {
     "people.found": "{label} • найдено: {n}",
     "people.nothingTitle": "Ничего не найдено",
     "people.nothingText": "Попробуй изменить фильтры или создай первый профиль эксперта.",
+    "people.countryFilter": "Фильтр страны: {country}",
 
     "topic.food": "Еда",
     "topic.safety": "Безопасность",
@@ -122,6 +134,12 @@ const I18N = {
     "profile.commentPlaceholder": "Что было полезно?",
     "profile.leaveReview": "Оставить отзыв",
     "profile.loginToReview": "Чтобы оставить отзыв — нужно войти.",
+    "profile.buyQuestion": "Купить вопрос",
+    "profile.ownerPill": "Ты владелец профиля",
+    "profile.metaPill": "Отзывы • рейтинг • деньги эксперту",
+    "profile.toList": "К списку",
+    "profile.noPosts": "Пока нет постов.",
+    "post.delete": "Удалить",
 
     "create.title": "Создать профиль",
     "create.subtitle": "Таблица создания профиля (прототип).",
@@ -184,6 +202,12 @@ const I18N = {
     "alert.photoTooBig": "Фото слишком большое для прототипа. Выбери картинку поменьше.",
     "alert.expertSaveFail": "Не получилось сохранить профиль. Проверь поля и попробуй ещё раз.",
     "alert.clearNotNeeded": "Теперь данные сохраняются на сервере. Очистка прототип-данных в браузере не требуется.",
+
+    "card.open": "Открыть",
+    "card.ask": "Задать вопрос",
+    "card.perQuestion": "/ вопрос",
+    "card.noReviews": "нет отзывов",
+    "card.reviews": "{n} отзыв(ов)",
   },
   en: {
     "nav.experts": "Experts",
@@ -231,6 +255,7 @@ const I18N = {
     "people.found": "{label} • found: {n}",
     "people.nothingTitle": "Nothing found",
     "people.nothingText": "Try adjusting filters or create the first expert profile.",
+    "people.countryFilter": "Country filter: {country}",
 
     "topic.food": "Food",
     "topic.safety": "Safety",
@@ -260,6 +285,12 @@ const I18N = {
     "profile.commentPlaceholder": "What was helpful?",
     "profile.leaveReview": "Leave a review",
     "profile.loginToReview": "To leave a review — please sign in.",
+    "profile.buyQuestion": "Buy a question",
+    "profile.ownerPill": "You own this profile",
+    "profile.metaPill": "Reviews • rating • payout",
+    "profile.toList": "Back to list",
+    "profile.noPosts": "No posts yet.",
+    "post.delete": "Delete",
 
     "create.title": "Create profile",
     "create.subtitle": "Profile creation table (prototype).",
@@ -322,6 +353,12 @@ const I18N = {
     "alert.photoTooBig": "Photo is too large for this prototype. Pick a smaller image.",
     "alert.expertSaveFail": "Couldn't save the profile. Check fields and try again.",
     "alert.clearNotNeeded": "Data is stored on the server now. Browser cleanup is not needed.",
+
+    "card.open": "Open",
+    "card.ask": "Ask a question",
+    "card.perQuestion": "/ question",
+    "card.noReviews": "no reviews",
+    "card.reviews": "{n} reviews",
   },
   es: {
     "nav.experts": "Expertos",
@@ -753,6 +790,17 @@ function tr(key, params = {}) {
   return text;
 }
 
+function translateTopic(label) {
+  const key = TOPIC_KEY_BY_RU[label];
+  return key ? tr(key) : label;
+}
+
+function reviewsText(count) {
+  const n = Number(count || 0);
+  if (n <= 0) return tr("card.noReviews");
+  return tr("card.reviews", { n });
+}
+
 function applyI18n() {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
@@ -776,6 +824,7 @@ function initLangSelect() {
     setLang(select.value);
     applyI18n();
     void updateNavAuth();
+    window.dispatchEvent(new Event("skarta:langchange"));
     // Home country pill text might need refresh
     if (document.body?.getAttribute("data-page") === "home") {
       const input = $("#countrySearch");
@@ -884,7 +933,7 @@ function tagHtml(text) {
 
 function renderPersonCard(expert) {
   const ratingText = expert.reviewsCount > 0 ? Number(expert.rating || 0).toFixed(1) : "—";
-  const reviewText = expert.reviewsCount > 0 ? `${expert.reviewsCount} отзыв(ов)` : "нет отзывов";
+  const reviewText = reviewsText(expert.reviewsCount);
 
   return `
     <article class="card person">
@@ -897,17 +946,21 @@ function renderPersonCard(expert) {
 
         <div class="kpi">
           <span class="pill">⭐ ${escapeHtml(ratingText)} • ${escapeHtml(reviewText)}</span>
-          <span class="pill">$${escapeHtml(expert.price)} / вопрос</span>
+          <span class="pill">$${escapeHtml(expert.price)} ${escapeHtml(tr("card.perQuestion"))}</span>
         </div>
 
         <div class="tags">
-          ${(expert.topics || []).slice(0, 4).map(tagHtml).join("")}
+          ${(expert.topics || []).slice(0, 4).map((t) => tagHtml(translateTopic(t))).join("")}
           ${(expert.languages || []).slice(0, 2).map(tagHtml).join("")}
         </div>
 
         <div class="person__actions">
-          <a class="btn btn--primary" href="./profile.html?id=${encodeURIComponent(expert.id)}">Открыть</a>
-          <button class="btn" type="button" data-action="ask" data-id="${escapeHtml(expert.id)}">Задать вопрос</button>
+          <a class="btn btn--primary" href="./profile.html?id=${encodeURIComponent(expert.id)}">${escapeHtml(
+            tr("card.open")
+          )}</a>
+          <button class="btn" type="button" data-action="ask" data-id="${escapeHtml(expert.id)}">${escapeHtml(
+            tr("card.ask")
+          )}</button>
         </div>
       </div>
     </article>
@@ -965,7 +1018,7 @@ function initPeople() {
   const pill = $("#resultPill");
 
   if (fCountry && q.country) fCountry.value = q.country;
-  if (hint && q.country) hint.textContent = `Фильтр страны: ${q.country}`;
+  if (hint && q.country) hint.textContent = tr("people.countryFilter", { country: q.country });
 
   function getFilters() {
     return {
@@ -999,7 +1052,6 @@ function initPeople() {
     experts.sort((a, b) => (Number(b.rating || 0) - Number(a.rating || 0)) || 0);
 
     if (pill) {
-      const label = filters.country ? `Страна: ${filters.country}` : "Все страны";
       const labelText = filters.country ? tr("home.countrySelected", { country: filters.country }) : tr("people.allCountries");
       pill.textContent = tr("people.found", { label: labelText, n: experts.length });
     }
@@ -1037,11 +1089,16 @@ function initPeople() {
   });
 
   void render();
+
+  window.addEventListener("skarta:langchange", () => {
+    if (hint && q.country) hint.textContent = tr("people.countryFilter", { country: q.country });
+    void render();
+  });
 }
 
 function profileHeroHtml(expert, isOwner) {
   const ratingText = expert.reviewsCount > 0 ? Number(expert.rating || 0).toFixed(1) : "—";
-  const reviewText = expert.reviewsCount > 0 ? `${expert.reviewsCount} отзыв(ов)` : "нет отзывов";
+  const reviewText = reviewsText(expert.reviewsCount);
 
   return `
     <div class="profileHero__left">
@@ -1053,10 +1110,10 @@ function profileHeroHtml(expert, isOwner) {
         <div class="person__meta">${escapeHtml(expert.country)} • ${escapeHtml(expert.city)}</div>
         <div class="kpi">
           <span class="pill">⭐ ${escapeHtml(ratingText)} • ${escapeHtml(reviewText)}</span>
-          <span class="pill">$${escapeHtml(expert.price)} / вопрос</span>
+          <span class="pill">$${escapeHtml(expert.price)} ${escapeHtml(tr("card.perQuestion"))}</span>
         </div>
         <div class="tags" style="margin-top: 12px">
-          ${(expert.topics || []).slice(0, 6).map(tagHtml).join("")}
+          ${(expert.topics || []).slice(0, 6).map((t) => tagHtml(translateTopic(t))).join("")}
           ${(expert.languages || []).slice(0, 4).map(tagHtml).join("")}
         </div>
         <p class="profileHero__about">${escapeHtml(expert.about || "")}</p>
@@ -1064,16 +1121,17 @@ function profileHeroHtml(expert, isOwner) {
     </div>
     <div class="profileHero__right">
       <div class="profileHero__cta">
-        <a class="btn" href="./people.html?country=${encodeURIComponent(expert.country)}">К списку</a>
-        <button class="btn btn--primary" type="button" id="buyQuestion">Купить вопрос</button>
+        <a class="btn" href="./people.html?country=${encodeURIComponent(expert.country)}">${escapeHtml(tr("profile.toList"))}</a>
+        <button class="btn btn--primary" type="button" id="buyQuestion">${escapeHtml(tr("profile.buyQuestion"))}</button>
       </div>
-      <div class="pill">${isOwner ? "Ты владелец профиля" : "Отзывы • рейтинг • деньги эксперту"}</div>
+      <div class="pill">${escapeHtml(isOwner ? tr("profile.ownerPill") : tr("profile.metaPill"))}</div>
     </div>
   `;
 }
 
 function renderPosts(posts, isOwner) {
-  if (!posts || posts.length === 0) return `<div class="muted" style="margin-top:10px">Пока нет постов.</div>`;
+  if (!posts || posts.length === 0)
+    return `<div class="muted" style="margin-top:10px">${escapeHtml(tr("profile.noPosts"))}</div>`;
   return posts
     .map(
       (p) => `
@@ -1083,7 +1141,9 @@ function renderPosts(posts, isOwner) {
       <div class="post__body">${escapeHtml(p.body)}</div>
       ${
         isOwner
-          ? `<div class="post__tools"><button class="btn" type="button" data-action="deletePost">Удалить</button></div>`
+          ? `<div class="post__tools"><button class="btn" type="button" data-action="deletePost">${escapeHtml(
+              tr("post.delete")
+            )}</button></div>`
           : ""
       }
     </article>
@@ -1248,6 +1308,7 @@ function initProfile() {
   }
 
   void load();
+  window.addEventListener("skarta:langchange", () => void load());
 }
 
 async function readFileAsDataUrl(file) {
