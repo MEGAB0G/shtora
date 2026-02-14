@@ -3,13 +3,16 @@
     image: node:20-alpine
     working_dir: /app/phone-server
     command: ["sh", "-c", "npm install --omit=dev --no-package-lock && node server.js"]
+    environment:
+      - SKARTA_DATA_DIR=/data/skarta
     volumes:
       - ./:/app
       - node_modules:/app/phone-server/node_modules
       - /srv:/host-srv:ro
       - /exchange:/host-exchange:ro
+      - skarta_data:/data
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     restart: unless-stopped
 
   web:
@@ -27,3 +30,4 @@
 
 volumes:
   node_modules:
+  skarta_data:

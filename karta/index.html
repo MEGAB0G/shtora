@@ -15,10 +15,14 @@
           <span class="brand__mark" aria-hidden="true"></span>
           <span class="brand__name">skarta</span>
         </a>
-        <nav class="nav">
-          <a class="nav__link" href="./people.html">Эксперты</a>
-          <a class="nav__link" href="./create.html">Создать профиль</a>
-        </nav>
+        <div class="topbar__actions">
+          <nav class="nav">
+            <a class="nav__link" href="./people.html" data-i18n="nav.experts">Эксперты</a>
+            <a class="nav__link" href="./create.html" data-i18n="nav.createExpert">Создать профиль</a>
+            <a class="nav__link" href="./register.html" id="navAuth" data-i18n="nav.login">Войти</a>
+          </nav>
+          <select class="langSelect" id="langSelect" aria-label="Language"></select>
+        </div>
       </div>
     </header>
 
@@ -26,13 +30,15 @@
       <section class="hero">
         <h1 class="hero__title">skarta</h1>
         <p class="hero__subtitle">
-          Находи людей на месте — получай честные ответы про районы, безопасность, цены и лучшие места.
+          <span data-i18n="home.subtitle"
+            >Находи людей на месте — получай честные ответы про районы, безопасность, цены и лучшие места.</span
+          >
         </p>
       </section>
 
       <section class="card card--padded">
         <div class="stack">
-          <label class="label" for="countrySearch">Поиск страны</label>
+          <label class="label" for="countrySearch" data-i18n="home.countrySearchLabel">Поиск страны</label>
           <div class="search">
             <input
               id="countrySearch"
@@ -40,22 +46,29 @@
               placeholder="Например: Япония, Франция, Таиланд…"
               autocomplete="off"
               list="countries"
+              data-i18n-placeholder="home.countrySearchPlaceholder"
             />
             <datalist id="countries"></datalist>
-            <button class="btn btn--primary" id="goToPeople" type="button">Показать экспертов</button>
+            <button class="btn btn--primary" id="goToPeople" type="button" data-i18n="home.showExperts">
+              Показать экспертов
+            </button>
           </div>
           <p class="muted">
-            Можно выбрать на карте или через поиск — страна станет фильтром для страницы экспертов.
+            <span data-i18n="home.hint"
+              >Можно выбрать на карте или через поиск — страна станет фильтром для страницы экспертов.</span
+            >
           </p>
         </div>
 
         <div class="mapCard">
           <div class="mapCard__header">
             <div>
-              <div class="mapCard__title">Карта мира</div>
-              <div class="mapCard__hint">Выбери страну</div>
+              <div class="mapCard__title" data-i18n="home.mapTitle">Карта мира</div>
+              <div class="mapCard__hint" data-i18n="home.mapHint">Выбери страну</div>
             </div>
-            <div class="pill" id="selectedCountryPill" aria-live="polite">Страна: не выбрана</div>
+            <div class="pill" id="selectedCountryPill" aria-live="polite" data-i18n="home.countryNotSelected">
+              Страна: не выбрана
+            </div>
           </div>
 
           <div class="worldMap" id="worldMap" role="img" aria-label="Карта мира с точками выбора стран">
@@ -130,20 +143,22 @@
 
       <section class="grid2">
         <div class="card card--padded">
-          <div class="h2">Как это будет работать</div>
+          <div class="h2" data-i18n="home.howTitle">Как это будет работать</div>
           <ul class="list">
-            <li>Эксперты (местные) ведут профиль: описание, фото, посты.</li>
-            <li>Пользователи задают вопросы и оставляют отзывы.</li>
-            <li>У экспертов рейтинг и доход за консультации.</li>
+            <li data-i18n="home.how1">Эксперты (местные) ведут профиль: описание, фото, посты.</li>
+            <li data-i18n="home.how2">Пользователи задают вопросы и оставляют отзывы.</li>
+            <li data-i18n="home.how3">У экспертов рейтинг и доход за консультации.</li>
           </ul>
         </div>
         <div class="card card--padded">
-          <div class="h2">Быстрый старт</div>
+          <div class="h2" data-i18n="home.quickTitle">Быстрый старт</div>
           <div class="ctaRow">
-            <a class="btn btn--primary" href="./people.html">Открыть экспертов</a>
-            <a class="btn" href="./create.html">Создать профиль</a>
+            <a class="btn btn--primary" href="./people.html" data-i18n="home.openExperts">Открыть экспертов</a>
+            <a class="btn" href="./create.html" data-i18n="home.createProfileCta">Создать профиль</a>
           </div>
-          <p class="muted">Сейчас всё хранится локально в браузере (localStorage) — как прототип.</p>
+          <p class="muted" data-i18n="home.prototypeNote">
+            Сейчас всё хранится на сервере (файлы JSON) — как прототип.
+          </p>
         </div>
       </section>
     </main>
@@ -158,4 +173,3 @@
     <script type="module" src="./skarta.js"></script>
   </body>
 </html>
-

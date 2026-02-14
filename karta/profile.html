@@ -15,10 +15,14 @@
           <span class="brand__mark" aria-hidden="true"></span>
           <span class="brand__name">skarta</span>
         </a>
-        <nav class="nav">
-          <a class="nav__link" href="./people.html">Эксперты</a>
-          <a class="nav__link" href="./create.html">Создать профиль</a>
-        </nav>
+        <div class="topbar__actions">
+          <nav class="nav">
+            <a class="nav__link" href="./people.html" data-i18n="nav.experts">Эксперты</a>
+            <a class="nav__link" href="./create.html" data-i18n="nav.createExpert">Создать профиль</a>
+            <a class="nav__link" href="./register.html" id="navAuth" data-i18n="nav.login">Войти</a>
+          </nav>
+          <select class="langSelect" id="langSelect" aria-label="Language"></select>
+        </div>
       </div>
     </header>
 
@@ -27,48 +31,68 @@
 
       <section class="grid2 grid2--top">
         <div class="card card--padded">
-          <div class="h2">Посты</div>
-          <div class="muted">Эксперт может выкладывать контент. В прототипе всё сохраняется локально.</div>
+          <div class="h2" data-i18n="profile.postsTitle">Посты</div>
+          <div class="muted" data-i18n="profile.postsHint">Эксперт может выкладывать контент. В прототипе всё сохраняется на сервере.</div>
           <div class="posts" id="posts"></div>
         </div>
 
         <div class="stack">
           <div class="card card--padded">
-            <div class="h2">Добавить пост</div>
+            <div class="h2" data-i18n="profile.addPostTitle">Добавить пост</div>
             <form id="postForm" class="form">
               <div class="field">
-                <label class="label" for="pTitle">Заголовок</label>
-                <input id="pTitle" class="input" placeholder="Напр.: Как не переплатить в центре" required />
+                <label class="label" for="pTitle" data-i18n="profile.postTitleLabel">Заголовок</label>
+                <input
+                  id="pTitle"
+                  class="input"
+                  placeholder="Напр.: Как не переплатить в центре"
+                  required
+                  data-i18n-placeholder="profile.postTitlePlaceholder"
+                />
               </div>
               <div class="field">
-                <label class="label" for="pBody">Текст</label>
-                <textarea id="pBody" class="textarea" rows="5" placeholder="Коротко и по делу…" required></textarea>
+                <label class="label" for="pBody" data-i18n="profile.postBodyLabel">Текст</label>
+                <textarea
+                  id="pBody"
+                  class="textarea"
+                  rows="5"
+                  placeholder="Коротко и по делу…"
+                  required
+                  data-i18n-placeholder="profile.postBodyPlaceholder"
+                ></textarea>
               </div>
               <div class="field">
-                <button class="btn btn--primary" type="submit">Опубликовать</button>
+                <button class="btn btn--primary" type="submit" data-i18n="profile.publish">Опубликовать</button>
               </div>
             </form>
           </div>
 
           <div class="card card--padded">
-            <div class="h2">Отзывы</div>
+            <div class="h2" data-i18n="profile.reviewsTitle">Отзывы</div>
             <form id="reviewForm" class="form">
               <div class="field">
-                <label class="label" for="rRating">Оценка</label>
+                <label class="label" for="rRating" data-i18n="profile.ratingLabel">Оценка</label>
                 <select id="rRating" class="select" required>
-                  <option value="5">5 — отлично</option>
-                  <option value="4">4 — хорошо</option>
-                  <option value="3">3 — нормально</option>
-                  <option value="2">2 — плохо</option>
-                  <option value="1">1 — ужасно</option>
+                  <option value="5" data-i18n="profile.rate5">5 — отлично</option>
+                  <option value="4" data-i18n="profile.rate4">4 — хорошо</option>
+                  <option value="3" data-i18n="profile.rate3">3 — нормально</option>
+                  <option value="2" data-i18n="profile.rate2">2 — плохо</option>
+                  <option value="1" data-i18n="profile.rate1">1 — ужасно</option>
                 </select>
               </div>
               <div class="field">
-                <label class="label" for="rText">Комментарий</label>
-                <textarea id="rText" class="textarea" rows="4" placeholder="Что было полезно?" required></textarea>
+                <label class="label" for="rText" data-i18n="profile.commentLabel">Комментарий</label>
+                <textarea
+                  id="rText"
+                  class="textarea"
+                  rows="4"
+                  placeholder="Что было полезно?"
+                  required
+                  data-i18n-placeholder="profile.commentPlaceholder"
+                ></textarea>
               </div>
               <div class="field">
-                <button class="btn" type="submit">Оставить отзыв</button>
+                <button class="btn" type="submit" data-i18n="profile.leaveReview">Оставить отзыв</button>
               </div>
             </form>
             <div class="reviews" id="reviews"></div>
@@ -87,4 +111,3 @@
     <script type="module" src="./skarta.js"></script>
   </body>
 </html>
-

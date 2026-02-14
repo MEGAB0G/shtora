@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>skarta — Аккаунт</title>
+    <meta name="description" content="Личный кабинет пользователя skarta." />
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./skarta.css" />
+  </head>
+  <body data-page="me">
+    <header class="topbar">
+      <div class="topbar__inner">
+        <a class="brand" href="./index.html" aria-label="skarta">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <span class="brand__name">skarta</span>
+        </a>
+        <div class="topbar__actions">
+          <nav class="nav">
+            <a class="nav__link" href="./people.html" data-i18n="nav.experts">Эксперты</a>
+            <a class="nav__link" href="./create.html" data-i18n="nav.becomeExpert">Стать экспертом</a>
+            <a class="nav__link nav__link--active" href="./me.html" id="navAuth" data-i18n="nav.account">Аккаунт</a>
+          </nav>
+          <select class="langSelect" id="langSelect" aria-label="Language"></select>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="pageHeader">
+        <div>
+          <h1 class="pageHeader__title" data-i18n="me.title">Аккаунт</h1>
+          <p class="pageHeader__subtitle" data-i18n="me.subtitle">Профиль обычного пользователя + управление экспертным профилем.</p>
+        </div>
+        <div class="pageHeader__right">
+          <button class="btn" id="logoutBtn" type="button" data-i18n="me.logout">Выйти</button>
+        </div>
+      </section>
+
+      <section class="grid2">
+        <div class="card card--padded">
+          <div class="h2" data-i18n="me.youAre">Ты вошёл как</div>
+          <div class="pill" id="mePill" data-i18n="me.loading">Загрузка…</div>
+          <div style="margin-top: 12px" class="muted">
+            <span data-i18n="me.hint">Отсюда будет: покупки, вопросы, история диалогов.</span>
+          </div>
+        </div>
+
+        <div class="card card--padded">
+          <div class="h2" data-i18n="me.expertTitle">Эксперт</div>
+          <div class="muted" data-i18n="me.expertHint">
+            Если хочешь зарабатывать — создай экспертный профиль по своей стране/району.
+          </div>
+          <div class="ctaRow" style="margin-top: 12px">
+            <a class="btn btn--primary" href="./create.html" data-i18n="me.createOrUpdate">Создать / обновить профиль</a>
+            <a class="btn" href="./people.html" data-i18n="me.viewTop">Смотреть топ</a>
+          </div>
+          <div class="pill" id="expertPill" style="margin-top: 14px">—</div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer__inner">
+        <span class="muted">skarta • me</span>
+        <span class="muted">prototype</span>
+      </div>
+    </footer>
+
+    <script type="module" src="./skarta.js"></script>
+  </body>
+</html>

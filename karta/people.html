@@ -15,60 +15,75 @@
           <span class="brand__mark" aria-hidden="true"></span>
           <span class="brand__name">skarta</span>
         </a>
-        <nav class="nav">
-          <a class="nav__link nav__link--active" href="./people.html">Эксперты</a>
-          <a class="nav__link" href="./create.html">Создать профиль</a>
-        </nav>
+        <div class="topbar__actions">
+          <nav class="nav">
+            <a class="nav__link nav__link--active" href="./people.html" data-i18n="nav.experts">Эксперты</a>
+            <a class="nav__link" href="./create.html" data-i18n="nav.createExpert">Создать профиль</a>
+            <a class="nav__link" href="./register.html" id="navAuth" data-i18n="nav.login">Войти</a>
+          </nav>
+          <select class="langSelect" id="langSelect" aria-label="Language"></select>
+        </div>
       </div>
     </header>
 
     <main class="container container--wide">
       <section class="pageHeader">
         <div>
-          <h1 class="pageHeader__title">Эксперты</h1>
-          <p class="pageHeader__subtitle">Фильтруй по стране, теме, языку, рейтингу и цене.</p>
+          <h1 class="pageHeader__title" data-i18n="people.title">Эксперты</h1>
+          <p class="pageHeader__subtitle" data-i18n="people.subtitle">Фильтруй по стране, теме, языку, рейтингу и цене.</p>
         </div>
         <div class="pageHeader__right">
-          <a class="btn" href="./index.html">Назад</a>
-          <a class="btn btn--primary" href="./create.html">Стать экспертом</a>
+          <a class="btn" href="./index.html" data-i18n="people.back">Назад</a>
+          <a class="btn btn--primary" href="./create.html" data-i18n="people.becomeExpert">Стать экспертом</a>
         </div>
       </section>
 
       <section class="layout">
         <aside class="sidebar card card--padded">
-          <div class="h2">Фильтры</div>
+          <div class="h2" data-i18n="people.filtersTitle">Фильтры</div>
 
           <form class="filters" id="filters">
             <div class="field">
-              <label class="label" for="fCountry">Страна</label>
-              <input id="fCountry" class="input" placeholder="Любая" list="countries" />
+              <label class="label" for="fCountry" data-i18n="people.country">Страна</label>
+              <input
+                id="fCountry"
+                class="input"
+                placeholder="Любая"
+                list="countries"
+                data-i18n-placeholder="people.any"
+              />
               <datalist id="countries"></datalist>
             </div>
 
             <div class="field">
-              <label class="label" for="fQuery">Поиск</label>
-              <input id="fQuery" class="input" placeholder="Имя, город, теги…" />
+              <label class="label" for="fQuery" data-i18n="people.search">Поиск</label>
+              <input
+                id="fQuery"
+                class="input"
+                placeholder="Имя, город, теги…"
+                data-i18n-placeholder="people.searchPlaceholder"
+              />
             </div>
 
             <div class="field">
-              <label class="label" for="fCategory">Тема</label>
+              <label class="label" for="fCategory" data-i18n="people.topic">Тема</label>
               <select id="fCategory" class="select">
-                <option value="">Любая</option>
-                <option value="Еда">Еда</option>
-                <option value="Безопасность">Безопасность</option>
-                <option value="Транспорт">Транспорт</option>
-                <option value="Отели">Отели</option>
-                <option value="Виза">Виза</option>
-                <option value="Пляжи">Пляжи</option>
-                <option value="Ночная жизнь">Ночная жизнь</option>
-                <option value="Семья">Семья</option>
+                <option value="" data-i18n="people.any">Любая</option>
+                <option value="Еда" data-i18n="topic.food">Еда</option>
+                <option value="Безопасность" data-i18n="topic.safety">Безопасность</option>
+                <option value="Транспорт" data-i18n="topic.transport">Транспорт</option>
+                <option value="Отели" data-i18n="topic.hotels">Отели</option>
+                <option value="Виза" data-i18n="topic.visa">Виза</option>
+                <option value="Пляжи" data-i18n="topic.beaches">Пляжи</option>
+                <option value="Ночная жизнь" data-i18n="topic.nightlife">Ночная жизнь</option>
+                <option value="Семья" data-i18n="topic.family">Семья</option>
               </select>
             </div>
 
             <div class="field">
-              <label class="label" for="fLanguage">Язык</label>
+              <label class="label" for="fLanguage" data-i18n="people.language">Язык</label>
               <select id="fLanguage" class="select">
-                <option value="">Любой</option>
+                <option value="" data-i18n="people.any">Любой</option>
                 <option value="Русский">Русский</option>
                 <option value="English">English</option>
                 <option value="Español">Español</option>
@@ -80,9 +95,9 @@
             </div>
 
             <div class="field">
-              <label class="label" for="fMinRating">Рейтинг</label>
+              <label class="label" for="fMinRating" data-i18n="people.rating">Рейтинг</label>
               <select id="fMinRating" class="select">
-                <option value="0">Любой</option>
+                <option value="0" data-i18n="people.any">Любой</option>
                 <option value="4.8">4.8+</option>
                 <option value="4.6">4.6+</option>
                 <option value="4.4">4.4+</option>
@@ -91,20 +106,28 @@
             </div>
 
             <div class="field">
-              <label class="label" for="fMaxPrice">Цена за вопрос (до)</label>
-              <input id="fMaxPrice" class="input" type="number" min="1" step="1" placeholder="Напр. 25" />
+              <label class="label" for="fMaxPrice" data-i18n="people.priceMax">Цена за вопрос (до)</label>
+              <input
+                id="fMaxPrice"
+                class="input"
+                type="number"
+                min="1"
+                step="1"
+                placeholder="Напр. 25"
+                data-i18n-placeholder="people.pricePlaceholder"
+              />
             </div>
 
             <div class="field">
-              <button class="btn btn--primary" type="submit">Применить</button>
-              <button class="btn" id="resetFilters" type="button">Сбросить</button>
+              <button class="btn btn--primary" type="submit" data-i18n="people.apply">Применить</button>
+              <button class="btn" id="resetFilters" type="button" data-i18n="people.reset">Сбросить</button>
             </div>
           </form>
         </aside>
 
         <section class="content">
           <div class="content__bar">
-            <div class="pill" id="resultPill">Загрузка…</div>
+            <div class="pill" id="resultPill" data-i18n="people.loading">Загрузка…</div>
             <div class="muted" id="countryHint"></div>
           </div>
           <div class="people" id="peopleList" aria-live="polite"></div>
@@ -122,4 +145,3 @@
     <script type="module" src="./skarta.js"></script>
   </body>
 </html>
-

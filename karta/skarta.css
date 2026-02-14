@@ -60,6 +60,7 @@ a{color:inherit}
 .brand__name{font-size:16px}
 
 .nav{display:flex; gap:12px; align-items:center}
+.topbar__actions{display:flex; gap:12px; align-items:center}
 .nav__link{
   text-decoration:none;
   color:var(--muted);
@@ -70,6 +71,19 @@ a{color:inherit}
 .nav__link--active{
   color:var(--text);
   background: rgba(0,0,0,0.05);
+}
+
+.langSelect{
+  padding: 9px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.10);
+  background: rgba(255,255,255,0.78);
+  color: var(--text);
+  outline: none;
+}
+.langSelect:focus{
+  box-shadow: 0 0 0 6px var(--focus);
+  border-color: rgba(10,132,255,0.55);
 }
 
 .container{
@@ -351,4 +365,3 @@ a{color:inherit}
 @media (prefers-reduced-motion: reduce){
   .btn, .input, .select, .textarea{transition:none}
 }
-

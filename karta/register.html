@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>skarta — Вход / Регистрация</title>
+    <meta name="description" content="Регистрация обычного пользователя skarta." />
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./skarta.css" />
+  </head>
+  <body data-page="auth">
+    <header class="topbar">
+      <div class="topbar__inner">
+        <a class="brand" href="./index.html" aria-label="skarta">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <span class="brand__name">skarta</span>
+        </a>
+        <div class="topbar__actions">
+          <nav class="nav">
+            <a class="nav__link" href="./people.html" data-i18n="nav.experts">Эксперты</a>
+            <a class="nav__link" href="./create.html" data-i18n="nav.becomeExpert">Стать экспертом</a>
+            <a class="nav__link nav__link--active" href="./register.html" id="navAuth" data-i18n="nav.login">Войти</a>
+          </nav>
+          <select class="langSelect" id="langSelect" aria-label="Language"></select>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="pageHeader">
+        <div>
+          <h1 class="pageHeader__title" data-i18n="auth.title">Вход / Регистрация</h1>
+          <p class="pageHeader__subtitle" data-i18n="auth.subtitle">
+            Обычный пользователь нужен, чтобы писать отзывы и покупать вопросы.
+          </p>
+        </div>
+        <div class="pageHeader__right">
+          <a class="btn" href="./index.html" data-i18n="auth.home">Главная</a>
+        </div>
+      </section>
+
+      <section class="grid2">
+        <div class="card card--padded">
+          <div class="h2" data-i18n="auth.registerTitle">Регистрация</div>
+          <form id="registerForm" class="stack">
+            <div class="field">
+              <label class="label" for="rName" data-i18n="auth.name">Имя</label>
+              <input id="rName" class="input" required placeholder="Напр.: Alex" data-i18n-placeholder="auth.namePlaceholder" />
+            </div>
+            <div class="field">
+              <label class="label" for="rEmail" data-i18n="auth.email">Email</label>
+              <input id="rEmail" class="input" type="email" required placeholder="name@email.com" autocomplete="email" />
+            </div>
+            <div class="field">
+              <label class="label" for="rPass" data-i18n="auth.password">Пароль</label>
+              <input
+                id="rPass"
+                class="input"
+                type="password"
+                required
+                minlength="8"
+                placeholder="Минимум 8 символов"
+                data-i18n-placeholder="auth.passwordPlaceholder"
+              />
+              <div class="muted" data-i18n="auth.passwordHint">Пароль хранится на сервере только в виде хеша.</div>
+            </div>
+            <div class="field">
+              <button class="btn btn--primary" type="submit" data-i18n="auth.createAccount">Создать аккаунт</button>
+            </div>
+            <div class="pill" id="registerMsg" aria-live="polite" data-i18n="auth.statusIdle">—</div>
+          </form>
+        </div>
+
+        <div class="card card--padded">
+          <div class="h2" data-i18n="auth.loginTitle">Вход</div>
+          <form id="loginForm" class="stack">
+            <div class="field">
+              <label class="label" for="lEmail" data-i18n="auth.email">Email</label>
+              <input id="lEmail" class="input" type="email" required placeholder="name@email.com" autocomplete="email" />
+            </div>
+            <div class="field">
+              <label class="label" for="lPass" data-i18n="auth.password">Пароль</label>
+              <input id="lPass" class="input" type="password" required placeholder="••••••••" autocomplete="current-password" />
+            </div>
+            <div class="field">
+              <button class="btn btn--primary" type="submit" data-i18n="auth.signIn">Войти</button>
+            </div>
+            <div class="pill" id="loginMsg" aria-live="polite" data-i18n="auth.statusIdle">—</div>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer__inner">
+        <span class="muted">skarta • auth</span>
+        <span class="muted">prototype</span>
+      </div>
+    </footer>
+
+    <script type="module" src="./skarta.js"></script>
+  </body>
+</html>
