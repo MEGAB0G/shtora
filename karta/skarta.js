@@ -31,6 +31,17 @@ function $(sel, root = document) {
 
 let langMemory = null;
 
+function getLangFromDom() {
+  try {
+    const select = $("#langSelect");
+    if (!select) return null;
+    const raw = String(select.value || "").toLowerCase();
+    return LANGS.some((l) => l.code === raw) ? raw : null;
+  } catch {
+    return null;
+  }
+}
+
 function storageGet(key) {
   try {
     return localStorage.getItem(key);
@@ -874,6 +885,8 @@ const I18N = {
 };
 
 function getLang() {
+  const dom = getLangFromDom();
+  if (dom) return dom;
   const raw = storageGet(STORAGE.lang) || langMemory;
   const lang = (raw || "ru").toLowerCase();
   return LANGS.some((l) => l.code === lang) ? lang : "ru";
@@ -886,6 +899,10 @@ function setLang(lang) {
   document.documentElement.setAttribute("lang", safe);
   if (safe === "ar") document.documentElement.setAttribute("dir", "rtl");
   else document.documentElement.removeAttribute("dir");
+  try {
+    const select = $("#langSelect");
+    if (select) select.value = safe;
+  } catch {}
 }
 
 function tr(key, params = {}) {
@@ -911,6 +928,7 @@ function reviewsText(count) {
 }
 
 function applyI18n() {
+  document.documentElement.setAttribute("data-lang", getLang());
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
     if (!key) return;
@@ -933,9 +951,9 @@ function initLangSelect() {
       select.innerHTML = LANGS.map((l) => `<option value="${escapeHtml(l.code)}">${escapeHtml(l.label)}</option>`).join("");
     }
     select.value = current;
-    select.addEventListener("change", () => {
+    const handle = () => {
       try {
-        setLang(select.value);
+        setLang(String(select.value || "").toLowerCase());
       } catch {}
       try {
         applyI18n();
@@ -952,13 +970,37 @@ function initLangSelect() {
         const v = (input?.value || "").trim();
         if (pill) pill.textContent = v ? tr("home.countrySelected", { country: v }) : tr("home.countryNotSelected");
       }
-    });
+    };
+
+    select.addEventListener("change", handle);
+    select.addEventListener("input", handle);
+
+    // Expose a hook for hard fallback (inline/onchange) and debugging.
+    window.skartaSetLang = (lang) => {
+      try {
+        select.value = String(lang || "").toLowerCase();
+      } catch {}
+      handle();
+    };
+
     setLang(current);
     applyI18n();
+    setTimeout(() => {
+      try {
+        applyI18n();
+      } catch {}
+    }, 0);
   } catch (e) {
     console.error(e);
   }
 }
+
+window.addEventListener("pageshow", () => {
+  try {
+    setLang(getLang());
+    applyI18n();
+  } catch {}
+});
 
 function escapeHtml(text) {
   return String(text)
