@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>skarta — Лента</title>
+    <meta name="description" content="Лента постов экспертов по странам." />
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./skarta.css" />
+  </head>
+  <body data-page="feed">
+    <header class="topbar">
+      <div class="topbar__inner">
+        <a class="brand" href="./index.html" aria-label="skarta">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <span class="brand__name">skarta</span>
+        </a>
+        <div class="topbar__actions">
+          <nav class="nav">
+            <a class="nav__link nav__link--active" href="./feed.html" data-i18n="nav.feed">Лента</a>
+            <a class="nav__link" href="./people.html" data-i18n="nav.experts">Эксперты</a>
+            <a class="nav__link" href="./create.html" data-i18n="nav.createExpert">Создать профиль</a>
+            <a class="nav__link" href="./register.html" id="navAuth" data-i18n="nav.login">Войти</a>
+          </nav>
+          <select class="langSelect" id="langSelect" aria-label="Language"></select>
+        </div>
+      </div>
+    </header>
+
+    <main class="container container--wide">
+      <section class="pageHeader">
+        <div>
+          <h1 class="pageHeader__title" data-i18n="feed.title">Лента</h1>
+          <p class="pageHeader__subtitle" data-i18n="feed.subtitle">Записи экспертов — по странам.</p>
+        </div>
+        <div class="pageHeader__right">
+          <a class="btn" href="./index.html" data-i18n="feed.back">Назад</a>
+        </div>
+      </section>
+
+      <section class="layout">
+        <aside class="sidebar card card--padded">
+          <div class="h2" data-i18n="feed.filtersTitle">Фильтры</div>
+          <form class="filters" id="feedFilters">
+            <div class="field">
+              <label class="label" for="feedCountry" data-i18n="feed.country">Страна</label>
+              <input id="feedCountry" class="input" list="countries" data-i18n-placeholder="people.any" placeholder="Любая" />
+              <datalist id="countries"></datalist>
+            </div>
+            <div class="field">
+              <label class="label" for="feedQuery" data-i18n="feed.search">Поиск</label>
+              <input
+                id="feedQuery"
+                class="input"
+                placeholder="Заголовок, текст, эксперт…"
+                data-i18n-placeholder="feed.searchPlaceholder"
+              />
+            </div>
+            <div class="field">
+              <button class="btn btn--primary" type="submit" data-i18n="feed.apply">Применить</button>
+              <button class="btn" type="button" id="feedReset" data-i18n="feed.reset">Сбросить</button>
+            </div>
+          </form>
+        </aside>
+
+        <section class="content">
+          <div class="content__bar">
+            <div class="pill" id="feedPill" data-i18n="feed.loading">Загрузка…</div>
+            <div class="muted" id="feedHint"></div>
+          </div>
+          <div class="feed" id="feedList" aria-live="polite"></div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer__inner">
+        <span class="muted">skarta • feed</span>
+        <span class="muted">prototype</span>
+      </div>
+    </footer>
+
+    <script type="module" src="./skarta.js"></script>
+  </body>
+</html>
+

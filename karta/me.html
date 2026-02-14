@@ -17,6 +17,7 @@
         </a>
         <div class="topbar__actions">
           <nav class="nav">
+            <a class="nav__link" href="./feed.html" data-i18n="nav.feed">Лента</a>
             <a class="nav__link" href="./people.html" data-i18n="nav.experts">Эксперты</a>
             <a class="nav__link" href="./create.html" data-i18n="nav.becomeExpert">Стать экспертом</a>
             <a class="nav__link nav__link--active" href="./me.html" id="navAuth" data-i18n="nav.account">Аккаунт</a>
@@ -56,6 +57,40 @@
             <a class="btn" href="./people.html" data-i18n="me.viewTop">Смотреть топ</a>
           </div>
           <div class="pill" id="expertPill" style="margin-top: 14px">—</div>
+        </div>
+      </section>
+
+      <section class="grid2" style="margin-top: 14px">
+        <div class="card card--padded">
+          <div class="h2" data-i18n="me.editTitle">Профиль пользователя</div>
+          <form id="meForm" class="stack">
+            <div class="field">
+              <label class="label" for="meName" data-i18n="me.name">Имя</label>
+              <input id="meName" class="input" required />
+            </div>
+            <div class="field">
+              <button class="btn btn--primary" type="submit" data-i18n="me.save">Сохранить</button>
+            </div>
+            <div class="pill" id="meMsg" aria-live="polite">—</div>
+          </form>
+        </div>
+
+        <div class="card card--padded">
+          <div class="h2" data-i18n="me.passTitle">Пароль</div>
+          <form id="passForm" class="stack">
+            <div class="field">
+              <label class="label" for="oldPass" data-i18n="me.oldPass">Старый пароль</label>
+              <input id="oldPass" class="input" type="password" required autocomplete="current-password" />
+            </div>
+            <div class="field">
+              <label class="label" for="newPass" data-i18n="me.newPass">Новый пароль</label>
+              <input id="newPass" class="input" type="password" required minlength="8" autocomplete="new-password" />
+            </div>
+            <div class="field">
+              <button class="btn btn--primary" type="submit" data-i18n="me.changePass">Сменить пароль</button>
+            </div>
+            <div class="pill" id="passMsg" aria-live="polite">—</div>
+          </form>
         </div>
       </section>
     </main>

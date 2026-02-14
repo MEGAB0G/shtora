@@ -489,6 +489,11 @@ function publicExpert(expert) {
     };
 }
 
+function expertOwnerOrNull(userId) {
+    if (!userId) return null;
+    return skartaStore.experts.find((e) => e.ownerUserId === userId) || null;
+}
+
 // Auth
 app.get('/api/skarta/me', (req, res) => {
     const user = getAuthUser(req);
@@ -496,7 +501,7 @@ app.get('/api/skarta/me', (req, res) => {
         res.status(401).json({ ok: false });
         return;
     }
-    const expert = skartaStore.experts.find((e) => e.ownerUserId === user.id) || null;
+    const expert = expertOwnerOrNull(user.id);
     res.json({ ok: true, me: toMe(user), expertId: expert?.id || null });
 });
 
@@ -587,6 +592,55 @@ app.post('/api/skarta/auth/logout', (req, res) => {
     res.json({ ok: true });
 });
 
+app.post('/api/skarta/me', requireAuth, (req, res) => {
+    const user = req.skartaUser;
+    const name = clampString(req.body?.name, 60);
+    if (!name) {
+        res.status(400).json({ ok: false, error: 'name_required' });
+        return;
+    }
+    const row = skartaStore.users.find((u) => u.id === user.id);
+    if (!row) {
+        res.status(404).json({ ok: false, error: 'not_found' });
+        return;
+    }
+    row.name = name;
+    atomicWriteJson(SKARTA_FILES.users, skartaStore.users);
+    res.json({ ok: true, me: toMe(row) });
+});
+
+app.post('/api/skarta/me/password', requireAuth, (req, res) => {
+    const user = req.skartaUser;
+    const oldPassword = String(req.body?.oldPassword || '');
+    const newPassword = String(req.body?.newPassword || '');
+    if (!oldPassword || newPassword.length < 8 || newPassword.length > 72) {
+        res.status(400).json({ ok: false, error: 'invalid' });
+        return;
+    }
+
+    const row = skartaStore.users.find((u) => u.id === user.id);
+    if (!row) {
+        res.status(404).json({ ok: false, error: 'not_found' });
+        return;
+    }
+
+    const salt = Buffer.from(String(row.passwordSalt || ''), 'base64');
+    const expected = Buffer.from(String(row.passwordHash || ''), 'base64');
+    const got = scryptHash(oldPassword, salt);
+    if (!safeEqual(expected, got)) {
+        res.status(401).json({ ok: false, error: 'invalid' });
+        return;
+    }
+
+    const newSalt = crypto.randomBytes(16);
+    const newHash = scryptHash(newPassword, newSalt);
+    row.passwordSalt = newSalt.toString('base64');
+    row.passwordHash = newHash.toString('base64');
+    atomicWriteJson(SKARTA_FILES.users, skartaStore.users);
+
+    res.json({ ok: true });
+});
+
 // Experts
 app.get('/api/skarta/experts', (req, res) => {
     const country = clampString(req.query?.country, 60);
@@ -614,6 +668,16 @@ app.get('/api/skarta/experts/:id', (req, res) => {
     const expert = skartaStore.experts.find((e) => e.id === id);
     if (!expert) {
         res.status(404).json({ ok: false, error: 'not_found' });
+        return;
+    }
+    res.json({ ok: true, expert: publicExpert(expert) });
+});
+
+app.get('/api/skarta/experts-mine', requireAuth, (req, res) => {
+    const user = req.skartaUser;
+    const expert = expertOwnerOrNull(user.id);
+    if (!expert) {
+        res.json({ ok: true, expert: null });
         return;
     }
     res.json({ ok: true, expert: publicExpert(expert) });
@@ -773,6 +837,41 @@ app.post('/api/skarta/experts/:id/reviews', requireAuth, (req, res) => {
     atomicWriteJson(SKARTA_FILES.reviews, skartaStore.reviews);
 
     res.json({ ok: true });
+});
+
+// Feed (latest posts across all experts)
+app.get('/api/skarta/feed', (req, res) => {
+    const country = clampString(req.query?.country, 60);
+    const query = clampString(req.query?.q, 120).toLowerCase();
+    const limit = Math.max(1, Math.min(200, Number(req.query?.limit || 60)));
+
+    const expertsById = new Map(skartaStore.experts.map((e) => [e.id, e]));
+    const items = [];
+
+    for (const [expertId, posts] of Object.entries(skartaStore.posts || {})) {
+        const expert = expertsById.get(expertId);
+        if (!expert) continue;
+        if (country && expert.country !== country) continue;
+        const list = Array.isArray(posts) ? posts : [];
+        for (const post of list) {
+            const title = String(post?.title || '');
+            const body = String(post?.body || '');
+            if (query) {
+                const blob = `${title} ${body} ${expert.name} ${expert.country} ${expert.city}`.toLowerCase();
+                if (!blob.includes(query)) continue;
+            }
+            items.push({
+                id: String(post.id || ''),
+                createdAt: Number(post.createdAt || 0),
+                title,
+                body,
+                expert: publicExpert(expert)
+            });
+        }
+    }
+
+    items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    res.json({ ok: true, items: items.slice(0, limit) });
 });
 
 app.listen(PORT, '0.0.0.0', () => {

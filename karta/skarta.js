@@ -64,6 +64,7 @@ const I18N = {
     "nav.becomeExpert": "Стать экспертом",
     "nav.login": "Войти",
     "nav.account": "Аккаунт",
+    "nav.feed": "Лента",
 
     "home.subtitle": "Находи людей на месте — получай честные ответы про районы, безопасность, цены и лучшие места.",
     "home.countrySearchLabel": "Поиск страны",
@@ -193,6 +194,16 @@ const I18N = {
     "me.viewTop": "Смотреть топ",
     "me.noExpert": "Экспертного профиля пока нет.",
     "me.expertProfile": "Экспертный профиль: {id}",
+    "me.editTitle": "Профиль пользователя",
+    "me.name": "Имя",
+    "me.save": "Сохранить",
+    "me.passTitle": "Пароль",
+    "me.oldPass": "Старый пароль",
+    "me.newPass": "Новый пароль",
+    "me.changePass": "Сменить пароль",
+    "me.saved": "Сохранено",
+    "me.passChanged": "Пароль изменён",
+    "me.passInvalid": "Неверный пароль",
 
     "alert.chat": "Прототип оплаты/чата.\n\nЗдесь будет: покупка вопроса и диалог с экспертом.",
     "alert.pay": "Прототип оплаты.\n\nЗдесь будет покупка вопроса за ${price} и чат с экспертом.",
@@ -208,6 +219,22 @@ const I18N = {
     "card.perQuestion": "/ вопрос",
     "card.noReviews": "нет отзывов",
     "card.reviews": "{n} отзыв(ов)",
+
+    "feed.title": "Лента",
+    "feed.subtitle": "Записи экспертов — по странам.",
+    "feed.back": "Назад",
+    "feed.filtersTitle": "Фильтры",
+    "feed.country": "Страна",
+    "feed.search": "Поиск",
+    "feed.searchPlaceholder": "Заголовок, текст, эксперт…",
+    "feed.apply": "Применить",
+    "feed.reset": "Сбросить",
+    "feed.loading": "Загрузка…",
+    "feed.pillAll": "Все страны • постов: {n}",
+    "feed.pillCountry": "Страна: {country} • постов: {n}",
+    "feed.openExpert": "Открыть эксперта",
+    "feed.noneTitle": "Постов пока нет",
+    "feed.noneText": "Эксперты начнут публиковать — и тут появится лента.",
   },
   en: {
     "nav.experts": "Experts",
@@ -215,6 +242,7 @@ const I18N = {
     "nav.becomeExpert": "Become an expert",
     "nav.login": "Sign in",
     "nav.account": "Account",
+    "nav.feed": "Feed",
 
     "home.subtitle": "Find locals — get honest answers about neighborhoods, safety, costs, and the best places.",
     "home.countrySearchLabel": "Country search",
@@ -344,6 +372,16 @@ const I18N = {
     "me.viewTop": "View top",
     "me.noExpert": "No expert profile yet.",
     "me.expertProfile": "Expert profile: {id}",
+    "me.editTitle": "User profile",
+    "me.name": "Name",
+    "me.save": "Save",
+    "me.passTitle": "Password",
+    "me.oldPass": "Old password",
+    "me.newPass": "New password",
+    "me.changePass": "Change password",
+    "me.saved": "Saved",
+    "me.passChanged": "Password updated",
+    "me.passInvalid": "Wrong password",
 
     "alert.chat": "Prototype payments/chat.\n\nHere will be: purchase a question and chat with the expert.",
     "alert.pay": "Prototype payment.\n\nHere will be: buy a question for ${price} and chat with the expert.",
@@ -359,6 +397,22 @@ const I18N = {
     "card.perQuestion": "/ question",
     "card.noReviews": "no reviews",
     "card.reviews": "{n} reviews",
+
+    "feed.title": "Feed",
+    "feed.subtitle": "Expert posts — by country.",
+    "feed.back": "Back",
+    "feed.filtersTitle": "Filters",
+    "feed.country": "Country",
+    "feed.search": "Search",
+    "feed.searchPlaceholder": "Title, text, expert…",
+    "feed.apply": "Apply",
+    "feed.reset": "Reset",
+    "feed.loading": "Loading…",
+    "feed.pillAll": "All countries • posts: {n}",
+    "feed.pillCountry": "Country: {country} • posts: {n}",
+    "feed.openExpert": "Open expert",
+    "feed.noneTitle": "No posts yet",
+    "feed.noneText": "Once experts publish, the feed will show up here.",
   },
   es: {
     "nav.experts": "Expertos",
@@ -366,6 +420,7 @@ const I18N = {
     "nav.becomeExpert": "Ser experto",
     "nav.login": "Iniciar sesión",
     "nav.account": "Cuenta",
+    "nav.feed": "Feed",
     "home.subtitle": "Encuentra locales: respuestas honestas sobre zonas, seguridad, precios y mejores lugares.",
     "home.countrySearchLabel": "Búsqueda por país",
     "home.countrySearchPlaceholder": "Por ejemplo: Japón, Francia, Tailandia…",
@@ -762,6 +817,7 @@ const I18N = {
     "create.title": "Buat profil",
     "auth.title": "Masuk / Daftar",
     "me.title": "Akun",
+    "nav.feed": "Feed",
   },
 };
 
@@ -1338,7 +1394,24 @@ function initCreate() {
     return me;
   }
 
-  void gate();
+  async function prefillIfExists() {
+    const me = await gate();
+    if (!me?.ok) return;
+    try {
+      const data = await apiJson("/api/skarta/experts-mine", { method: "GET" });
+      const expert = data?.expert || null;
+      if (!expert) return;
+      $("#cName").value = expert.name || "";
+      $("#cCountry").value = expert.country || "";
+      $("#cCity").value = expert.city || "";
+      $("#cLanguages").value = (expert.languages || []).join(", ");
+      $("#cTopics").value = (expert.topics || []).join(", ");
+      $("#cPrice").value = String(expert.price || "");
+      $("#cAbout").value = expert.about || "";
+    } catch {}
+  }
+
+  void prefillIfExists();
 
   $("#createProfileForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -1431,6 +1504,8 @@ function initAuth() {
 function initMe() {
   const mePill = $("#mePill");
   const expertPill = $("#expertPill");
+  const meMsg = $("#meMsg");
+  const passMsg = $("#passMsg");
 
   async function load() {
     const me = await getMeOrNull();
@@ -1439,6 +1514,7 @@ function initMe() {
       return;
     }
     if (mePill) mePill.textContent = `${me.me.name} • ${me.me.email}`;
+    if ($("#meName")) $("#meName").value = me.me.name || "";
     if (expertPill) {
       expertPill.innerHTML = me.expertId
         ? `Экспертный профиль: <a href="./profile.html?id=${encodeURIComponent(me.expertId)}">${escapeHtml(
@@ -1455,7 +1531,127 @@ function initMe() {
     window.location.href = "./index.html";
   });
 
+  $("#meForm")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (meMsg) meMsg.textContent = "…";
+    const name = $("#meName")?.value?.trim();
+    if (!name) return;
+    try {
+      const data = await apiJson("/api/skarta/me", { method: "POST", body: JSON.stringify({ name }) });
+      if (meMsg) meMsg.textContent = tr("me.saved");
+      if (data?.me?.name) {
+        $("#navAuth") && ($("#navAuth").textContent = data.me.name);
+        if (mePill) mePill.textContent = `${data.me.name} • ${data.me.email}`;
+      }
+    } catch {
+      if (meMsg) meMsg.textContent = "error";
+    }
+  });
+
+  $("#passForm")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (passMsg) passMsg.textContent = "…";
+    const oldPassword = $("#oldPass")?.value || "";
+    const newPassword = $("#newPass")?.value || "";
+    try {
+      await apiJson("/api/skarta/me/password", {
+        method: "POST",
+        body: JSON.stringify({ oldPassword, newPassword }),
+      });
+      $("#oldPass").value = "";
+      $("#newPass").value = "";
+      if (passMsg) passMsg.textContent = tr("me.passChanged");
+    } catch (err) {
+      if (passMsg) passMsg.textContent = err?.status === 401 ? tr("me.passInvalid") : "error";
+    }
+  });
+
   void load();
+  window.addEventListener("skarta:langchange", () => void load());
+}
+
+function renderFeedItem(item) {
+  const expert = item.expert || {};
+  return `
+    <article class="card feedItem">
+      <div class="avatar">
+        <img src="${escapeHtml(expert.avatar || "./assets/avatar-default.svg")}" alt="" loading="lazy" />
+      </div>
+      <div class="feedItem__main">
+        <h3 class="feedItem__title">${escapeHtml(item.title || "")}</h3>
+        <div class="feedItem__meta">${escapeHtml(expert.country || "")} • ${escapeHtml(expert.city || "")} • ${escapeHtml(
+    expert.name || ""
+  )} • ${escapeHtml(formatDate(item.createdAt || 0))}</div>
+        <div class="feedItem__body">${escapeHtml(item.body || "")}</div>
+        <div class="feedItem__actions">
+          <a class="btn btn--primary" href="./profile.html?id=${encodeURIComponent(expert.id || "")}">${escapeHtml(
+    tr("feed.openExpert")
+  )}</a>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function initFeed() {
+  fillCountryDatalist("countries");
+  const q = parseQuery();
+  const fCountry = $("#feedCountry");
+  const fQuery = $("#feedQuery");
+  const pill = $("#feedPill");
+  const hint = $("#feedHint");
+
+  if (fCountry && q.country) fCountry.value = q.country;
+  if (fQuery && q.q) fQuery.value = q.q;
+
+  async function render() {
+    const country = (fCountry?.value || "").trim();
+    const query = (fQuery?.value || "").trim();
+    setQueryParam("country", country);
+    setQueryParam("q", query);
+
+    const url = new URL("/api/skarta/feed", window.location.origin);
+    if (country) url.searchParams.set("country", country);
+    if (query) url.searchParams.set("q", query);
+
+    let items = [];
+    try {
+      const data = await apiJson(url.toString(), { method: "GET" });
+      items = Array.isArray(data.items) ? data.items : [];
+    } catch {
+      items = [];
+    }
+
+    if (pill) {
+      pill.textContent = country
+        ? tr("feed.pillCountry", { country, n: items.length })
+        : tr("feed.pillAll", { n: items.length });
+    }
+    if (hint) hint.textContent = country ? tr("people.countryFilter", { country }) : "";
+
+    const root = $("#feedList");
+    if (!root) return;
+    if (items.length === 0) {
+      root.innerHTML = `<div class="card card--padded"><div class="h2">${escapeHtml(
+        tr("feed.noneTitle")
+      )}</div><div class="muted">${escapeHtml(tr("feed.noneText"))}</div></div>`;
+      return;
+    }
+    root.innerHTML = items.map(renderFeedItem).join("");
+  }
+
+  $("#feedFilters")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    void render();
+  });
+  $("#feedReset")?.addEventListener("click", () => {
+    if (fCountry) fCountry.value = "";
+    if (fQuery) fQuery.value = "";
+    void render();
+  });
+
+  void render();
+  window.addEventListener("skarta:langchange", () => void render());
 }
 
 async function init() {
@@ -1468,6 +1664,18 @@ async function init() {
   if (page === "create") initCreate();
   if (page === "auth") initAuth();
   if (page === "me") initMe();
+  if (page === "feed") initFeed();
 }
 
 void init();
+    "nav.feed": "Fil",
+    "nav.feed": "Feed",
+    "nav.feed": "Feed",
+    "nav.feed": "Feed",
+    "nav.feed": "Akış",
+    "nav.feed": "动态",
+    "nav.feed": "フィード",
+    "nav.feed": "피드",
+    "nav.feed": "ฟีด",
+    "nav.feed": "الخلاصة",
+    "nav.feed": "फ़ीड",
