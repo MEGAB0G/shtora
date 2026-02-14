@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>skarta — Создать профиль</title>
+    <meta name="description" content="Создание профиля эксперта skarta." />
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./skarta.css" />
+  </head>
+  <body data-page="create">
+    <header class="topbar">
+      <div class="topbar__inner">
+        <a class="brand" href="./index.html" aria-label="skarta">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <span class="brand__name">skarta</span>
+        </a>
+        <nav class="nav">
+          <a class="nav__link" href="./people.html">Эксперты</a>
+          <a class="nav__link nav__link--active" href="./create.html">Создать профиль</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="pageHeader">
+        <div>
+          <h1 class="pageHeader__title">Создать профиль</h1>
+          <p class="pageHeader__subtitle">Таблица создания профиля (прототип).</p>
+        </div>
+        <div class="pageHeader__right">
+          <a class="btn" href="./people.html">К экспертам</a>
+        </div>
+      </section>
+
+      <section class="card card--padded">
+        <form id="createProfileForm">
+          <table class="formTable" aria-label="Таблица создания профиля">
+            <tbody>
+              <tr>
+                <th><label class="label" for="cName">Имя</label></th>
+                <td><input id="cName" class="input" required placeholder="Напр.: Roman" /></td>
+              </tr>
+              <tr>
+                <th><label class="label" for="cCountry">Страна</label></th>
+                <td>
+                  <input id="cCountry" class="input" required list="countries" placeholder="Выбери страну" />
+                  <datalist id="countries"></datalist>
+                </td>
+              </tr>
+              <tr>
+                <th><label class="label" for="cCity">Город/район</label></th>
+                <td><input id="cCity" class="input" required placeholder="Напр.: Paris / 11e" /></td>
+              </tr>
+              <tr>
+                <th><label class="label" for="cLanguages">Языки</label></th>
+                <td><input id="cLanguages" class="input" required placeholder="Напр.: Русский, English" /></td>
+              </tr>
+              <tr>
+                <th><label class="label" for="cTopics">Темы (через запятую)</label></th>
+                <td><input id="cTopics" class="input" required placeholder="Еда, Безопасность, Транспорт" /></td>
+              </tr>
+              <tr>
+                <th><label class="label" for="cPrice">Цена за вопрос</label></th>
+                <td>
+                  <div class="row">
+                    <input id="cPrice" class="input" type="number" min="1" step="1" required placeholder="Напр. 15" />
+                    <span class="muted">USD</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th><label class="label" for="cAbout">Описание</label></th>
+                <td>
+                  <textarea
+                    id="cAbout"
+                    class="textarea"
+                    rows="5"
+                    required
+                    placeholder="Кто ты, чем поможешь туристам, почему тебе можно доверять…"
+                  ></textarea>
+                </td>
+              </tr>
+              <tr>
+                <th><label class="label" for="cPhoto">Фото профиля</label></th>
+                <td>
+                  <input id="cPhoto" class="input" type="file" accept="image/*" />
+                  <div class="muted">Можно пропустить — будет дефолтный аватар.</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="actions">
+            <button class="btn btn--primary" type="submit">Создать профиль</button>
+            <button class="btn" type="button" id="clearLocal">Очистить прототип-данные</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer__inner">
+        <span class="muted">skarta • create</span>
+        <span class="muted">prototype</span>
+      </div>
+    </footer>
+
+    <script type="module" src="./skarta.js"></script>
+  </body>
+</html>
+

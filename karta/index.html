@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>skarta</title>
+    <meta name="description" content="skarta — честная информация для путешествий от местных экспертов." />
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./skarta.css" />
+  </head>
+  <body data-page="home">
+    <header class="topbar">
+      <div class="topbar__inner">
+        <a class="brand" href="./index.html" aria-label="skarta">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <span class="brand__name">skarta</span>
+        </a>
+        <nav class="nav">
+          <a class="nav__link" href="./people.html">Эксперты</a>
+          <a class="nav__link" href="./create.html">Создать профиль</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <h1 class="hero__title">skarta</h1>
+        <p class="hero__subtitle">
+          Находи людей на месте — получай честные ответы про районы, безопасность, цены и лучшие места.
+        </p>
+      </section>
+
+      <section class="card card--padded">
+        <div class="stack">
+          <label class="label" for="countrySearch">Поиск страны</label>
+          <div class="search">
+            <input
+              id="countrySearch"
+              class="search__input input"
+              placeholder="Например: Япония, Франция, Таиланд…"
+              autocomplete="off"
+              list="countries"
+            />
+            <datalist id="countries"></datalist>
+            <button class="btn btn--primary" id="goToPeople" type="button">Показать экспертов</button>
+          </div>
+          <p class="muted">
+            Можно выбрать на карте или через поиск — страна станет фильтром для страницы экспертов.
+          </p>
+        </div>
+
+        <div class="mapCard">
+          <div class="mapCard__header">
+            <div>
+              <div class="mapCard__title">Карта мира</div>
+              <div class="mapCard__hint">Выбери страну</div>
+            </div>
+            <div class="pill" id="selectedCountryPill" aria-live="polite">Страна: не выбрана</div>
+          </div>
+
+          <div class="worldMap" id="worldMap" role="img" aria-label="Карта мира с точками выбора стран">
+            <svg viewBox="0 0 1000 520" class="worldMap__svg" aria-hidden="true">
+              <defs>
+                <linearGradient id="ocean" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#eaf2ff" />
+                  <stop offset="1" stop-color="#f5f5f7" />
+                </linearGradient>
+                <linearGradient id="land" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#dbe7ff" />
+                  <stop offset="1" stop-color="#c9d8ff" />
+                </linearGradient>
+              </defs>
+              <rect x="0" y="0" width="1000" height="520" fill="url(#ocean)" />
+
+              <!-- simplified land shapes -->
+              <path
+                d="M95,165 C170,95 300,92 355,148 C380,173 385,205 355,228 C323,253 275,268 245,298 C218,326 205,357 176,357 C136,357 108,333 93,300 C70,250 58,205 95,165 Z"
+                fill="url(#land)"
+                opacity="0.95"
+              />
+              <path
+                d="M395,125 C450,95 560,92 618,142 C660,178 665,225 617,252 C590,268 548,270 520,292 C490,315 482,352 448,356 C420,359 395,342 382,318 C356,271 352,154 395,125 Z"
+                fill="url(#land)"
+                opacity="0.92"
+              />
+              <path
+                d="M620,165 C700,108 825,105 895,158 C940,193 935,252 885,276 C845,295 815,285 777,308 C740,330 725,370 680,370 C645,370 620,350 608,322 C588,276 580,212 620,165 Z"
+                fill="url(#land)"
+                opacity="0.93"
+              />
+              <path
+                d="M510,318 C545,298 602,300 628,330 C652,358 638,398 605,416 C575,432 548,426 528,405 C503,380 485,340 510,318 Z"
+                fill="url(#land)"
+                opacity="0.9"
+              />
+              <path
+                d="M770,350 C810,328 880,330 915,358 C950,386 940,438 900,458 C860,478 810,468 785,440 C760,412 735,372 770,350 Z"
+                fill="url(#land)"
+                opacity="0.9"
+              />
+            </svg>
+
+            <div class="worldMap__pins" aria-hidden="false">
+              <button class="pin" type="button" data-country="США" style="--x: 22%; --y: 28%" aria-label="США"></button>
+              <button class="pin" type="button" data-country="Канада" style="--x: 20%; --y: 18%" aria-label="Канада"></button>
+              <button class="pin" type="button" data-country="Мексика" style="--x: 24%; --y: 40%" aria-label="Мексика"></button>
+              <button class="pin" type="button" data-country="Бразилия" style="--x: 32%; --y: 62%" aria-label="Бразилия"></button>
+
+              <button class="pin" type="button" data-country="Великобритания" style="--x: 51%; --y: 26%" aria-label="Великобритания"></button>
+              <button class="pin" type="button" data-country="Франция" style="--x: 54%; --y: 30%" aria-label="Франция"></button>
+              <button class="pin" type="button" data-country="Германия" style="--x: 56%; --y: 28%" aria-label="Германия"></button>
+              <button class="pin" type="button" data-country="Испания" style="--x: 52.5%; --y: 35%" aria-label="Испания"></button>
+              <button class="pin" type="button" data-country="Италия" style="--x: 56.5%; --y: 34%" aria-label="Италия"></button>
+              <button class="pin" type="button" data-country="Турция" style="--x: 60.5%; --y: 37%" aria-label="Турция"></button>
+              <button class="pin" type="button" data-country="Египет" style="--x: 58.5%; --y: 46%" aria-label="Египет"></button>
+
+              <button class="pin" type="button" data-country="Россия" style="--x: 66%; --y: 20%" aria-label="Россия"></button>
+              <button class="pin" type="button" data-country="Индия" style="--x: 67.5%; --y: 44%" aria-label="Индия"></button>
+              <button class="pin" type="button" data-country="Таиланд" style="--x: 73%; --y: 48%" aria-label="Таиланд"></button>
+              <button class="pin" type="button" data-country="Индонезия" style="--x: 77.5%; --y: 58%" aria-label="Индонезия"></button>
+              <button class="pin" type="button" data-country="Китай" style="--x: 73%; --y: 33%" aria-label="Китай"></button>
+              <button class="pin" type="button" data-country="Япония" style="--x: 79%; --y: 32%" aria-label="Япония"></button>
+
+              <button class="pin" type="button" data-country="ЮАР" style="--x: 60%; --y: 78%" aria-label="ЮАР"></button>
+              <button class="pin" type="button" data-country="Австралия" style="--x: 84%; --y: 76%" aria-label="Австралия"></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid2">
+        <div class="card card--padded">
+          <div class="h2">Как это будет работать</div>
+          <ul class="list">
+            <li>Эксперты (местные) ведут профиль: описание, фото, посты.</li>
+            <li>Пользователи задают вопросы и оставляют отзывы.</li>
+            <li>У экспертов рейтинг и доход за консультации.</li>
+          </ul>
+        </div>
+        <div class="card card--padded">
+          <div class="h2">Быстрый старт</div>
+          <div class="ctaRow">
+            <a class="btn btn--primary" href="./people.html">Открыть экспертов</a>
+            <a class="btn" href="./create.html">Создать профиль</a>
+          </div>
+          <p class="muted">Сейчас всё хранится локально в браузере (localStorage) — как прототип.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer__inner">
+        <span class="muted">skarta • prototype</span>
+        <span class="muted">/karta/</span>
+      </div>
+    </footer>
+
+    <script type="module" src="./skarta.js"></script>
+  </body>
+</html>
+

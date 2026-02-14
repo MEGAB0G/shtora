@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>skarta — Профиль</title>
+    <meta name="description" content="Профиль эксперта skarta." />
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./skarta.css" />
+  </head>
+  <body data-page="profile">
+    <header class="topbar">
+      <div class="topbar__inner">
+        <a class="brand" href="./index.html" aria-label="skarta">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <span class="brand__name">skarta</span>
+        </a>
+        <nav class="nav">
+          <a class="nav__link" href="./people.html">Эксперты</a>
+          <a class="nav__link" href="./create.html">Создать профиль</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="profileHero card card--padded" id="profileHero" aria-live="polite"></section>
+
+      <section class="grid2 grid2--top">
+        <div class="card card--padded">
+          <div class="h2">Посты</div>
+          <div class="muted">Эксперт может выкладывать контент. В прототипе всё сохраняется локально.</div>
+          <div class="posts" id="posts"></div>
+        </div>
+
+        <div class="stack">
+          <div class="card card--padded">
+            <div class="h2">Добавить пост</div>
+            <form id="postForm" class="form">
+              <div class="field">
+                <label class="label" for="pTitle">Заголовок</label>
+                <input id="pTitle" class="input" placeholder="Напр.: Как не переплатить в центре" required />
+              </div>
+              <div class="field">
+                <label class="label" for="pBody">Текст</label>
+                <textarea id="pBody" class="textarea" rows="5" placeholder="Коротко и по делу…" required></textarea>
+              </div>
+              <div class="field">
+                <button class="btn btn--primary" type="submit">Опубликовать</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card card--padded">
+            <div class="h2">Отзывы</div>
+            <form id="reviewForm" class="form">
+              <div class="field">
+                <label class="label" for="rRating">Оценка</label>
+                <select id="rRating" class="select" required>
+                  <option value="5">5 — отлично</option>
+                  <option value="4">4 — хорошо</option>
+                  <option value="3">3 — нормально</option>
+                  <option value="2">2 — плохо</option>
+                  <option value="1">1 — ужасно</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="label" for="rText">Комментарий</label>
+                <textarea id="rText" class="textarea" rows="4" placeholder="Что было полезно?" required></textarea>
+              </div>
+              <div class="field">
+                <button class="btn" type="submit">Оставить отзыв</button>
+              </div>
+            </form>
+            <div class="reviews" id="reviews"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer__inner">
+        <span class="muted">skarta • профиль</span>
+        <span class="muted">prototype</span>
+      </div>
+    </footer>
+
+    <script type="module" src="./skarta.js"></script>
+  </body>
+</html>
+
