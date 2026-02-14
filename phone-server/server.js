@@ -251,7 +251,9 @@ const SKARTA_FILES = {
     sessions: path.join(SKARTA_DIR, 'sessions.json'),
     experts: path.join(SKARTA_DIR, 'experts.json'),
     posts: path.join(SKARTA_DIR, 'posts.json'),
-    reviews: path.join(SKARTA_DIR, 'reviews.json')
+    reviews: path.join(SKARTA_DIR, 'reviews.json'),
+    chats: path.join(SKARTA_DIR, 'chats.json'),
+    messages: path.join(SKARTA_DIR, 'messages.json')
 };
 
 function ensureDir(dirPath) {
@@ -366,7 +368,9 @@ const skartaStore = {
     sessions: readJsonFile(SKARTA_FILES.sessions, {}),
     experts: readJsonFile(SKARTA_FILES.experts, []),
     posts: readJsonFile(SKARTA_FILES.posts, {}),
-    reviews: readJsonFile(SKARTA_FILES.reviews, {})
+    reviews: readJsonFile(SKARTA_FILES.reviews, {}),
+    chats: readJsonFile(SKARTA_FILES.chats, []),
+    messages: readJsonFile(SKARTA_FILES.messages, {})
 };
 
 // Seed a few demo experts if storage is empty (safe to delete later).
@@ -492,6 +496,36 @@ function publicExpert(expert) {
 function expertOwnerOrNull(userId) {
     if (!userId) return null;
     return skartaStore.experts.find((e) => e.ownerUserId === userId) || null;
+}
+
+function saveChats() {
+    atomicWriteJson(SKARTA_FILES.chats, skartaStore.chats);
+    atomicWriteJson(SKARTA_FILES.messages, skartaStore.messages);
+}
+
+function listChatsForUser(user) {
+    const mineExpert = expertOwnerOrNull(user.id);
+    const out = [];
+    for (const chat of skartaStore.chats || []) {
+        if (!chat) continue;
+        const isUserSide = chat.userId === user.id;
+        const isExpertSide = mineExpert && chat.expertId === mineExpert.id;
+        if (!isUserSide && !isExpertSide) continue;
+        out.push(chat);
+    }
+    return { mineExpert, chats: out };
+}
+
+function getChatById(chatId) {
+    return (skartaStore.chats || []).find((c) => c.id === chatId) || null;
+}
+
+function canAccessChat(user, chat) {
+    if (!user || !chat) return false;
+    if (chat.userId === user.id) return true;
+    const mineExpert = expertOwnerOrNull(user.id);
+    if (mineExpert && chat.expertId === mineExpert.id) return true;
+    return false;
 }
 
 // Auth
@@ -872,6 +906,117 @@ app.get('/api/skarta/feed', (req, res) => {
 
     items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     res.json({ ok: true, items: items.slice(0, limit) });
+});
+
+// Chats (user <-> expert messaging)
+app.get('/api/skarta/chats', requireAuth, (req, res) => {
+    const user = req.skartaUser;
+    const { chats } = listChatsForUser(user);
+
+    const expertsById = new Map(skartaStore.experts.map((e) => [e.id, e]));
+    const items = chats
+        .map((c) => {
+            const expert = expertsById.get(c.expertId);
+            const messages = Array.isArray(skartaStore.messages[c.id]) ? skartaStore.messages[c.id] : [];
+            const last = messages[0] || null;
+            return {
+                id: c.id,
+                expert: expert ? publicExpert(expert) : null,
+                userId: c.userId,
+                createdAt: c.createdAt,
+                updatedAt: c.updatedAt,
+                lastMessage: last
+                    ? { text: String(last.text || ''), createdAt: last.createdAt, from: last.from }
+                    : null
+            };
+        })
+        .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+
+    res.json({ ok: true, chats: items });
+});
+
+app.post('/api/skarta/chats', requireAuth, (req, res) => {
+    const user = req.skartaUser;
+    const expertId = String(req.body?.expertId || '');
+    const expert = skartaStore.experts.find((e) => e.id === expertId) || null;
+    if (!expert) {
+        res.status(404).json({ ok: false, error: 'expert_not_found' });
+        return;
+    }
+    if (expert.ownerUserId === user.id) {
+        res.status(400).json({ ok: false, error: 'cannot_chat_self' });
+        return;
+    }
+
+    let chat = (skartaStore.chats || []).find((c) => c.expertId === expertId && c.userId === user.id) || null;
+    if (!chat) {
+        chat = { id: crypto.randomUUID(), expertId, userId: user.id, createdAt: nowMs(), updatedAt: nowMs() };
+        skartaStore.chats.unshift(chat);
+        skartaStore.messages[chat.id] = [];
+        saveChats();
+    }
+    res.json({ ok: true, chatId: chat.id });
+});
+
+app.get('/api/skarta/chats/:id', requireAuth, (req, res) => {
+    const user = req.skartaUser;
+    const chatId = String(req.params.id || '');
+    const chat = getChatById(chatId);
+    if (!chat) {
+        res.status(404).json({ ok: false, error: 'not_found' });
+        return;
+    }
+    if (!canAccessChat(user, chat)) {
+        res.status(403).json({ ok: false, error: 'forbidden' });
+        return;
+    }
+
+    const expert = skartaStore.experts.find((e) => e.id === chat.expertId) || null;
+    const messages = Array.isArray(skartaStore.messages[chat.id]) ? skartaStore.messages[chat.id] : [];
+    res.json({
+        ok: true,
+        chat: { id: chat.id, expert: expert ? publicExpert(expert) : null, userId: chat.userId, createdAt: chat.createdAt, updatedAt: chat.updatedAt },
+        messages: messages.slice(0, 500)
+    });
+});
+
+app.post('/api/skarta/chats/:id/messages', requireAuth, (req, res) => {
+    const user = req.skartaUser;
+    const chatId = String(req.params.id || '');
+    const chat = getChatById(chatId);
+    if (!chat) {
+        res.status(404).json({ ok: false, error: 'not_found' });
+        return;
+    }
+    if (!canAccessChat(user, chat)) {
+        res.status(403).json({ ok: false, error: 'forbidden' });
+        return;
+    }
+
+    const text = clampString(req.body?.text, 4000);
+    if (!text) {
+        res.status(400).json({ ok: false, error: 'text_required' });
+        return;
+    }
+
+    let from = 'user';
+    if (chat.userId !== user.id) {
+        const mineExpert = expertOwnerOrNull(user.id);
+        if (mineExpert && mineExpert.id === chat.expertId) from = 'expert';
+        else {
+            res.status(403).json({ ok: false, error: 'forbidden' });
+            return;
+        }
+    }
+
+    const list = Array.isArray(skartaStore.messages[chat.id]) ? skartaStore.messages[chat.id] : [];
+    const msg = { id: crypto.randomUUID(), from, text, createdAt: nowMs() };
+    list.unshift(msg);
+    skartaStore.messages[chat.id] = list.slice(0, 2000);
+    chat.updatedAt = nowMs();
+    saveChats();
+
+    res.json({ ok: true, message: msg });
 });
 
 app.listen(PORT, '0.0.0.0', () => {

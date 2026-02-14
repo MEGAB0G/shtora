@@ -17,6 +17,7 @@ const COUNTRIES = [
   "Франция",
   "ЮАР",
   "Япония",
+  "Испания",
 ];
 
 const STORAGE = {
@@ -26,6 +27,25 @@ const STORAGE = {
 
 function $(sel, root = document) {
   return root.querySelector(sel);
+}
+
+let langMemory = null;
+
+function storageGet(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function storageSet(key, value) {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 const TOPIC_KEY_BY_RU = {
@@ -65,6 +85,7 @@ const I18N = {
     "nav.login": "Войти",
     "nav.account": "Аккаунт",
     "nav.feed": "Лента",
+    "nav.chats": "Чаты",
 
     "home.subtitle": "Находи людей на месте — получай честные ответы про районы, безопасность, цены и лучшие места.",
     "home.countrySearchLabel": "Поиск страны",
@@ -235,6 +256,21 @@ const I18N = {
     "feed.openExpert": "Открыть эксперта",
     "feed.noneTitle": "Постов пока нет",
     "feed.noneText": "Эксперты начнут публиковать — и тут появится лента.",
+
+    "chats.title": "Чаты",
+    "chats.subtitle": "Твои диалоги с экспертами.",
+    "chats.toExperts": "К экспертам",
+    "chats.loading": "Загрузка…",
+    "chats.noneTitle": "Чатов пока нет",
+    "chats.noneText": "Открой эксперта и нажми «Задать вопрос», чтобы начать диалог.",
+    "chats.open": "Открыть чат",
+
+    "chat.title": "Чат",
+    "chat.subtitle": "Диалог с экспертом.",
+    "chat.back": "Назад",
+    "chat.loading": "Загрузка…",
+    "chat.placeholder": "Напиши сообщение…",
+    "chat.send": "Отправить",
   },
   en: {
     "nav.experts": "Experts",
@@ -243,6 +279,7 @@ const I18N = {
     "nav.login": "Sign in",
     "nav.account": "Account",
     "nav.feed": "Feed",
+    "nav.chats": "Chats",
 
     "home.subtitle": "Find locals — get honest answers about neighborhoods, safety, costs, and the best places.",
     "home.countrySearchLabel": "Country search",
@@ -413,6 +450,21 @@ const I18N = {
     "feed.openExpert": "Open expert",
     "feed.noneTitle": "No posts yet",
     "feed.noneText": "Once experts publish, the feed will show up here.",
+
+    "chats.title": "Chats",
+    "chats.subtitle": "Your conversations with experts.",
+    "chats.toExperts": "To experts",
+    "chats.loading": "Loading…",
+    "chats.noneTitle": "No chats yet",
+    "chats.noneText": "Open an expert and click “Ask a question” to start.",
+    "chats.open": "Open chat",
+
+    "chat.title": "Chat",
+    "chat.subtitle": "Conversation with an expert.",
+    "chat.back": "Back",
+    "chat.loading": "Loading…",
+    "chat.placeholder": "Type a message…",
+    "chat.send": "Send",
   },
   es: {
     "nav.experts": "Expertos",
@@ -822,14 +874,15 @@ const I18N = {
 };
 
 function getLang() {
-  const raw = localStorage.getItem(STORAGE.lang);
+  const raw = storageGet(STORAGE.lang) || langMemory;
   const lang = (raw || "ru").toLowerCase();
   return LANGS.some((l) => l.code === lang) ? lang : "ru";
 }
 
 function setLang(lang) {
   const safe = LANGS.some((l) => l.code === lang) ? lang : "ru";
-  localStorage.setItem(STORAGE.lang, safe);
+  langMemory = safe;
+  storageSet(STORAGE.lang, safe);
   document.documentElement.setAttribute("lang", safe);
   if (safe === "ar") document.documentElement.setAttribute("dir", "rtl");
   else document.documentElement.removeAttribute("dir");
@@ -871,26 +924,40 @@ function applyI18n() {
 }
 
 function initLangSelect() {
-  const select = $("#langSelect");
-  if (!select) return;
-  const current = getLang();
-  select.innerHTML = LANGS.map((l) => `<option value="${escapeHtml(l.code)}">${escapeHtml(l.label)}</option>`).join("");
-  select.value = current;
-  select.addEventListener("change", () => {
-    setLang(select.value);
-    applyI18n();
-    void updateNavAuth();
-    window.dispatchEvent(new Event("skarta:langchange"));
-    // Home country pill text might need refresh
-    if (document.body?.getAttribute("data-page") === "home") {
-      const input = $("#countrySearch");
-      const pill = $("#selectedCountryPill");
-      const v = (input?.value || "").trim();
-      if (pill) pill.textContent = v ? tr("home.countrySelected", { country: v }) : tr("home.countryNotSelected");
+  try {
+    const select = $("#langSelect");
+    if (!select) return;
+    const current = getLang();
+    // Keep server-rendered options as a reliable fallback (in case JS MIME/caching issues happen).
+    if (select.options.length === 0) {
+      select.innerHTML = LANGS.map((l) => `<option value="${escapeHtml(l.code)}">${escapeHtml(l.label)}</option>`).join("");
     }
-  });
-  setLang(current);
-  applyI18n();
+    select.value = current;
+    select.addEventListener("change", () => {
+      try {
+        setLang(select.value);
+      } catch {}
+      try {
+        applyI18n();
+      } catch {}
+      try {
+        void updateNavAuth();
+      } catch {}
+      try {
+        window.dispatchEvent(new Event("skarta:langchange"));
+      } catch {}
+      if (document.body?.getAttribute("data-page") === "home") {
+        const input = $("#countrySearch");
+        const pill = $("#selectedCountryPill");
+        const v = (input?.value || "").trim();
+        if (pill) pill.textContent = v ? tr("home.countrySelected", { country: v }) : tr("home.countryNotSelected");
+      }
+    });
+    setLang(current);
+    applyI18n();
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 function escapeHtml(text) {
@@ -910,6 +977,26 @@ function formatDate(ts) {
 function parseQuery() {
   const url = new URL(window.location.href);
   return Object.fromEntries(url.searchParams.entries());
+}
+
+function currentRelativePath() {
+  const file = window.location.pathname.split("/").pop() || "index.html";
+  const search = window.location.search || "";
+  return `./${file}${search}`;
+}
+
+function safeNextFromUrl(defaultNext = "./me.html") {
+  const sp = new URLSearchParams(window.location.search);
+  const raw = (sp.get("next") || "").trim();
+  if (!raw) return defaultNext;
+  if (raw.startsWith("./")) return raw;
+  if (raw.startsWith("/karta/")) return raw;
+  return defaultNext;
+}
+
+function registerUrl(nextPath) {
+  const next = nextPath || "./me.html";
+  return `./register.html?next=${encodeURIComponent(next)}`;
 }
 
 function setQueryParam(key, value) {
@@ -951,6 +1038,35 @@ async function apiJson(path, options = {}) {
   return data;
 }
 
+async function ensureAuthOrRedirect(nextPath) {
+  const me = await getMeOrNull();
+  if (!me?.ok) {
+    window.location.href = registerUrl(nextPath || currentRelativePath());
+    return null;
+  }
+  return me;
+}
+
+async function startChat(expertId) {
+  const safeId = String(expertId || "").trim();
+  if (!safeId) return;
+
+  const me = await ensureAuthOrRedirect(`./chat.html?expertId=${encodeURIComponent(safeId)}`);
+  if (!me?.ok) return;
+
+  try {
+    const data = await apiJson("/api/skarta/chats", {
+      method: "POST",
+      body: JSON.stringify({ expertId: safeId }),
+    });
+    if (data?.chatId) {
+      window.location.href = `./chat.html?id=${encodeURIComponent(data.chatId)}`;
+    }
+  } catch {
+    alert("error");
+  }
+}
+
 async function getMeOrNull() {
   try {
     const data = await apiJson("/api/skarta/me", { method: "GET" });
@@ -962,16 +1078,22 @@ async function getMeOrNull() {
 
 async function updateNavAuth() {
   const link = $("#navAuth");
-  if (!link) return;
+  const chats = $("#navChats");
+  if (!link) {
+    if (chats) chats.setAttribute("href", registerUrl("./chats.html"));
+    return;
+  }
   const me = await getMeOrNull();
   if (me?.ok) {
-    link.textContent = me.me?.name ? me.me.name : "Аккаунт";
+    link.textContent = me.me?.name ? me.me.name : tr("nav.account");
     link.setAttribute("href", "./me.html");
     link.removeAttribute("data-i18n");
+    if (chats) chats.setAttribute("href", "./chats.html");
   } else {
     link.textContent = tr("nav.login");
-    link.setAttribute("href", "./register.html");
+    link.setAttribute("href", registerUrl(currentRelativePath()));
     link.setAttribute("data-i18n", "nav.login");
+    if (chats) chats.setAttribute("href", registerUrl("./chats.html"));
   }
 }
 
@@ -1141,7 +1263,8 @@ function initPeople() {
   $("#peopleList")?.addEventListener("click", (e) => {
     const btn = e.target.closest?.("button[data-action='ask']");
     if (!btn) return;
-    alert(tr("alert.chat"));
+    const expertId = btn.getAttribute("data-id") || "";
+    void startChat(expertId);
   });
 
   void render();
@@ -1254,7 +1377,7 @@ function initProfile() {
 
     hero.innerHTML = profileHeroHtml(expert, isOwner);
     $("#buyQuestion")?.addEventListener("click", () => {
-      alert(tr("alert.pay", { price: `$${expert.price}` }));
+      void startChat(expert.id);
     });
 
     // posts + reviews
@@ -1383,11 +1506,7 @@ function initCreate() {
   async function gate() {
     const me = await getMeOrNull();
     if (!me?.ok) {
-      if (msg) msg.innerHTML = `${escapeHtml(tr("create.needLogin"))} <a href="./register.html">${escapeHtml(tr("nav.login"))}</a>.`;
-      $("#createProfileForm")?.querySelectorAll("input,select,textarea,button").forEach((el) => {
-        if (el.id === "clearLocal") return;
-        el.disabled = true;
-      });
+      window.location.href = registerUrl("./create.html");
       return null;
     }
     if (msg) msg.textContent = tr("create.fillHint");
@@ -1464,6 +1583,7 @@ function initCreate() {
 function initAuth() {
   const regMsg = $("#registerMsg");
   const loginMsg = $("#loginMsg");
+  const next = safeNextFromUrl("./me.html");
 
   $("#registerForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -1476,7 +1596,7 @@ function initAuth() {
         method: "POST",
         body: JSON.stringify({ name, email, password }),
       });
-      window.location.href = "./me.html";
+      window.location.href = next;
     } catch (err) {
       const code = err?.data?.error || "error";
       if (regMsg) regMsg.textContent = `Ошибка: ${code}`;
@@ -1493,7 +1613,7 @@ function initAuth() {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
-      window.location.href = "./me.html";
+      window.location.href = next;
     } catch (err) {
       const code = err?.data?.error || "error";
       if (loginMsg) loginMsg.textContent = `Ошибка: ${code}`;
@@ -1654,6 +1774,156 @@ function initFeed() {
   window.addEventListener("skarta:langchange", () => void render());
 }
 
+function chatRowHtml(chat) {
+  const expert = chat.expert || {};
+  const title = `${expert.name || "—"} • ${expert.country || ""} • ${expert.city || ""}`;
+  const last = chat.lastMessage?.text ? String(chat.lastMessage.text).slice(0, 140) : "";
+  const meta = chat.lastMessage?.createdAt ? formatDate(chat.lastMessage.createdAt) : "";
+  return `
+    <div class="chatRow">
+      <div class="chatRow__left">
+        <h3 class="chatRow__title">${escapeHtml(title)}</h3>
+        <div class="chatRow__meta">${escapeHtml(last)} ${last && meta ? "•" : ""} ${escapeHtml(meta)}</div>
+      </div>
+      <div class="chatRow__right">
+        <a class="btn btn--primary" href="./chat.html?id=${encodeURIComponent(chat.id)}">${escapeHtml(tr("chats.open"))}</a>
+      </div>
+    </div>
+  `;
+}
+
+function initChats() {
+  async function load() {
+    const me = await ensureAuthOrRedirect("./chats.html");
+    if (!me?.ok) return;
+
+    const pill = $("#chatsPill");
+    const root = $("#chatsList");
+    if (pill) pill.textContent = tr("chats.loading");
+
+    let chats = [];
+    try {
+      const data = await apiJson("/api/skarta/chats", { method: "GET" });
+      chats = Array.isArray(data.chats) ? data.chats : [];
+    } catch {
+      chats = [];
+    }
+
+    if (!root) return;
+    if (pill) pill.textContent = `${tr("chats.title")} • ${chats.length}`;
+
+    if (chats.length === 0) {
+      root.innerHTML = `<div class="card card--padded"><div class="h2">${escapeHtml(
+        tr("chats.noneTitle")
+      )}</div><div class="muted">${escapeHtml(tr("chats.noneText"))}</div></div>`;
+      return;
+    }
+    root.innerHTML = chats.map(chatRowHtml).join("");
+  }
+
+  void load();
+  window.addEventListener("skarta:langchange", () => void load());
+}
+
+function msgHtml(text, meta, isMe) {
+  return `
+    <div class="msg ${isMe ? "msg--me" : ""}">
+      <div>${escapeHtml(text)}</div>
+      <div class="msg__meta">${escapeHtml(meta)}</div>
+    </div>
+  `;
+}
+
+function initChat() {
+  async function load(chatId) {
+    const me = await ensureAuthOrRedirect(currentRelativePath());
+    if (!me?.ok) return null;
+
+    const pill = $("#chatPill");
+    if (pill) pill.textContent = tr("chat.loading");
+
+    try {
+      const data = await apiJson(`/api/skarta/chats/${encodeURIComponent(chatId)}`, { method: "GET" });
+      const chat = data.chat;
+      const messages = Array.isArray(data.messages) ? data.messages : [];
+
+      const expert = chat?.expert || {};
+      const subtitle = $("#chatSubtitle");
+      if (subtitle && expert?.name) {
+        subtitle.textContent = `${tr("chat.subtitle")} ${expert.name} • ${expert.country || ""} • ${expert.city || ""}`;
+      }
+
+      const mineFrom = me.me?.id && expert?.ownerUserId === me.me.id ? "expert" : "user";
+      const chronological = messages.slice().reverse();
+      const root = $("#chatBox");
+      if (root) {
+        root.innerHTML = chronological
+          .map((m) => msgHtml(m.text || "", formatDate(m.createdAt || 0), m.from === mineFrom))
+          .join("");
+        root.scrollTop = root.scrollHeight;
+      }
+
+      if (pill) pill.textContent = `${expert.name || tr("chat.title")}`;
+      return { chat, me };
+    } catch {
+      if (pill) pill.textContent = "error";
+      return null;
+    }
+  }
+
+  async function boot() {
+    const q = parseQuery();
+    const id = q.id || "";
+    const expertId = q.expertId || "";
+
+    if (!id && expertId) {
+      const me = await ensureAuthOrRedirect(`./chat.html?expertId=${encodeURIComponent(expertId)}`);
+      if (!me?.ok) return;
+      try {
+        const data = await apiJson("/api/skarta/chats", { method: "POST", body: JSON.stringify({ expertId }) });
+        if (data?.chatId) {
+          window.location.replace(`./chat.html?id=${encodeURIComponent(data.chatId)}`);
+          return;
+        }
+      } catch {
+        $("#chatPill") && ($("#chatPill").textContent = "error");
+        return;
+      }
+    }
+
+    if (!id) {
+      window.location.href = "./chats.html";
+      return;
+    }
+
+    let state = await load(id);
+    $("#chatForm")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const input = $("#chatInput");
+      const text = input?.value?.trim();
+      if (!text) return;
+      input.value = "";
+      try {
+        await apiJson(`/api/skarta/chats/${encodeURIComponent(id)}/messages`, {
+          method: "POST",
+          body: JSON.stringify({ text }),
+        });
+        state = await load(id);
+      } catch (err) {
+        if (err?.status === 401) {
+          window.location.href = registerUrl(currentRelativePath());
+          return;
+        }
+        alert("error");
+      }
+    });
+
+    window.addEventListener("skarta:langchange", () => void load(id));
+  }
+
+  void boot();
+}
+
 async function init() {
   initLangSelect();
   void updateNavAuth();
@@ -1665,6 +1935,8 @@ async function init() {
   if (page === "auth") initAuth();
   if (page === "me") initMe();
   if (page === "feed") initFeed();
+  if (page === "chats") initChats();
+  if (page === "chat") initChat();
 }
 
 void init();
