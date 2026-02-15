@@ -155,6 +155,9 @@ const I18N = {
     "profile.postTitlePlaceholder": "Напр.: Как не переплатить в центре",
     "profile.postBodyLabel": "Текст",
     "profile.postBodyPlaceholder": "Коротко и по делу…",
+    "profile.mediaLabel": "Медиа (фото/видео)",
+    "profile.mediaHint": "До 6 файлов. Видео — небольшие.",
+    "profile.mediaCaption": "Подпись",
     "profile.publish": "Опубликовать",
     "profile.reviewsTitle": "Отзывы",
     "profile.ratingLabel": "Оценка",
@@ -243,6 +246,9 @@ const I18N = {
     "alert.postDeleteFail": "Не получилось удалить пост.",
     "alert.reviewFail": "Не получилось оставить отзыв.",
     "alert.photoTooBig": "Фото слишком большое для прототипа. Выбери картинку поменьше.",
+    "alert.uploadFail": "Не получилось загрузить файл.",
+    "alert.mediaTooMany": "Слишком много файлов (макс. 6).",
+    "alert.messageFail": "Не получилось отправить сообщение.",
     "alert.expertSaveFail": "Не получилось сохранить профиль. Проверь поля и попробуй ещё раз.",
     "alert.clearNotNeeded": "Теперь данные сохраняются на сервере. Очистка прототип-данных в браузере не требуется.",
 
@@ -349,6 +355,9 @@ const I18N = {
     "profile.postTitlePlaceholder": "e.g. How to avoid overpaying downtown",
     "profile.postBodyLabel": "Text",
     "profile.postBodyPlaceholder": "Short and to the point…",
+    "profile.mediaLabel": "Media (photo/video)",
+    "profile.mediaHint": "Up to 6 files. Keep videos small.",
+    "profile.mediaCaption": "Caption",
     "profile.publish": "Publish",
     "profile.reviewsTitle": "Reviews",
     "profile.ratingLabel": "Rating",
@@ -437,6 +446,9 @@ const I18N = {
     "alert.postDeleteFail": "Couldn't delete the post.",
     "alert.reviewFail": "Couldn't submit the review.",
     "alert.photoTooBig": "Photo is too large for this prototype. Pick a smaller image.",
+    "alert.uploadFail": "Couldn't upload the file.",
+    "alert.mediaTooMany": "Too many files (max 6).",
+    "alert.messageFail": "Couldn't send the message.",
     "alert.expertSaveFail": "Couldn't save the profile. Check fields and try again.",
     "alert.clearNotNeeded": "Data is stored on the server now. Browser cleanup is not needed.",
 
@@ -1360,6 +1372,7 @@ function renderPosts(posts, isOwner) {
       <h3 class="post__title">${escapeHtml(p.title)}</h3>
       <div class="post__date">${escapeHtml(formatDate(p.createdAt))}</div>
       <div class="post__body">${escapeHtml(p.body)}</div>
+      ${renderMediaGrid(p.attachments)}
       ${
         isOwner
           ? `<div class="post__tools"><button class="btn" type="button" data-action="deletePost">${escapeHtml(
@@ -1461,18 +1474,76 @@ function initProfile() {
       }
     }
 
+    const postMedia = $("#pMedia");
+    const postMediaList = $("#pMediaList");
+    postMedia?.addEventListener("change", () => {
+      const files = Array.from(postMedia?.files || []);
+      if (!postMediaList) return;
+      if (files.length === 0) {
+        postMediaList.innerHTML = "";
+        return;
+      }
+      postMediaList.innerHTML = files
+        .slice(0, 6)
+        .map(
+          (f, idx) => `
+            <div class="mediaPickRow">
+              <div class="mediaPickRow__name">${escapeHtml(String(f.name || "file"))}</div>
+              <input class="input" data-idx="${escapeHtml(String(idx))}" placeholder="${escapeHtml(tr("profile.mediaCaption"))}" />
+            </div>
+          `
+        )
+        .join("");
+    });
+
     $("#postForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const title = $("#pTitle")?.value?.trim();
       const body = $("#pBody")?.value?.trim();
+      const files = Array.from(postMedia?.files || []);
       if (!title || !body) return;
+      if (files.length > 6) {
+        alert(tr("alert.mediaTooMany"));
+        return;
+      }
+
+      const captions = new Map();
+      postMediaList?.querySelectorAll("input[data-idx]")?.forEach((input) => {
+        const idx = Number(input.getAttribute("data-idx") || -1);
+        if (!Number.isFinite(idx) || idx < 0) return;
+        captions.set(idx, String(input.value || "").trim());
+      });
+
+      const attachments = [];
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        try {
+          let uploadFile = f;
+          let filename = f.name || "file";
+          if (String(f.type || "").startsWith("image/")) {
+            const blob = await resizeImageToJpegBlob(f, 1600, 0.86);
+            if (blob) {
+              uploadFile = blob;
+              filename = "image.jpg";
+            }
+          }
+          const media = await uploadMedia(uploadFile, { scope: "public", filename });
+          attachments.push({ url: media.url, caption: captions.get(i) || "" });
+        } catch {
+          alert(tr("alert.uploadFail"));
+          return;
+        }
+      }
+
       try {
         await apiJson(`/api/skarta/experts/${encodeURIComponent(expert.id)}/posts`, {
           method: "POST",
-          body: JSON.stringify({ title, body }),
+          body: JSON.stringify({ title, body, attachments }),
         });
         $("#pTitle").value = "";
         $("#pBody").value = "";
+        if (postMedia) postMedia.value = "";
+        if (postMediaList) postMediaList.innerHTML = "";
         const p = await apiJson(`/api/skarta/experts/${encodeURIComponent(expert.id)}/posts`, { method: "GET" });
         posts = Array.isArray(p.posts) ? p.posts : [];
         if (postsRoot) postsRoot.innerHTML = renderPosts(posts, isOwner);
@@ -1541,6 +1612,92 @@ async function readFileAsDataUrl(file) {
   });
 }
 
+async function resizeImageToJpegBlob(file, maxDim = 1600, quality = 0.86) {
+  try {
+    const dataUrl = await readFileAsDataUrl(file);
+    const img = new Image();
+    const loaded = new Promise((resolve, reject) => {
+      img.onload = () => resolve(true);
+      img.onerror = () => reject(new Error("Image load failed"));
+    });
+    img.src = dataUrl;
+    await loaded;
+
+    const w = Number(img.naturalWidth || img.width || 0);
+    const h = Number(img.naturalHeight || img.height || 0);
+    if (!w || !h) return null;
+
+    const scale = Math.min(1, maxDim / Math.max(w, h));
+    const cw = Math.max(1, Math.round(w * scale));
+    const ch = Math.max(1, Math.round(h * scale));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = cw;
+    canvas.height = ch;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+    ctx.drawImage(img, 0, 0, cw, ch);
+
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", quality));
+    if (!blob) return null;
+    return blob;
+  } catch {
+    return null;
+  }
+}
+
+async function uploadMedia(fileOrBlob, opts = {}) {
+  const scope = String(opts.scope || "public");
+  const chatId = String(opts.chatId || "");
+
+  const url = new URL("/api/skarta/media", window.location.origin);
+  if (scope === "chat") {
+    url.searchParams.set("scope", "chat");
+    url.searchParams.set("chatId", chatId);
+  }
+
+  const fd = new FormData();
+  const filename = String(opts.filename || (fileOrBlob?.name || "file"));
+  fd.append("file", fileOrBlob, filename);
+
+  const res = await fetch(url.toString(), { method: "POST", body: fd, credentials: "include" });
+  if (!res.ok) {
+    let err = null;
+    try {
+      err = await res.json();
+    } catch {}
+    const e = new Error(err?.error || "upload_failed");
+    e.status = res.status;
+    throw e;
+  }
+  const data = await res.json();
+  if (!data?.ok || !data?.media?.url) {
+    const e = new Error("upload_failed");
+    e.status = 400;
+    throw e;
+  }
+  return data.media;
+}
+
+function renderMediaGrid(attachments, wrapperClass = "post__media") {
+  const list = Array.isArray(attachments) ? attachments : [];
+  if (list.length === 0) return "";
+  const items = list
+    .slice(0, 6)
+    .map((a) => {
+      const kind = String(a?.kind || "");
+      const url = String(a?.url || "");
+      const caption = String(a?.caption || "");
+      const media =
+        kind === "video"
+          ? `<video src="${escapeHtml(url)}" controls preload="metadata"></video>`
+          : `<img src="${escapeHtml(url)}" alt="" loading="lazy" />`;
+      return `<div class="mediaItem">${media}${caption ? `<div class="mediaCaption">${escapeHtml(caption)}</div>` : ""}</div>`;
+    })
+    .join("");
+  return `<div class="${escapeHtml(wrapperClass)}"><div class="mediaGrid">${items}</div></div>`;
+}
+
 function initCreate() {
   fillCountryDatalist("countries");
   const msg = $("#createMsg");
@@ -1591,13 +1748,20 @@ function initCreate() {
     let avatar = "";
     if (file) {
       try {
-        avatar = await readFileAsDataUrl(file);
-        if (avatar.length > 220_000) {
-          alert(tr("alert.photoTooBig"));
-          avatar = "";
+        let uploadFile = file;
+        let filename = file.name || "avatar";
+        if (String(file.type || "").startsWith("image/")) {
+          const blob = await resizeImageToJpegBlob(file, 512, 0.86);
+          if (blob) {
+            uploadFile = blob;
+            filename = "avatar.jpg";
+          }
         }
+        const media = await uploadMedia(uploadFile, { scope: "public", filename });
+        avatar = String(media.url || "");
       } catch {
-        avatar = "";
+        alert(tr("alert.uploadFail"));
+        return;
       }
     }
 
@@ -1745,6 +1909,7 @@ function renderFeedItem(item) {
     expert.name || ""
   )} • ${escapeHtml(formatDate(item.createdAt || 0))}</div>
         <div class="feedItem__body">${escapeHtml(item.body || "")}</div>
+        ${renderMediaGrid(item.attachments)}
         <div class="feedItem__actions">
           <a class="btn btn--primary" href="./profile.html?id=${encodeURIComponent(expert.id || "")}">${escapeHtml(
     tr("feed.openExpert")
@@ -1867,10 +2032,14 @@ function initChats() {
   window.addEventListener("skarta:langchange", () => void load());
 }
 
-function msgHtml(text, meta, isMe) {
+function msgHtml(msg, meta, isMe) {
+  const text = String(msg?.text || "");
+  const media = renderMediaGrid(msg?.attachments, "msg__media");
+  const textHtml = text ? `<div>${escapeHtml(text)}</div>` : "";
   return `
     <div class="msg ${isMe ? "msg--me" : ""}">
-      <div>${escapeHtml(text)}</div>
+      ${textHtml}
+      ${media}
       <div class="msg__meta">${escapeHtml(meta)}</div>
     </div>
   `;
@@ -1899,9 +2068,7 @@ function initChat() {
       const chronological = messages.slice().reverse();
       const root = $("#chatBox");
       if (root) {
-        root.innerHTML = chronological
-          .map((m) => msgHtml(m.text || "", formatDate(m.createdAt || 0), m.from === mineFrom))
-          .join("");
+        root.innerHTML = chronological.map((m) => msgHtml(m, formatDate(m.createdAt || 0), m.from === mineFrom)).join("");
         root.scrollTop = root.scrollHeight;
       }
 
@@ -1939,24 +2106,75 @@ function initChat() {
     }
 
     let state = await load(id);
+    const chatMedia = $("#chatMedia");
+    const chatMediaList = $("#chatMediaList");
+    chatMedia?.addEventListener("change", () => {
+      const files = Array.from(chatMedia?.files || []);
+      if (!chatMediaList) return;
+      if (files.length === 0) {
+        chatMediaList.innerHTML = "";
+        return;
+      }
+      chatMediaList.innerHTML = files
+        .slice(0, 6)
+        .map(
+          (f, idx) => `
+            <div class="mediaPickRow">
+              <div class="mediaPickRow__name">${escapeHtml(String(f.name || "file"))}</div>
+              <input class="input" data-idx="${escapeHtml(String(idx))}" placeholder="${escapeHtml(tr("profile.mediaCaption"))}" />
+            </div>
+          `
+        )
+        .join("");
+    });
     $("#chatForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const input = $("#chatInput");
-      const text = input?.value?.trim();
-      if (!text) return;
-      input.value = "";
+      const text = input?.value?.trim() || "";
+      const files = Array.from(chatMedia?.files || []);
+      if (!text && files.length === 0) return;
+      if (files.length > 6) {
+        alert(tr("alert.mediaTooMany"));
+        return;
+      }
       try {
+        const captions = new Map();
+        chatMediaList?.querySelectorAll("input[data-idx]")?.forEach((el) => {
+          const idx = Number(el.getAttribute("data-idx") || -1);
+          if (!Number.isFinite(idx) || idx < 0) return;
+          captions.set(idx, String(el.value || "").trim());
+        });
+
+        const attachments = [];
+        for (let i = 0; i < files.length; i++) {
+          const f = files[i];
+          let uploadFile = f;
+          let filename = f.name || "file";
+          if (String(f.type || "").startsWith("image/")) {
+            const blob = await resizeImageToJpegBlob(f, 1600, 0.86);
+            if (blob) {
+              uploadFile = blob;
+              filename = "image.jpg";
+            }
+          }
+          const media = await uploadMedia(uploadFile, { scope: "chat", chatId: id, filename });
+          attachments.push({ url: media.url, caption: captions.get(i) || "" });
+        }
+
         await apiJson(`/api/skarta/chats/${encodeURIComponent(id)}/messages`, {
           method: "POST",
-          body: JSON.stringify({ text }),
+          body: JSON.stringify({ text, attachments }),
         });
+        if (input) input.value = "";
+        if (chatMedia) chatMedia.value = "";
+        if (chatMediaList) chatMediaList.innerHTML = "";
         state = await load(id);
       } catch (err) {
         if (err?.status === 401) {
           window.location.href = registerUrl(currentRelativePath());
           return;
         }
-        alert("error");
+        alert(tr("alert.messageFail"));
       }
     });
 

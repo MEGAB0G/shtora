@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="utf-8" />
@@ -60,8 +60,10 @@
         <div class="chatBox" id="chatBox" aria-live="polite" style="margin-top: 12px"></div>
         <form id="chatForm" class="chatForm" style="margin-top: 12px">
           <input id="chatInput" class="input" data-i18n-placeholder="chat.placeholder" placeholder="Напиши сообщение…" />
+          <input id="chatMedia" class="input" type="file" accept="image/*,video/*" multiple />
           <button class="btn btn--primary" type="submit" data-i18n="chat.send">Отправить</button>
         </form>
+        <div class="mediaPick" id="chatMediaList"></div>
       </section>
     </main>
 
@@ -72,6 +74,6 @@
       </div>
     </footer>
 
-    <script src="./skarta.js?v=20260214.2" defer></script>
+    <script src="./skarta.js?v=20260214.3" defer></script>
   </body>
 </html>

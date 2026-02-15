@@ -39,6 +39,26 @@ sudo docker compose up -d --force-recreate
 
 ```
 
+## Skarta (важно про сохранение пользователей)
+
+Аккаунты/эксперты/посты/чаты **не хранятся в репозитории** — они сохраняются в docker volume (`skarta_data`), который монтируется в контейнер `api` как `/data` и используется через `SKARTA_DATA_DIR=/data/skarta`.
+
+Чтобы при обновлении **не удалились пользователи**:
+- ОК: `docker compose down` + `docker compose up -d --force-recreate` (volume остаётся).
+- НЕЛЬЗЯ: `docker compose down -v` (удалит volume с данными).
+- НЕЛЬЗЯ: `docker system prune --volumes` (может снести volume с данными).
+
+Проверить volume с данными:
+```bash
+docker volume ls | grep skarta_data
+```
+
+Бэкап перед обновлением (рекомендовано):
+```bash
+VOL=$(docker volume ls --format '{{.Name}}' | grep skarta_data | head -n 1)
+docker run --rm -v "$VOL":/data -v "$PWD":/backup alpine sh -c 'cd /data && tar -czf /backup/skarta-data-backup.tgz .'
+```
+
 ## Диски и монтирование
 
 Физика:

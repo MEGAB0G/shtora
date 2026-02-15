@@ -3,6 +3,7 @@ const path = require('path');
 const { execFile } = require('child_process');
 const crypto = require('crypto');
 const express = require('express');
+const multer = require('multer');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -253,7 +254,8 @@ const SKARTA_FILES = {
     posts: path.join(SKARTA_DIR, 'posts.json'),
     reviews: path.join(SKARTA_DIR, 'reviews.json'),
     chats: path.join(SKARTA_DIR, 'chats.json'),
-    messages: path.join(SKARTA_DIR, 'messages.json')
+    messages: path.join(SKARTA_DIR, 'messages.json'),
+    media: path.join(SKARTA_DIR, 'media.json')
 };
 
 function ensureDir(dirPath) {
@@ -370,7 +372,8 @@ const skartaStore = {
     posts: readJsonFile(SKARTA_FILES.posts, {}),
     reviews: readJsonFile(SKARTA_FILES.reviews, {}),
     chats: readJsonFile(SKARTA_FILES.chats, []),
-    messages: readJsonFile(SKARTA_FILES.messages, {})
+    messages: readJsonFile(SKARTA_FILES.messages, {}),
+    media: readJsonFile(SKARTA_FILES.media, {})
 };
 
 // Seed a few demo experts if storage is empty (safe to delete later).
@@ -407,6 +410,64 @@ if (!Array.isArray(skartaStore.experts) || skartaStore.experts.length === 0) {
     ];
     atomicWriteJson(SKARTA_FILES.experts, skartaStore.experts);
 }
+
+const SKARTA_UPLOADS_DIR = path.join(SKARTA_DIR, 'uploads');
+ensureDir(SKARTA_UPLOADS_DIR);
+
+function mediaExtFromMime(mime) {
+    const m = String(mime || '').toLowerCase();
+    if (m === 'image/jpeg') return '.jpg';
+    if (m === 'image/png') return '.png';
+    if (m === 'image/webp') return '.webp';
+    if (m === 'image/gif') return '.gif';
+    if (m === 'video/mp4') return '.mp4';
+    if (m === 'video/webm') return '.webm';
+    if (m === 'video/quicktime') return '.mov';
+    return '';
+}
+
+function mediaKindFromMime(mime) {
+    const m = String(mime || '').toLowerCase();
+    if (m.startsWith('image/')) return 'image';
+    if (m.startsWith('video/')) return 'video';
+    return '';
+}
+
+function extractMediaIdFromUrl(url) {
+    const s = String(url || '');
+    const prefix = '/api/skarta/media/';
+    if (!s.startsWith(prefix)) return '';
+    const rest = s.slice(prefix.length);
+    const id = rest.split(/[?#/]/)[0];
+    return id || '';
+}
+
+const upload = multer({
+    storage: multer.diskStorage({
+        destination: (req, file, cb) => cb(null, SKARTA_UPLOADS_DIR),
+        filename: (req, file, cb) => {
+            try {
+                const ext = mediaExtFromMime(file.mimetype);
+                if (!ext) return cb(new Error('unsupported_type'));
+                const id = req.skartaUploadId || crypto.randomUUID();
+                req.skartaUploadId = id;
+                cb(null, `${id}${ext}`);
+            } catch (e) {
+                cb(e);
+            }
+        }
+    }),
+    fileFilter: (req, file, cb) => {
+        const kind = mediaKindFromMime(file.mimetype);
+        if (!kind) return cb(new Error('unsupported_type'));
+        if (!mediaExtFromMime(file.mimetype)) return cb(new Error('unsupported_type'));
+        cb(null, true);
+    },
+    limits: {
+        files: 1,
+        fileSize: 30 * 1024 * 1024
+    }
+});
 
 function cleanupSessions() {
     const now = nowMs();
@@ -527,6 +588,104 @@ function canAccessChat(user, chat) {
     if (mineExpert && chat.expertId === mineExpert.id) return true;
     return false;
 }
+
+// Media upload + serve (stored on /data volume)
+app.post('/api/skarta/media', requireAuth, (req, res) => {
+    const user = req.skartaUser;
+    const scope = clampString(req.query?.scope, 20) || 'public';
+    const chatId = clampString(req.query?.chatId, 80);
+
+    if (scope !== 'public' && scope !== 'chat') {
+        res.status(400).json({ ok: false, error: 'scope_invalid' });
+        return;
+    }
+    if (scope === 'chat') {
+        const chat = getChatById(chatId);
+        if (!chat) {
+            res.status(404).json({ ok: false, error: 'chat_not_found' });
+            return;
+        }
+        if (!canAccessChat(user, chat)) {
+            res.status(403).json({ ok: false, error: 'forbidden' });
+            return;
+        }
+    }
+
+    req.skartaUploadId = crypto.randomUUID();
+    upload.single('file')(req, res, (err) => {
+        if (err) {
+            const msg = String(err.message || '');
+            const code = err.code === 'LIMIT_FILE_SIZE' ? 'too_large' : msg || 'upload_failed';
+            res.status(400).json({ ok: false, error: code });
+            return;
+        }
+        const file = req.file;
+        if (!file) {
+            res.status(400).json({ ok: false, error: 'file_required' });
+            return;
+        }
+
+        const id = String(req.skartaUploadId || '');
+        const mime = String(file.mimetype || '').toLowerCase();
+        const ext = mediaExtFromMime(mime);
+        const kind = mediaKindFromMime(mime);
+        if (!id || !ext || !kind) {
+            try {
+                fs.unlinkSync(file.path);
+            } catch {}
+            res.status(400).json({ ok: false, error: 'unsupported_type' });
+            return;
+        }
+
+        const meta = {
+            id,
+            ownerUserId: user.id,
+            scope,
+            chatId: scope === 'chat' ? chatId : '',
+            kind,
+            mime,
+            ext,
+            size: Number(file.size || 0),
+            createdAt: nowMs()
+        };
+        skartaStore.media[id] = meta;
+        atomicWriteJson(SKARTA_FILES.media, skartaStore.media);
+
+        res.json({
+            ok: true,
+            media: { id, url: `/api/skarta/media/${id}`, kind, mime, size: meta.size, scope }
+        });
+    });
+});
+
+app.get('/api/skarta/media/:id', (req, res) => {
+    const id = String(req.params.id || '');
+    const meta = skartaStore.media[id] || null;
+    if (!meta) {
+        res.status(404).end('not_found');
+        return;
+    }
+    if (meta.scope === 'chat') {
+        const user = getAuthUser(req);
+        const chat = getChatById(String(meta.chatId || ''));
+        if (!user || !chat || !canAccessChat(user, chat)) {
+            res.status(403).end('forbidden');
+            return;
+        }
+    }
+
+    const filePath = path.join(SKARTA_UPLOADS_DIR, `${id}${String(meta.ext || '')}`);
+    if (!fs.existsSync(filePath)) {
+        res.status(404).end('not_found');
+        return;
+    }
+    res.setHeader('Content-Type', String(meta.mime || 'application/octet-stream'));
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cache-Control', meta.scope === 'public' ? 'public, max-age=31536000, immutable' : 'private, max-age=60');
+    const stream = fs.createReadStream(filePath);
+    stream.on('error', () => res.status(500).end('error'));
+    stream.pipe(res);
+});
 
 // Auth
 app.get('/api/skarta/me', (req, res) => {
@@ -737,7 +896,7 @@ app.post('/api/skarta/experts', requireAuth, (req, res) => {
         res.status(400).json({ ok: false, error: 'price_invalid' });
         return;
     }
-    if (avatar && !avatar.startsWith('data:image/')) {
+    if (avatar && !(avatar.startsWith('data:image/') || avatar.startsWith('/api/skarta/media/'))) {
         res.status(400).json({ ok: false, error: 'avatar_invalid' });
         return;
     }
@@ -811,8 +970,31 @@ app.post('/api/skarta/experts/:id/posts', requireExpertOwner, (req, res) => {
         res.status(400).json({ ok: false, error: 'invalid' });
         return;
     }
+    const rawAttachments = Array.isArray(req.body?.attachments) ? req.body.attachments : [];
+    if (rawAttachments.length > 6) {
+        res.status(400).json({ ok: false, error: 'attachments_too_many' });
+        return;
+    }
+
+    const attachments = [];
+    for (const a of rawAttachments) {
+        const url = clampString(a?.url, 240);
+        const caption = clampString(a?.caption, 140);
+        if (!url) continue;
+        const mediaId = extractMediaIdFromUrl(url);
+        if (!mediaId) {
+            res.status(400).json({ ok: false, error: 'attachment_invalid' });
+            return;
+        }
+        const meta = skartaStore.media[mediaId] || null;
+        if (!meta || meta.scope !== 'public' || meta.ownerUserId !== req.skartaUser.id) {
+            res.status(400).json({ ok: false, error: 'attachment_forbidden' });
+            return;
+        }
+        attachments.push({ id: meta.id, url: `/api/skarta/media/${meta.id}`, kind: meta.kind, mime: meta.mime, caption });
+    }
     const list = Array.isArray(skartaStore.posts[expertId]) ? skartaStore.posts[expertId] : [];
-    const post = { id: crypto.randomUUID(), title, body, createdAt: nowMs() };
+    const post = { id: crypto.randomUUID(), title, body, attachments, createdAt: nowMs() };
     list.unshift(post);
     skartaStore.posts[expertId] = list.slice(0, 200);
     atomicWriteJson(SKARTA_FILES.posts, skartaStore.posts);
@@ -899,6 +1081,7 @@ app.get('/api/skarta/feed', (req, res) => {
                 createdAt: Number(post.createdAt || 0),
                 title,
                 body,
+                attachments: Array.isArray(post.attachments) ? post.attachments : [],
                 expert: publicExpert(expert)
             });
         }
@@ -926,7 +1109,12 @@ app.get('/api/skarta/chats', requireAuth, (req, res) => {
                 createdAt: c.createdAt,
                 updatedAt: c.updatedAt,
                 lastMessage: last
-                    ? { text: String(last.text || ''), createdAt: last.createdAt, from: last.from }
+                    ? {
+                        text: String(last.text || ''),
+                        createdAt: last.createdAt,
+                        from: last.from,
+                        hasMedia: Array.isArray(last.attachments) && last.attachments.length > 0
+                    }
                     : null
             };
         })
@@ -994,8 +1182,13 @@ app.post('/api/skarta/chats/:id/messages', requireAuth, (req, res) => {
     }
 
     const text = clampString(req.body?.text, 4000);
-    if (!text) {
-        res.status(400).json({ ok: false, error: 'text_required' });
+    const rawAttachments = Array.isArray(req.body?.attachments) ? req.body.attachments : [];
+    if (!text && rawAttachments.length === 0) {
+        res.status(400).json({ ok: false, error: 'message_required' });
+        return;
+    }
+    if (rawAttachments.length > 6) {
+        res.status(400).json({ ok: false, error: 'attachments_too_many' });
         return;
     }
 
@@ -1009,8 +1202,26 @@ app.post('/api/skarta/chats/:id/messages', requireAuth, (req, res) => {
         }
     }
 
+    const attachments = [];
+    for (const a of rawAttachments) {
+        const url = clampString(a?.url, 240);
+        const caption = clampString(a?.caption, 140);
+        if (!url) continue;
+        const mediaId = extractMediaIdFromUrl(url);
+        if (!mediaId) {
+            res.status(400).json({ ok: false, error: 'attachment_invalid' });
+            return;
+        }
+        const meta = skartaStore.media[mediaId] || null;
+        if (!meta || meta.scope !== 'chat' || meta.chatId !== chat.id || meta.ownerUserId !== user.id) {
+            res.status(400).json({ ok: false, error: 'attachment_forbidden' });
+            return;
+        }
+        attachments.push({ id: meta.id, url: `/api/skarta/media/${meta.id}`, kind: meta.kind, mime: meta.mime, caption });
+    }
+
     const list = Array.isArray(skartaStore.messages[chat.id]) ? skartaStore.messages[chat.id] : [];
-    const msg = { id: crypto.randomUUID(), from, text, createdAt: nowMs() };
+    const msg = { id: crypto.randomUUID(), from, text, attachments, createdAt: nowMs() };
     list.unshift(msg);
     skartaStore.messages[chat.id] = list.slice(0, 2000);
     chat.updatedAt = nowMs();
