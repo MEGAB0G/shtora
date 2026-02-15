@@ -2298,6 +2298,19 @@ function initChat() {
         alert(tr("alert.mediaTooMany"));
         return;
       }
+      const submitBtn = e.target?.querySelector?.("button[type='submit']") || null;
+      if (submitBtn) submitBtn.disabled = true;
+
+      // Optimistic UI for better UX (don’t wait for refresh/poll).
+      try {
+        if (input) input.value = "";
+        const root = $("#chatBox");
+        if (root && text) {
+          const atBottom = root.scrollHeight - root.scrollTop - root.clientHeight < 40;
+          root.insertAdjacentHTML("beforeend", msgHtml({ text, attachments: [] }, "…", true));
+          if (atBottom) root.scrollTop = root.scrollHeight;
+        }
+      } catch {}
       try {
         const captions = new Map();
         chatMediaList?.querySelectorAll("input[data-idx]")?.forEach((el) => {
@@ -2326,16 +2339,18 @@ function initChat() {
           method: "POST",
           body: JSON.stringify({ text, attachments }),
         });
-        if (input) input.value = "";
         if (chatMedia) chatMedia.value = "";
         if (chatMediaList) chatMediaList.innerHTML = "";
-        state = await load(id);
+        // Refresh in background (keeps UI snappy).
+        void load(id);
       } catch (err) {
         if (err?.status === 401) {
           window.location.href = registerUrl(currentRelativePath());
           return;
         }
         alert(tr("alert.messageFail"));
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
       }
     });
 
