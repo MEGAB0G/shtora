@@ -496,7 +496,17 @@ a{color:inherit}
   border: 1px solid rgba(0,0,0,0.08);
 }
 .chatRow__meta{color: var(--muted); font-size: 13px; margin-top: 6px}
-.chatRow__title{margin:0; font-weight: 800; letter-spacing:-0.01em}
+.chatRow__title{margin:0; font-weight: 800; letter-spacing:-0.01em; position:relative}
+.chatRow[data-unread="1"] .chatRow__title::after{
+  content:"";
+  display:inline-block;
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  background:#ff3b30;
+  margin-left:8px;
+  vertical-align:middle;
+}
 .chatRow__left{min-width:0}
 .chatRow__right{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
 

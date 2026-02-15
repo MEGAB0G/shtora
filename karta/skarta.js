@@ -2131,8 +2131,9 @@ function chatRowHtml(chat) {
   const title = `${expert.name || "—"} • ${expert.country || ""} • ${expert.city || ""}`;
   const last = chat.lastMessage?.text ? String(chat.lastMessage.text).slice(0, 140) : "";
   const meta = chat.lastMessage?.createdAt ? formatDate(chat.lastMessage.createdAt) : "";
+  const unreadAttr = chat?.unread ? ` data-unread="1"` : "";
   return `
-    <div class="chatRow">
+    <div class="chatRow"${unreadAttr}>
       <div class="chatRow__left">
         <h3 class="chatRow__title">${escapeHtml(title)}</h3>
         <div class="chatRow__meta">${escapeHtml(last)} ${last && meta ? "•" : ""} ${escapeHtml(meta)}</div>
