@@ -1264,6 +1264,37 @@ async function updateNavAuth() {
   }
 }
 
+async function refreshUnreadBadge() {
+  const link = $("#navChats");
+  if (!link) return;
+  try {
+    const data = await apiJson("/api/skarta/unread", { method: "GET" });
+    const n = Number(data?.unreadChats || 0);
+    if (n > 0) link.setAttribute("data-unread", "1");
+    else link.removeAttribute("data-unread");
+  } catch {
+    // ignore
+  }
+}
+
+function startUnreadPolling() {
+  if (window.__skartaUnreadPolling) return;
+  window.__skartaUnreadPolling = true;
+
+  const tick = async () => {
+    if (document.visibilityState && document.visibilityState !== "visible") return;
+    const me = await getMeOrNull();
+    if (!me?.ok) {
+      $("#navChats")?.removeAttribute("data-unread");
+      return;
+    }
+    await refreshUnreadBadge();
+  };
+
+  void tick();
+  setInterval(() => void tick(), 8000);
+}
+
 function goToPeople(country) {
   const normalized = (country || "").trim();
   if (normalized) localStorage.setItem(STORAGE.lastCountry, normalized);
@@ -2140,10 +2171,20 @@ function initChats() {
       return;
     }
     root.innerHTML = chats.map(chatRowHtml).join("");
+
+    try {
+      const hasUnread = chats.some((c) => c && c.unread);
+      if (hasUnread) $("#navChats")?.setAttribute("data-unread", "1");
+      else $("#navChats")?.removeAttribute("data-unread");
+    } catch {}
   }
 
   void load();
   window.addEventListener("skarta:langchange", () => void load());
+  setInterval(() => {
+    if (document.visibilityState && document.visibilityState !== "visible") return;
+    void load();
+  }, 6000);
 }
 
 function msgHtml(msg, meta, isMe) {
@@ -2182,11 +2223,16 @@ function initChat() {
       const chronological = messages.slice().reverse();
       const root = $("#chatBox");
       if (root) {
+        const atBottom = root.scrollHeight - root.scrollTop - root.clientHeight < 40;
         root.innerHTML = chronological.map((m) => msgHtml(m, formatDate(m.createdAt || 0), m.from === mineFrom)).join("");
-        root.scrollTop = root.scrollHeight;
+        if (atBottom) root.scrollTop = root.scrollHeight;
       }
 
       if (pill) pill.textContent = `${expert.name || tr("chat.title")}`;
+      try {
+        $("#navChats")?.removeAttribute("data-unread");
+        void refreshUnreadBadge();
+      } catch {}
       return { chat, me };
     } catch {
       if (pill) pill.textContent = "error";
@@ -2293,6 +2339,11 @@ function initChat() {
     });
 
     window.addEventListener("skarta:langchange", () => void load(id));
+
+    setInterval(() => {
+      if (document.visibilityState && document.visibilityState !== "visible") return;
+      void load(id);
+    }, 2500);
   }
 
   void boot();
@@ -2302,6 +2353,7 @@ async function init() {
   initMobileNav();
   initLangSelect();
   void updateNavAuth();
+  startUnreadPolling();
   const page = document.body?.getAttribute("data-page");
   if (page === "home") initHome();
   if (page === "people") initPeople();

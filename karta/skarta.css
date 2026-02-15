@@ -66,11 +66,24 @@ a{color:inherit}
   color:var(--muted);
   padding:8px 10px;
   border-radius: 999px;
+  position: relative;
 }
 .nav__link:hover{background: rgba(0,0,0,0.04); color:var(--text)}
 .nav__link--active{
   color:var(--text);
   background: rgba(0,0,0,0.05);
+}
+
+.nav__link[data-unread="1"]::after{
+  content:"";
+  position:absolute;
+  top:6px;
+  right:6px;
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  background:#ff3b30;
+  box-shadow: 0 0 0 2px rgba(245,245,247,0.85);
 }
 
 .navToggle{

@@ -589,6 +589,40 @@ function canAccessChat(user, chat) {
     return false;
 }
 
+function whichChatSide(user, chat) {
+    if (!user || !chat) return '';
+    if (chat.userId === user.id) return 'user';
+    const mineExpert = expertOwnerOrNull(user.id);
+    if (mineExpert && mineExpert.id === chat.expertId) return 'expert';
+    return '';
+}
+
+function lastReadForSide(chat, side) {
+    if (!chat) return 0;
+    if (side === 'user') return Number(chat.lastReadUserAt || 0);
+    if (side === 'expert') return Number(chat.lastReadExpertAt || 0);
+    return 0;
+}
+
+function setLastReadForSide(chat, side, ts) {
+    if (!chat) return;
+    const safeTs = Number.isFinite(Number(ts)) ? Number(ts) : nowMs();
+    if (side === 'user') chat.lastReadUserAt = safeTs;
+    if (side === 'expert') chat.lastReadExpertAt = safeTs;
+}
+
+function isChatUnreadFor(user, chat) {
+    const side = whichChatSide(user, chat);
+    if (!side) return false;
+    const list = Array.isArray(skartaStore.messages[chat.id]) ? skartaStore.messages[chat.id] : [];
+    const last = list[0] || null;
+    if (!last || typeof last.createdAt !== 'number') return false;
+    const lastFrom = String(last.from || '');
+    const readAt = lastReadForSide(chat, side);
+    const fromOther = (side === 'user' && lastFrom === 'expert') || (side === 'expert' && lastFrom === 'user');
+    return fromOther && last.createdAt > readAt;
+}
+
 // Media upload + serve (stored on /data volume)
 app.post('/api/skarta/media', requireAuth, (req, res) => {
     const user = req.skartaUser;
@@ -1092,6 +1126,16 @@ app.get('/api/skarta/feed', (req, res) => {
 });
 
 // Chats (user <-> expert messaging)
+app.get('/api/skarta/unread', requireAuth, (req, res) => {
+    const user = req.skartaUser;
+    const { chats } = listChatsForUser(user);
+    let unreadChats = 0;
+    for (const c of chats) {
+        if (isChatUnreadFor(user, c)) unreadChats += 1;
+    }
+    res.json({ ok: true, unreadChats });
+});
+
 app.get('/api/skarta/chats', requireAuth, (req, res) => {
     const user = req.skartaUser;
     const { chats } = listChatsForUser(user);
@@ -1116,6 +1160,8 @@ app.get('/api/skarta/chats', requireAuth, (req, res) => {
                         hasMedia: Array.isArray(last.attachments) && last.attachments.length > 0
                     }
                     : null
+                ,
+                unread: isChatUnreadFor(user, c)
             };
         })
         .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
@@ -1138,7 +1184,15 @@ app.post('/api/skarta/chats', requireAuth, (req, res) => {
 
     let chat = (skartaStore.chats || []).find((c) => c.expertId === expertId && c.userId === user.id) || null;
     if (!chat) {
-        chat = { id: crypto.randomUUID(), expertId, userId: user.id, createdAt: nowMs(), updatedAt: nowMs() };
+        chat = {
+            id: crypto.randomUUID(),
+            expertId,
+            userId: user.id,
+            createdAt: nowMs(),
+            updatedAt: nowMs(),
+            lastReadUserAt: nowMs(),
+            lastReadExpertAt: 0
+        };
         skartaStore.chats.unshift(chat);
         skartaStore.messages[chat.id] = [];
         saveChats();
@@ -1157,6 +1211,13 @@ app.get('/api/skarta/chats/:id', requireAuth, (req, res) => {
     if (!canAccessChat(user, chat)) {
         res.status(403).json({ ok: false, error: 'forbidden' });
         return;
+    }
+
+    const side = whichChatSide(user, chat);
+    if (side) {
+        setLastReadForSide(chat, side, nowMs());
+        chat.updatedAt = nowMs();
+        saveChats();
     }
 
     const expert = skartaStore.experts.find((e) => e.id === chat.expertId) || null;
@@ -1225,6 +1286,7 @@ app.post('/api/skarta/chats/:id/messages', requireAuth, (req, res) => {
     list.unshift(msg);
     skartaStore.messages[chat.id] = list.slice(0, 2000);
     chat.updatedAt = nowMs();
+    setLastReadForSide(chat, from, nowMs());
     saveChats();
 
     res.json({ ok: true, message: msg });
