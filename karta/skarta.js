@@ -59,6 +59,119 @@ function storageSet(key, value) {
   }
 }
 
+function initMobileNav() {
+  try {
+    const actions = document.querySelector(".topbar__actions");
+    const nav = document.querySelector(".nav");
+    const langSelect = document.querySelector("#langSelect");
+    if (!actions || !nav || !langSelect) return;
+    if (document.querySelector(".navDrawer")) return;
+
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "navToggle";
+    toggle.setAttribute("aria-label", "Menu");
+    toggle.innerHTML = `
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    `;
+    actions.insertBefore(toggle, actions.firstChild);
+
+    const overlay = document.createElement("div");
+    overlay.className = "navOverlay";
+    overlay.hidden = true;
+
+    const drawer = document.createElement("aside");
+    drawer.className = "navDrawer";
+    drawer.hidden = true;
+    drawer.innerHTML = `
+      <div class="navDrawer__header">
+        <div class="navDrawer__title">skarta</div>
+        <button type="button" class="navDrawer__close" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="navDrawer__body">
+        <div class="navDrawer__lang" data-slot="lang"></div>
+        <div class="navDrawer__nav" data-slot="nav"></div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    document.body.appendChild(drawer);
+
+    const slotNav = drawer.querySelector("[data-slot='nav']");
+    const slotLang = drawer.querySelector("[data-slot='lang']");
+    const closeBtn = drawer.querySelector(".navDrawer__close");
+    if (!slotNav || !slotLang || !closeBtn) return;
+
+    const navHome = { parent: nav.parentElement, next: nav.nextSibling };
+    const langHome = { parent: langSelect.parentElement, next: langSelect.nextSibling };
+
+    const mq = window.matchMedia ? window.matchMedia("(max-width: 720px)") : null;
+
+    function isOpen() {
+      return document.body.classList.contains("navOpen");
+    }
+
+    function open() {
+      drawer.hidden = false;
+      overlay.hidden = false;
+      document.body.classList.add("navOpen");
+      setTimeout(() => drawer.classList.add("navDrawer--open"), 0);
+    }
+
+    function close() {
+      document.body.classList.remove("navOpen");
+      drawer.classList.remove("navDrawer--open");
+      setTimeout(() => {
+        if (!isOpen()) {
+          overlay.hidden = true;
+          drawer.hidden = true;
+        }
+      }, 180);
+    }
+
+    function moveToDrawer() {
+      if (nav.parentElement !== slotNav) slotNav.appendChild(nav);
+      if (langSelect.parentElement !== slotLang) slotLang.appendChild(langSelect);
+    }
+
+    function moveBack() {
+      if (navHome.parent) navHome.parent.insertBefore(nav, navHome.next || null);
+      if (langHome.parent) langHome.parent.insertBefore(langSelect, langHome.next || null);
+    }
+
+    function syncLayout() {
+      const mobile = mq ? mq.matches : window.innerWidth <= 720;
+      if (mobile) moveToDrawer();
+      else {
+        close();
+        moveBack();
+      }
+    }
+
+    toggle.addEventListener("click", () => (isOpen() ? close() : open()));
+    overlay.addEventListener("click", () => close());
+    closeBtn.addEventListener("click", () => close());
+    nav.addEventListener("click", (e) => {
+      const a = e.target?.closest?.("a");
+      if (a) close();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") close();
+    });
+
+    if (mq?.addEventListener) mq.addEventListener("change", syncLayout);
+    else if (mq?.addListener) mq.addListener(syncLayout);
+    window.addEventListener("resize", () => syncLayout());
+
+    syncLayout();
+  } catch {}
+}
+
 const TOPIC_KEY_BY_RU = {
   "Еда": "topic.food",
   "Безопасность": "topic.safety",
@@ -1682,6 +1795,7 @@ async function uploadMedia(fileOrBlob, opts = {}) {
 function renderMediaGrid(attachments, wrapperClass = "post__media") {
   const list = Array.isArray(attachments) ? attachments : [];
   if (list.length === 0) return "";
+  const gridClass = list.length <= 1 ? "mediaGrid mediaGrid--single" : "mediaGrid";
   const items = list
     .slice(0, 6)
     .map((a) => {
@@ -1695,7 +1809,7 @@ function renderMediaGrid(attachments, wrapperClass = "post__media") {
       return `<div class="mediaItem">${media}${caption ? `<div class="mediaCaption">${escapeHtml(caption)}</div>` : ""}</div>`;
     })
     .join("");
-  return `<div class="${escapeHtml(wrapperClass)}"><div class="mediaGrid">${items}</div></div>`;
+  return `<div class="${escapeHtml(wrapperClass)}"><div class="${gridClass}">${items}</div></div>`;
 }
 
 function initCreate() {
@@ -2185,6 +2299,7 @@ function initChat() {
 }
 
 async function init() {
+  initMobileNav();
   initLangSelect();
   void updateNavAuth();
   const page = document.body?.getAttribute("data-page");
