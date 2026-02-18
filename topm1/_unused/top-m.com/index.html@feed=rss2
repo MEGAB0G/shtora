@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>Топ-Мультимедиа</title>
+	<atom:link href="http://top-m.com/?feed=rss2" rel="self" type="application/rss+xml" />
+	<link>http://top-m.com</link>
+	<description></description>
+	<lastBuildDate>Thu, 19 Oct 2023 19:35:04 +0000</lastBuildDate>
+	<language>ru-RU</language>
+	<sy:updatePeriod>hourly</sy:updatePeriod>
+	<sy:updateFrequency>1</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=4.8.25</generator>
+	<item>
+		<title>Слоган по умолчанию</title>
+		<link>http://top-m.com/?p=23</link>
+		<pubDate>Tue, 12 Oct 2010 08:27:16 +0000</pubDate>
+		<dc:creator><![CDATA[admin]]></dc:creator>
+				<category><![CDATA[Без рубрики]]></category>
+
+		<guid isPermaLink="false">http://top-m.com/?p=23</guid>
+		<description><![CDATA[Мы даем Вам новые возможности управления для самых важных встреч и решений!]]></description>
+				<content:encoded><![CDATA[<p>Мы даем Вам новые возможности управления для самых важных встреч и решений!</p>
+]]></content:encoded>
+			</item>
+		<item>
+		<title>Контакты в подвале на главной</title>
+		<link>http://top-m.com/?p=8</link>
+		<pubDate>Tue, 12 Oct 2010 07:38:23 +0000</pubDate>
+		<dc:creator><![CDATA[admin]]></dc:creator>
+				<category><![CDATA[Без рубрики]]></category>
+
+		<guid isPermaLink="false">http://top-m.com/?p=8</guid>
+		<description><![CDATA[+7 (343) 346-71-44, Skype: Top-Multimedia, info@top-m.com]]></description>
+				<content:encoded><![CDATA[<p>+7 (343) <strong>346-71-44</strong>, Skype: <strong>Top-Multimedia</strong>, <a href="mailto:info@top-m.com">info@top-m.com</a></p>
+]]></content:encoded>
+			</item>
+	</channel>
+</rss>

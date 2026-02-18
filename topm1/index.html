@@ -1,0 +1,806 @@
+﻿<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Top Multimedia</title>
+  <style>
+    :root {
+      --header-bg: #ffffff;
+      --text: #111111;
+      --section-bg: #ffffff;
+      --accent-line: linear-gradient(90deg, #5d66e8 0%, #a752b8 45%, #e4557d 72%, #ef6a5f 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      background: #ffffff;
+    }
+
+    .topbar {
+      background: var(--header-bg);
+      min-height: 57px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 52px 11px 42px;
+    }
+
+    .logo {
+      margin: 0;
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+
+    .logo-light {
+      font-weight: 400;
+    }
+
+    .dot {
+      margin: 0 2px;
+      font-weight: 400;
+    }
+
+    .menu {
+      display: flex;
+      align-items: center;
+      gap: 66px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 19px;
+      line-height: 1.1;
+      font-weight: 400;
+    }
+
+    .menu a {
+      color: inherit;
+      text-decoration: none;
+      position: relative;
+      display: inline-block;
+      padding-bottom: 4px;
+    }
+
+    .menu a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      background: var(--accent-line);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .menu a:hover::after,
+    .menu a:focus-visible::after {
+      opacity: 1;
+    }
+
+    .intro-section {
+      background: var(--section-bg);
+    }
+
+    .intro-text {
+      margin: 0;
+      padding: 52px 42px 50px;
+      max-width: 1500px;
+      font-size: clamp(24px, 2.6vw, 46px);
+      line-height: 1.18;
+      font-weight: 400;
+    }
+
+    .intro-text strong {
+      font-weight: 700;
+    }
+
+    .intro-text .underlined {
+      text-decoration: none;
+      background-image: var(--accent-line);
+      background-repeat: no-repeat;
+      background-position: 0 100%;
+      background-size: 100% 2px;
+      padding-bottom: 2px;
+    }
+
+    .intro-image {
+      width: 100%;
+      display: block;
+      height: auto;
+    }
+
+    .superpower-section {
+      background: #ffffff;
+      padding: 74px 52px 100px;
+    }
+
+    .superpower-grid {
+      position: relative;
+      max-width: 1330px;
+      min-height: 640px;
+    }
+
+    .superpower-title {
+      margin: 0;
+      max-width: 760px;
+      font-size: clamp(42px, 3.2vw, 66px);
+      line-height: 1.06;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .superpower-text {
+      margin: 152px 0 0 448px;
+      max-width: 860px;
+      font-size: clamp(24px, 1.9vw, 34px);
+      line-height: 1.22;
+      font-weight: 400;
+    }
+
+    .showcase-row {
+      display: grid;
+      grid-template-columns: minmax(420px, 1.14fr) minmax(260px, 0.7fr);
+      column-gap: 62px;
+      align-items: start;
+      max-width: 1330px;
+      margin-top: 72px;
+    }
+
+    .showcase-single {
+      max-width: 1330px;
+      margin-top: 82px;
+    }
+
+    .showcase-single .case-card {
+      max-width: 1060px;
+      margin: 0 auto;
+    }
+
+    .showcase-row-alt {
+      grid-template-columns: minmax(280px, 0.72fr) minmax(460px, 1.14fr);
+      margin-top: 86px;
+    }
+
+    .case-card {
+      margin: 0;
+      position: relative;
+    }
+
+    .case-image-wrap {
+      position: relative;
+      margin: 0;
+      aspect-ratio: 300 / 214;
+      overflow: hidden;
+    }
+
+    .case-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .case-title {
+      margin: 18px 0 10px;
+      font-size: clamp(24px, 2.35vw, 45px);
+      line-height: 1.12;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+    }
+
+    .case-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 12px;
+    }
+
+    .case-tag {
+      background: #dcdcdc;
+      color: #7a7a7a;
+      border-radius: 999px;
+      padding: 7px 20px;
+      font-size: clamp(12px, 1.12vw, 20px);
+      line-height: 1;
+    }
+
+    .projects-total {
+      position: relative;
+      max-width: 1330px;
+      margin-top: 112px;
+      padding: 0 0 86px;
+    }
+
+    .projects-total::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      background: var(--accent-line);
+      opacity: 0.85;
+    }
+
+    .projects-total-number {
+      margin: 0;
+      color: #c9c9cb;
+      font-weight: 700;
+      font-size: clamp(160px, 18vw, 340px);
+      line-height: 0.86;
+      letter-spacing: -0.03em;
+      user-select: none;
+    }
+
+    .projects-total-text {
+      position: absolute;
+      left: min(34.5%, 470px);
+      top: 44%;
+      margin: 0;
+      max-width: 700px;
+      font-size: clamp(24px, 2.5vw, 47px);
+      line-height: 1.15;
+      font-weight: 400;
+    }
+
+    .studio-lists {
+      max-width: 1330px;
+      margin-top: 28px;
+    }
+
+    .lists-block {
+      display: grid;
+      grid-template-columns: minmax(220px, 290px) 1fr;
+      column-gap: 72px;
+      align-items: start;
+    }
+
+    .lists-heading {
+      margin: 0;
+      font-size: clamp(34px, 2.9vw, 56px);
+      line-height: 1.1;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .lists-content {
+      margin: 0;
+      padding: 2px 0 0;
+      list-style: none;
+      font-size: clamp(30px, 2.25vw, 42px);
+      line-height: 1.35;
+      font-weight: 400;
+    }
+
+    .lists-content li {
+      margin: 0;
+    }
+
+    .lists-line {
+      height: 2px;
+      margin: 78px 0 58px;
+      background: var(--accent-line);
+      opacity: 0.85;
+    }
+
+    .clients-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 54px;
+      align-items: start;
+    }
+
+    .clients-columns .lists-content {
+      padding-top: 0;
+      font-size: clamp(29px, 2.15vw, 39px);
+      line-height: 1.34;
+    }
+
+    .clients-columns sup {
+      font-size: 0.45em;
+      vertical-align: super;
+      line-height: 0;
+      margin-left: 2px;
+    }
+
+    .contact-footer {
+      position: relative;
+      margin-top: 72px;
+      background: #ececec;
+      padding: 52px 52px 44px;
+      overflow: hidden;
+    }
+
+    .contact-footer::after {
+      content: "";
+      position: absolute;
+      left: -140px;
+      right: -140px;
+      bottom: 122px;
+      height: 300px;
+      background:
+        repeating-radial-gradient(ellipse at 23% 115%, transparent 0 19px, rgba(255, 255, 255, 0.3) 19px 21px);
+      pointer-events: none;
+    }
+
+    .contact-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 1330px;
+      margin: 0 auto;
+    }
+
+    .contact-top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      column-gap: 52px;
+      align-items: start;
+      padding-bottom: 88px;
+      position: relative;
+      padding-top: 46px;
+    }
+
+    .contact-top::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 2px;
+      background: var(--accent-line);
+      opacity: 0.85;
+    }
+
+    .contact-address {
+      margin: 0;
+      font-size: clamp(28px, 2.15vw, 38px);
+      line-height: 1.4;
+      font-weight: 400;
+      max-width: 760px;
+    }
+
+    .contact-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+      padding-top: 8px;
+    }
+
+    .contact-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 310px;
+      height: 56px;
+      border-radius: 999px;
+      font-size: clamp(24px, 1.9vw, 31px);
+      line-height: 1;
+      text-decoration: none;
+      border: 2px solid #111111;
+    }
+
+    .contact-btn-primary {
+      background: #000000;
+      color: #ffffff;
+      border-color: #000000;
+    }
+
+    .contact-btn-secondary {
+      background: #ececec;
+      color: #111111;
+    }
+
+    .vk-btn {
+      display: inline-flex;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: #ffffff;
+      background: #000000;
+      font-size: clamp(20px, 1.6vw, 26px);
+      line-height: 1;
+      margin-top: 8px;
+    }
+
+    .contact-bottom {
+      padding-top: 18px;
+    }
+
+    .contact-links {
+      margin: 0;
+      display: grid;
+      row-gap: 8px;
+      font-size: clamp(24px, 1.9vw, 33px);
+      line-height: 1.2;
+      max-width: 740px;
+    }
+
+    .contact-links a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .contact-copy {
+      margin: 54px 0 0;
+      font-size: clamp(42px, 3.3vw, 58px);
+      line-height: 1.08;
+      font-weight: 700;
+    }
+
+    .contact-note {
+      margin: 20px 0 0;
+      max-width: 980px;
+      font-size: clamp(24px, 1.9vw, 31px);
+      line-height: 1.32;
+      font-weight: 400;
+    }
+
+    @media (max-width: 960px) {
+      .topbar {
+        min-height: auto;
+        padding: 10px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .logo {
+        font-size: 16px;
+      }
+
+      .menu {
+        flex-wrap: wrap;
+        gap: 9px 30px;
+        font-size: 14px;
+      }
+
+      .intro-text {
+        padding: 20px 20px 22px;
+        font-size: clamp(18px, 6.2vw, 32px);
+      }
+
+      .superpower-section {
+        padding: 32px 20px 40px;
+      }
+
+      .superpower-grid {
+        min-height: 0;
+      }
+
+      .superpower-title {
+        max-width: none;
+        font-size: clamp(30px, 8.6vw, 46px);
+      }
+
+      .superpower-text {
+        margin: 0;
+        max-width: none;
+        font-size: clamp(18px, 4.9vw, 28px);
+      }
+
+      .showcase-row {
+        grid-template-columns: 1fr;
+        row-gap: 24px;
+        margin-top: 30px;
+      }
+
+      .showcase-single {
+        margin-top: 26px;
+      }
+
+      .showcase-single .case-card {
+        max-width: none;
+      }
+
+      .showcase-row-alt {
+        grid-template-columns: 1fr;
+        margin-top: 30px;
+      }
+
+      .case-title {
+        font-size: clamp(20px, 5.6vw, 30px);
+      }
+
+      .case-tag {
+        font-size: clamp(12px, 3.5vw, 16px);
+      }
+
+      .projects-total {
+        margin-top: 52px;
+        padding-bottom: 36px;
+      }
+
+      .projects-total-number {
+        font-size: clamp(104px, 29vw, 160px);
+        line-height: 0.95;
+      }
+
+      .projects-total-text {
+        position: static;
+        margin-top: 8px;
+        max-width: none;
+        font-size: clamp(20px, 5.2vw, 30px);
+      }
+
+      .studio-lists {
+        margin-top: 18px;
+      }
+
+      .lists-block {
+        grid-template-columns: 1fr;
+        row-gap: 14px;
+      }
+
+      .lists-heading {
+        font-size: clamp(30px, 9vw, 42px);
+      }
+
+      .lists-content {
+        font-size: clamp(20px, 5.6vw, 28px);
+      }
+
+      .lists-line {
+        margin: 34px 0;
+      }
+
+      .clients-columns {
+        grid-template-columns: 1fr;
+        row-gap: 8px;
+      }
+
+      .clients-columns .lists-content {
+        font-size: clamp(20px, 5.6vw, 28px);
+      }
+
+      .contact-footer {
+        margin-top: 42px;
+        padding: 26px 20px 24px;
+      }
+
+      .contact-footer::after {
+        bottom: 126px;
+        height: 190px;
+      }
+
+      .contact-top {
+        grid-template-columns: 1fr;
+        row-gap: 20px;
+        padding-top: 24px;
+        padding-bottom: 38px;
+      }
+
+      .contact-address {
+        font-size: clamp(20px, 5.6vw, 28px);
+      }
+
+      .contact-btn {
+        min-width: 230px;
+        height: 46px;
+        font-size: clamp(17px, 4.6vw, 23px);
+      }
+
+      .vk-btn {
+        width: 46px;
+        height: 46px;
+        font-size: clamp(16px, 4.2vw, 20px);
+      }
+
+      .contact-links {
+        font-size: clamp(18px, 5vw, 24px);
+      }
+
+      .contact-copy {
+        margin-top: 30px;
+        font-size: clamp(30px, 8.5vw, 42px);
+      }
+
+      .contact-note {
+        margin-top: 14px;
+        font-size: clamp(18px, 4.8vw, 24px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="logo">Top<span class="dot">&middot;</span><span class="logo-light">Multimedia</span></h1>
+    <ul class="menu" aria-label="Главное меню">
+      <li><a href="#">Проекты</a></li>
+      <li><a href="#">Услуги</a></li>
+      <li><a href="#">Контакты</a></li>
+      <li><a href="#">En?</a></li>
+    </ul>
+  </header>
+
+  <section class="intro-section">
+    <p class="intro-text">
+      <strong>Топ-Мультимедиа</strong> — студия по разработке 3D-анимации,
+      <span class="underlined">видеотуров 360&deg;</span>,
+      <span class="underlined">видеороликов</span> с интегрированием 3D-объектов
+      и инфографики для решения бизнес-задач
+    </p>
+    <img class="intro-image" src="assets/img/hero-red-fixed.jpg" alt="Пример 3D-графики Топ-Мультимедиа">
+  </section>
+
+  <section class="superpower-section">
+    <div class="superpower-grid">
+      <h2 class="superpower-title">Суперсила студии — комплексные презентационные решения</h2>
+      <p class="superpower-text">
+        Студия «Топ-Мультимедиа» создает видео и презентации для крупных компаний в промышленности,
+        строительстве, транспорте и логистике. Результаты работы демонстрировались на MIPIM в Каннах,
+        InnoTrans в Берлине, EXPO-1520 в Москве и Сочи, ИННОПРОМ в Екатеринбурге, АРМИЯ в Кубинке,
+        ПМГФ, МВМС в Санкт-Петербурге, Russian Hi-Tech в Тегеране и других выставках. Презентации
+        помогают компаниям привлекать внимание и заключать международные контракты.
+      </p>
+    </div>
+
+    <div class="showcase-row">
+      <article class="case-card">
+        <figure class="case-image-wrap">
+          <img class="case-image" src="assets/img/remote-03.jpg" alt="Орский машиностроительный завод">
+        </figure>
+        <h3 class="case-title">Орский машиностроительный завод</h3>
+        <div class="case-tags" aria-label="Категории проекта">
+          <span class="case-tag">3D-ролик</span>
+          <span class="case-tag">Видеофильм</span>
+        </div>
+      </article>
+
+      <article class="case-card">
+        <figure class="case-image-wrap">
+          <img class="case-image" src="assets/img/redtrane.png" alt="Уральские локомотивы">
+        </figure>
+        <h3 class="case-title">Уральские локомотивы</h3>
+        <div class="case-tags" aria-label="Категории проекта">
+          <span class="case-tag">Аэросъемка</span>
+          <span class="case-tag">Видеофильм</span>
+        </div>
+      </article>
+    </div>
+
+    <div class="showcase-single">
+      <article class="case-card">
+        <figure class="case-image-wrap">
+          <img class="case-image" src="assets/img/tmklogo.png" alt="Трубная Металлургическая Компания">
+        </figure>
+        <h3 class="case-title">Трубная Металлургическая Компания</h3>
+        <div class="case-tags" aria-label="Категории проекта">
+          <span class="case-tag">Видеотур 360</span>
+          <span class="case-tag">3D-ролик</span>
+        </div>
+      </article>
+    </div>
+
+    <div class="showcase-row showcase-row-alt">
+      <article class="case-card">
+        <figure class="case-image-wrap">
+          <img class="case-image" src="assets/img/remote-04.jpg" alt="Ласточка">
+        </figure>
+        <h3 class="case-title">Ласточка</h3>
+        <div class="case-tags" aria-label="Категории проекта">
+          <span class="case-tag">Аэросъемка</span>
+          <span class="case-tag">Видеофильм</span>
+        </div>
+      </article>
+
+      <article class="case-card">
+        <figure class="case-image-wrap">
+          <img class="case-image" src="assets/img/hendinkam.png" alt="Орский машиностроительный завод">
+        </figure>
+        <h3 class="case-title">Орский машиностроительный завод</h3>
+        <div class="case-tags" aria-label="Категории проекта">
+          <span class="case-tag">3D-ролик</span>
+          <span class="case-tag">Видеофильм</span>
+        </div>
+      </article>
+    </div>
+
+    <div class="projects-total" data-projects-count="5423">
+      <p class="projects-total-number" id="projects-total-number">5423</p>
+      <p class="projects-total-text">Суммарное количество проектов<br>с 2001 года, включая NDA</p>
+    </div>
+
+    <div class="studio-lists">
+      <div class="lists-block">
+        <h3 class="lists-heading">Услуги студии</h3>
+        <ul class="lists-content" aria-label="Услуги студии">
+          <li>3D-ролики</li>
+          <li>Аэросъемка</li>
+          <li>Видеофильмы</li>
+          <li>Виртуальная реальность</li>
+          <li>Дизайн</li>
+          <li>Дополненная реальность</li>
+          <li>Масштабные модели</li>
+          <li>Мультимедиа презентации</li>
+          <li>Техсопровождение</li>
+        </ul>
+      </div>
+
+      <div class="lists-line" aria-hidden="true"></div>
+
+      <div class="lists-block">
+        <h3 class="lists-heading">Клиенты</h3>
+        <div class="clients-columns">
+          <ul class="lists-content" aria-label="Клиенты колонка 1">
+            <li>ТМК<sup>45</sup></li>
+            <li>Группа Синара<sup>45</sup></li>
+            <li>РЖД Логистика<sup>18</sup></li>
+            <li>Уральские локомотивы<sup>17</sup></li>
+            <li>Газпром Нефть<sup>14</sup></li>
+            <li>Калугин<sup>12</sup></li>
+            <li>МРСК Урала</li>
+            <li>УГМК ОЦМ</li>
+            <li>УБРИР</li>
+            <li>НГ Энерго</li>
+            <li>Россети Урал</li>
+          </ul>
+          <ul class="lists-content" aria-label="Клиенты колонка 2">
+            <li>Синара-Девелопмент</li>
+            <li>Синара-Транспортные машины</li>
+            <li>Калугапутьмаш</li>
+            <li>УралТрансМаш</li>
+            <li>Титановая долина</li>
+            <li>Северский трубный завод</li>
+            <li>Инфортранс</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="contact-footer">
+    <div class="contact-inner">
+      <div class="contact-top">
+        <p class="contact-address">
+          +7 (343) 346-71-44<br>
+          info@top-m.com<br>
+          г. Екатеринбург, ул. Машинная, 42а, офис 1010
+        </p>
+        <div class="contact-actions">
+          <a class="contact-btn contact-btn-primary" href="#">Телеграм-бот</a>
+          <a class="contact-btn contact-btn-secondary" href="#">Презентация PDF</a>
+          <a class="vk-btn" href="#">ВК</a>
+        </div>
+      </div>
+
+      <div class="contact-bottom">
+        <div class="contact-links">
+          <a href="#">Политика обработки персональных данных</a>
+          <a href="#">Пользовательское соглашение?</a>
+          <a href="#">Публичная оферта?</a>
+        </div>
+        <p class="contact-copy">2001—2026 © Топ-Мультимедиа</p>
+        <p class="contact-note">
+          Использование любых материалов с данного ресурса возможно только после
+          письменного согласия владельца авторских прав
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const projectsTotal = document.querySelector(".projects-total");
+    const projectsTotalNumber = document.getElementById("projects-total-number");
+
+    if (projectsTotal && projectsTotalNumber) {
+      const value = projectsTotal.dataset.projectsCount;
+      if (value) {
+        projectsTotalNumber.textContent = value;
+      }
+    }
+  </script>
+</body>
+</html>
